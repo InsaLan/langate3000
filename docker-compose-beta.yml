@@ -1,0 +1,106 @@
+name: infra-langate-beta
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    image: langate/backend-beta
+    restart: unless-stopped
+    environment:
+      WEBSITE_HOST: beta.${WEBSITE_HOST}
+      HTTP_PROTOCOL: ${PROTOCOL}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      NGINX_PORT: ${EXTERNAL_NGINX_PORT}
+      STATIC_ROOT: ${BACKEND_STATIC_ROOT}
+      MEDIA_ROOT: ${BACKEND_MEDIA_ROOT}
+      SUPERUSER_USER: ${SUPERUSER_USER}
+      SUPERUSER_PASS: ${SUPERUSER_PASS}
+      DJANGO_SECRET: ${BACKEND_DJANGO_SECRET}
+      SESSION_COOKIE_AGE: ${SESSION_COOKIE_AGE}
+      DEV: ${DEV}
+
+    volumes:
+      - ./volumes/beta/backend:/app/v1
+      - ./backend:/app
+    expose:
+      - 8000
+    networks:
+      - backend
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_SUPERUSER}
+      POSTGRES_PASSWORD: ${DB_SUPERPASS}
+      LANGATE_USERNAME: ${DB_USER}
+      LANGATE_PASSWORD: ${DB_PASS}
+      LANGATE_DATABASE: ${DB_NAME}
+      TZ: Europe/Paris
+      PGTZ: Europe/Paris
+    volumes:
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+      - ./volumes/beta/postgres/data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    image: langate/frontend-beta
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=${PROTOCOL}://api.beta.${WEBSITE_HOST}
+      - NODE_ENV=${FRONTEND_NODE_ENV}
+      - VITE_WEBSITE_HOST=beta.${WEBSITE_HOST}
+      - VITE_SESSION_COOKIE_AGE=${SESSION_COOKIE_AGE}
+    volumes:
+      - ./frontend:/src
+    expose:
+      - "5173"
+    networks:
+      - backend
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    image: langate/nginx-beta
+    restart: unless-stopped
+    environment:
+      - NGINX_HOST=beta.${WEBSITE_HOST}
+      - NGINX_PORT=80
+      - STATIC_ROOT=${BACKEND_STATIC_ROOT}
+      - MEDIA_ROOT=${BACKEND_MEDIA_ROOT}
+    ports:
+      - "${PREPROD_NGINX_PORT}:80"
+    volumes:
+      - ./volumes/beta/backend:/usr/share/nginx/html:ro
+      - ./nginx/templates/beta:/etc/nginx/templates:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./volumes/beta/nginx/logs:/var/log/nginx
+    networks:
+      - backend
+    depends_on:
+      - backend
+      - frontend
+
+networks:
+  backend:

@@ -1,0 +1,83 @@
+# French translation of The langate 3000.
+# Copyright (C) 2024 Insalan
+# This file is distributed under the same license as the The langate 3000 package.
+# Insalan <contact@insalan.fr>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: <contact@insalan.fr>\n"
+"POT-Creation-Date: 2024-05-04 20:25+0200\n"
+"PO-Revision-Date: 2024-05-04 20:25+0200\n"
+"Last-Translator: Insalan <contact@insalan.fr>\n"
+"Language-Team: Insalan <ccontact@insalan.fr>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: langate/settings.py:173
+msgid "English"
+msgstr "Anglais"
+
+#: langate/settings.py:174
+msgid "French"
+msgstr "Français"
+
+#: langate/user/apps.py:13
+msgid "User module"
+msgstr "Gestionnaire d'utilisateur⋅rices"
+
+#: langate/user/models.py:29
+msgid "A username is required"
+msgstr "Un nom d'utilisateur est requis"
+
+#: langate/user/models.py:31
+msgid "A password is required"
+msgstr "Un mot de passe est requis"
+
+#: langate/user/models.py:46
+msgid "Superusers must have a password."
+msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe."
+
+#: langate/user/models.py:74
+msgid "User"
+msgstr "Utilisateur⋅rice"
+
+#: langate/user/models.py:75
+msgid "Users"
+msgstr "Utilisateur⋅rices"
+
+#: langate/user/serializers.py:56
+msgid "Passwords do not match"
+msgstr "Les mots de passe ne correspondent pas"
+
+#: langate/user/serializers.py:85
+msgid "User account is disabled"
+msgstr "Le compte utilisateur⋅rice est désactivé"
+
+#: langate/user/tests.py:188 langate/user/views.py:160
+#: langate/user/views.py:177
+msgid "Bad Username or password"
+msgstr "Nom d'utilisateur ou mot de passe incorrect"
+
+#: langate/user/views.py:42
+msgid "CSRF cookie set"
+msgstr "Le cookie a été défini"
+
+#: langate/user/views.py:123
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: langate/user/views.py:127
+msgid "Password"
+msgstr "Mot de passe"
+
+#: langate/user/views.py:137
+msgid "User logged in"
+msgstr "Utilisateur⋅rice connecté⋅e"
+
+#: langate/user/views.py:148 langate/user/views.py:183
+msgid "Invalid data format"
+msgstr "Format de données invalide"

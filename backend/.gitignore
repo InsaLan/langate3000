@@ -1,0 +1,22 @@
+# Ignore DB
+*.sqlite3
+
+# Pycache
+__pycache__/
+
+# Migrations
+langate/*/migrations/[0-9]*.py
+
+# Virtual env stuff
+bin
+include
+lib
+lib64
+share
+pyvenv.cfg
+env
+
+langate/static/partners
+
+# Translation files
+locale/**/*.mo
