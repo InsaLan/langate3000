@@ -3,13 +3,13 @@ on:
     type: [opened]
   push:
     paths:
-      - '.github/workflows/ci.yaml'
+      - '.github/workflows/backend.yaml'
       - '.github/workflows/init_db.sql'
-      - 'insalan/**'
-      - 'requirements.txt'
-      - '*.sh'
-      - 'locale/**'
-      - 'Dockerfile*'
+      - 'backend/langate/**'
+      - 'backend/requirements.txt'
+      - 'backend/*.sh'
+      - 'backend/locale/**'
+      - 'backend/Dockerfile*'
 jobs:
   linting:
     env:
@@ -24,7 +24,7 @@ jobs:
       # Install Python 3.12
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12' 
+          python-version: '3.12'
 
       # Set the environment up
       - run: python3 -m venv env
@@ -75,7 +75,7 @@ jobs:
       # Install Python 3.12
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12' 
+          python-version: '3.12'
 
       # Set the environment up
       - run: python3 -m venv env
