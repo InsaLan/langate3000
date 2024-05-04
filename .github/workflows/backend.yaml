@@ -18,8 +18,8 @@ jobs:
     steps:
       - run: echo "### Linting" >> $GITHUB_STEP_SUMMARY
       - uses: actions/checkout@v3
-        with:
-          path: 'backend' # Specify the path to the backend folder
+
+      - run: cd backend
 
       # Install Python 3.12
       - uses: actions/setup-python@v5
@@ -69,8 +69,8 @@ jobs:
         options: --health-cmd pg_isready --health-interval 1s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v3
-        with:
-          path: 'backend' # Specify the path to the backend folder
+
+      - run: cd backend
 
       # Install Python 3.12
       - uses: actions/setup-python@v5
