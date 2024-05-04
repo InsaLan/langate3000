@@ -52,8 +52,8 @@ jobs:
 
   unit-tests:
     defaults:
-    run:
-      working-directory: backend
+      run:
+        working-directory: backend
     if: always()
     needs: [linting]
     runs-on: ubuntu-22.04
