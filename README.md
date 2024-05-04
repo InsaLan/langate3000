@@ -1,6 +1,7 @@
 # insalan.fr infrastructure
 
-This repository is here to hold all insalan.fr infrastructure.
+This repository is here to hold the langate infrastructure. It is composed of
+the frontend, the backend, and the nginx server.
 
 # Contributing
 
