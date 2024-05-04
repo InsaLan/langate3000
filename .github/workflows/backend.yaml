@@ -12,6 +12,9 @@ on:
       - 'backend/Dockerfile*'
 jobs:
   linting:
+    defaults:
+      run:
+        working-directory: ./frontend
     env:
       PYLINT_MINSCORE: 8.0
     runs-on: ubuntu-22.04
@@ -48,6 +51,9 @@ jobs:
       - run: echo Your \`pylint\` score is ${{ env.PYLINT_SCORE }} >> "$GITHUB_STEP_SUMMARY"
 
   unit-tests:
+    defaults:
+      run:
+        working-directory: ./frontend
     if: always()
     needs: [linting]
     runs-on: ubuntu-22.04
@@ -69,9 +75,6 @@ jobs:
         options: --health-cmd pg_isready --health-interval 1s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v3
-
-      - run: cd backend
-      - run: ls
 
       # Install Python 3.12
       - uses: actions/setup-python@v5
