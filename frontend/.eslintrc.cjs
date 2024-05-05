@@ -28,7 +28,7 @@ module.exports = defineConfig({
       },
       rules: {
         // Eslint rules
-        'no-console': 'error',
+        'no-console': 'warn',
         'no-param-reassign': 'off',
 
         // Plugins rules

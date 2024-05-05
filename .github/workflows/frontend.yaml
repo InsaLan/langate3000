@@ -1,11 +1,24 @@
-on: pull_request
+on:
+  push:
+    paths:
+      - '.github/workflows/frontend.yaml'
+      - 'frontend/src/**'
+      - 'frontend/public/**'
+      - 'frontend/package.json'
+      - 'frontend/vue.config.js'
+      - 'frontend/Dockerfile*'
+      - 'frontend/.eslintrc.js'
+      - 'frontend/tsconfig.json'
+      - 'frontend/*.sh'
+defaults:
+  run:
+    working-directory: frontend
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: 'frontend' # Specify the path to the frontend folder
+
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
@@ -14,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Save Code Linting Report JSON
-        run: npx eslint --output-file eslint_report.json --format json .
+        run: npx eslint --output-file ../eslint_report.json --format json .
         # Continue to the next step even if this fails
         continue-on-error: true
 

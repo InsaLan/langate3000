@@ -1,15 +1,13 @@
 on:
-  pull_request:
-    type: [opened]
   push:
     paths:
-      - '.github/workflows/ci.yaml'
+      - '.github/workflows/backend.yaml'
       - '.github/workflows/init_db.sql'
-      - 'insalan/**'
-      - 'requirements.txt'
-      - '*.sh'
-      - 'locale/**'
-      - 'Dockerfile*'
+      - 'backend/langate/**'
+      - 'backend/requirements.txt'
+      - 'backend/*.sh'
+      - 'backend/locale/**'
+      - 'backend/Dockerfile*'
 jobs:
   linting:
     env:
@@ -18,29 +16,32 @@ jobs:
     steps:
       - run: echo "### Linting" >> $GITHUB_STEP_SUMMARY
       - uses: actions/checkout@v3
-        with:
-          path: 'backend' # Specify the path to the backend folder
 
       # Install Python 3.12
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12' 
+          python-version: '3.12'
 
       # Set the environment up
       - run: python3 -m venv env
+        working-directory: backend
       - run: source env/bin/activate
+        working-directory: backend
 
       # Install dependencies
       - name: Install dependencies
         run: pip3 install -r requirements.txt
+        working-directory: backend
       - name: Install pylint and pylint-django
         run: pip3 install pylint==3.0.3 pylint-django
+        working-directory: backend
 
       # Run lints
       - name: Run linter evaluation
         shell: bash
         run: |
-          pylint  --fail-under ${{ env.PYLINT_MINSCORE }} --load-plugins pylint_django --django-settings-module insalan.settings ./insalan | tee >(grep "Your code has been" | sed 's/^Your code has been rated at \(.*\)\/10.*/PYLINT_SCORE=\1/' >> "$GITHUB_ENV")
+          pylint  --fail-under ${{ env.PYLINT_MINSCORE }} --load-plugins pylint_django --django-settings-module langate.settings ./langate | tee >(grep "Your code has been" | sed 's/^Your code has been rated at \(.*\)\/10.*/PYLINT_SCORE=\1/' >> "$GITHUB_ENV")
+        working-directory: backend
 
       # Summary
       - name: Summary
@@ -48,6 +49,9 @@ jobs:
       - run: echo Your \`pylint\` score is ${{ env.PYLINT_SCORE }} >> "$GITHUB_STEP_SUMMARY"
 
   unit-tests:
+    defaults:
+      run:
+        working-directory: backend
     if: always()
     needs: [linting]
     runs-on: ubuntu-22.04
@@ -69,13 +73,11 @@ jobs:
         options: --health-cmd pg_isready --health-interval 1s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v3
-        with:
-          path: 'backend' # Specify the path to the backend folder
 
       # Install Python 3.12
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12' 
+          python-version: '3.12'
 
       # Set the environment up
       - run: python3 -m venv env
@@ -85,7 +87,7 @@ jobs:
       - run: pip3 install -r requirements.txt
 
       # Initialize the database
-      - run: psql postgresql://${{ env.DB_USER }}:${{ env.DB_PASS }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }} -f .github/workflows/init_db.sql
+      - run: psql postgresql://${{ env.DB_USER }}:${{ env.DB_PASS }}@${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }} -f ../.github/workflows/init_db.sql
 
       # Prepare database
       - run: python3 manage.py makemigrations
