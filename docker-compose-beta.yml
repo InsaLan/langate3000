@@ -22,10 +22,12 @@ services:
       DJANGO_SECRET: ${BACKEND_DJANGO_SECRET}
       SESSION_COOKIE_AGE: ${SESSION_COOKIE_AGE}
       DEV: ${DEV}
-
+      NETCONTROL_MARK: ${NETCONTROL_MARK}
+      NETCONTROL_SOCKET_FILE: ${NETCONTROL_SOCKET_FILE}
     volumes:
       - ./volumes/beta/backend:/app/v1
       - ./backend:/app
+      - ${NETCONTROL_SOCKET_FILE}:${NETCONTROL_SOCKET_FILE}
     expose:
       - 8000
     networks:

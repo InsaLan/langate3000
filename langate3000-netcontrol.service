@@ -1,0 +1,14 @@
+[Unit]
+Description=langate3000-netcontrol
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/usr/bin/python3 __WORKING_DIR__/netcontrol/netcontrol.py
+WorkingDirectory=__WORKING_DIR__/netcontrol
+
+[Install]
+WantedBy=multi-user.target
