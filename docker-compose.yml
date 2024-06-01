@@ -31,8 +31,11 @@ services:
       HELLOASSO_ERROR_URL: ${HELLOASSO_ERROR_URL}
       RIOT_API_KEY: ${RIOT_API_KEY}
       DEV: 0
+      NETCONTROL_MARK: ${NETCONTROL_MARK}
+      NETCONTROL_SOCKET_FILE: ${NETCONTROL_SOCKET_FILE}
     volumes:
       - ./volumes/prod/backend:/app/v1
+      - ${NETCONTROL_SOCKET_FILE}:${NETCONTROL_SOCKET_FILE}
     expose:
       - 8000
     networks:
@@ -79,7 +82,7 @@ services:
       - ./volumes/prod/frontend:/src/dist
     networks:
       - backend
-  
+
   nginx:
     image: nginx
     restart: unless-stopped
