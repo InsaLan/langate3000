@@ -4,7 +4,6 @@ WORKING_DIR := $(shell pwd)
 
 install:
 	@echo "Installing netcontrol"
-	@echo "Working directory: ${WORKING_DIR}"
 	cp langate3000-netcontrol.service /etc/systemd/system/
 	sed -i 's|__WORKING_DIR__|${WORKING_DIR}|g' /etc/systemd/system/langate3000-netcontrol.service
 
@@ -13,7 +12,7 @@ build-prod:
 	docker compose -f docker-compose.yml build
 
 run-prod:
-  systemctl start langate2000-netcontrol
+	systemctl start langate2000-netcontrol
 	@echo "Running the production stack"
 	docker compose -f docker-compose.yml up -d
 
