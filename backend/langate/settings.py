@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "langate.user",
+    "langate.network",
     "drf_yasg",
 ]
 

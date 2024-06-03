@@ -2,6 +2,7 @@
 Module for the definition of models tied to users
 """
 from datetime import datetime
+import logging
 
 from django.contrib.auth.base_user import AbstractBaseUser as AbstractBaseUser
 from django.contrib.auth.base_user import BaseUserManager
@@ -11,7 +12,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import FileExtensionValidator
+from django.core.validators import MinValueValidator
 
 class UserManager(BaseUserManager):
     """
@@ -45,15 +46,24 @@ class UserManager(BaseUserManager):
         if password is None:
             raise TypeError(_("Superusers must have a password."))
         user = self.create_user(username, password, **extra_fields)
-        user.is_superuser = True
-        user.is_staff = True
+        user.role = Role.ADMIN
         user.is_active = True
         user.save()
 
         return user
 
+class Role(models.TextChoices):
+    """
+    Enum for the role of a user
+    """
 
-class User(AbstractBaseUser, PermissionsMixin):
+    PLAYER = "player", _("Player")
+    MANAGER = "manager", _("Manager")
+    GUEST = "guest", _("Guest")
+    STAFF = "staff", _("Staff")
+    ADMIN = "admin", _("Admin")
+
+class User(AbstractBaseUser):
     """
     A user is simply our own abstraction defined above the standard Django User class.
     """
@@ -64,25 +74,29 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=150,
         unique=True,
     )
-    is_staff = models.BooleanField()
-    is_active = models.BooleanField()
+    role = models.CharField(
+        max_length=50,
+        choices=Role.choices,
+        default=Role.PLAYER,
+    )
+    is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField()
+
+    # The number of devices a user can have, minimum is 2
+    max_device_nb = models.IntegerField(
+        default=3,
+        validators=[MinValueValidator(2)],
+    )
+
+    # Relevant for the player role
+    tournament = models.CharField(max_length=100, null=True)
+    team = models.CharField(max_length=100, null=True)
+
+    USERNAME_FIELD = "username"
+    objects = UserManager()
 
     class Meta:
         """Meta options"""
 
         verbose_name = _("User")
         verbose_name_plural = _("Users")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    USERNAME_FIELD = "username"
-    is_staff = models.BooleanField(
-        verbose_name="Part of the insalan team", default=False
-    )
-    is_superuser = models.BooleanField(
-        verbose_name="Admin of the insalan team", default=False
-    )
-    is_active = models.BooleanField(default=True)
-    objects = UserManager()
