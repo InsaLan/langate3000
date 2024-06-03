@@ -28,10 +28,13 @@ class NetworkConfig(AppConfig):
         """
         from langate.network.models import Device, UserDevice
 
+        print(sys.argv)
+
         if not any(
             x in sys.argv
             for x in
             [
+                'pylint_django',
                 'makemigrations',
                 'migrate',
                 'shell',
