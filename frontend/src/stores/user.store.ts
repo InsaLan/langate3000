@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { User } from '@/models/user';
 
@@ -10,7 +10,6 @@ export const useUserStore = defineStore('user', () => {
   const csrf = ref('');
   const connectionTimestamp = ref(0);
   const router = useRouter();
-  const MailVerified = ref(false);
 
   /*
   * Get a new csrf token from the server
@@ -24,30 +23,6 @@ export const useUserStore = defineStore('user', () => {
       }
     });
     csrf.value = cookie;
-  }
-
-  async function signin(
-    email: string,
-    username: string,
-    password: string,
-    password_validation: string,
-    decoy?: string,
-  ) {
-    await get_csrf();
-    const data = {
-      username,
-      email,
-      password,
-      password_validation,
-      decoy,
-    };
-    await axios.post('/user/register/', data, {
-      headers: {
-        'X-CSRFToken': csrf.value,
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
   }
 
   async function login(username: string, password: string) {
@@ -66,9 +41,9 @@ export const useUserStore = defineStore('user', () => {
       user.value = user_data.data;
       isConnected.value = true;
       connectionTimestamp.value = Date.now();
-      await router.push('/me');
+      await router.push('/');
     } catch (err) {
-      /* empty */
+      console.error(err);
     }
   }
 
@@ -92,26 +67,17 @@ export const useUserStore = defineStore('user', () => {
       > import.meta.env.VITE_SESSION_COOKIE_AGE * 1000
     ) {
       await logout();
-      await router.push('/register');
+      await router.push('/login');
     }
   }
 
-  const role = computed(() => {
-    if (user.value.is_superuser) return 'dev';
-    if (user.value.is_staff) return 'staff';
-    return 'joueur';
-  });
-
   return {
     user,
-    signin,
     login,
     logout,
     get_csrf,
     handle_session_cookie_expiration,
-    role,
     isConnected,
-    MailVerified,
     csrf,
     connectionTimestamp,
   };
