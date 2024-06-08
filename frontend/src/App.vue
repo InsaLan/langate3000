@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import Navigation from '@/components/Navigation.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const userStore = useUserStore();
@@ -12,6 +13,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Navigation/>
   <div class="flex flex-1 flex-col">
     <RouterView v-slot="{ Component }">
       <template v-if="Component">
