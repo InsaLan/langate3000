@@ -12,7 +12,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        'theme-bg': '#2C292D',
+        'theme-bg': '#36393f',
+        'theme-nav': '#313339',
       },
     },
   },

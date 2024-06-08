@@ -1,0 +1,127 @@
+<script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user.store';
+
+const items = [
+  {
+    url: '/', text: 'Accueil', connected: false, admin: false,
+  },
+  {
+    url: '/faq', text: 'FAQ', connected: false, admin: false,
+  },
+  {
+    url: '/management/users', text: 'Gestion', connected: false, admin: true,
+  },
+  {
+    url: '/helpdesk/admin', text: 'Gestion des tickets', connected: false, admin: true,
+  },
+  {
+    url: '/schedule', text: 'Demande d\'assistance', connected: false, admin: false,
+  },
+] as const;
+
+const userStore = useUserStore();
+const { logout } = userStore;
+const { isConnected, user } = storeToRefs(userStore);
+
+const router = useRouter();
+
+const logout_user = async () => {
+  await router.push('/');
+  await logout();
+};
+
+const burger_menu = ref(false);
+</script>
+<template>
+  <nav class="sticky top-0 z-50 h-14 bg-theme-nav">
+    <div id="desktop" class="hidden justify-around lg:flex">
+      <router-link class="m-2 flex content-center items-center justify-center gap-3" to="/">
+        <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
+        <div class="text-xl font-bold text-white">
+          Portail InsaLan
+        </div>
+      </router-link>
+      <div class="mx-5 flex flex-1 items-center">
+        <router-link
+          v-for="(item, i) in items"
+          :key="i"
+          :to="{ path: item.url }"
+          :class="{
+            'text-white': $route.path === item.url,
+            'text-gray-400': $route.path !== item.url,
+            hidden: (item.connected && !isConnected) || (item.admin && (user?.role !== 'admin' && user?.role !== 'staff')),
+          }"
+          class="mx-2 py-5 text-center transition duration-150 ease-in-out hover:text-white"
+        >
+          {{ item.text }}
+        </router-link>
+      </div>
+      <div
+        class="mx-4 my-2 flex cursor-pointer flex-col justify-center text-center font-bold text-gray-400 hover:text-white"
+        @click="logout_user"
+        @keydown.enter="logout_user"
+      >
+        Déconnexion
+      </div>
+    </div>
+    <div class="lg:hidden">
+      <div id="top" class="flex justify-between">
+        <router-link class="m-2" to="/">
+          <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
+        </router-link>
+        <div class="mx-5 flex flex-1 flex-col items-center justify-center">
+          Déconnexion
+        </div>
+        <div class="m-2">
+          <button
+            class="m-auto mr-2 h-8 w-8 rounded text-center text-gray-400 ring-2 ring-gray-400 hover:text-white"
+            type="button"
+            @click="burger_menu = !burger_menu"
+          >
+            <svg
+              v-if="!burger_menu"
+              class="m-auto h-6 w-6 stroke-2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="{1.5}"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg
+              v-else
+              class="m-auto h-6 w-6 stroke-2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div v-if="burger_menu" class="flex flex-col bg-theme-nav text-white">
+        <router-link
+          v-for="(item, i) in items"
+          :key="i"
+          :to="{ path: item.url }"
+          :class="{
+            'text-white': $route.path === item.url,
+            'text-gray-400': $route.path !== item.url,
+            hidden: (item.connected && !isConnected) || (item.admin && (user?.role !== 'admin' && user?.role !== 'staff')),
+          }"
+          class="mx-2 py-5 text-center font-bold transition duration-150 ease-in-out hover:text-blue-800"
+          @click="burger_menu = !burger_menu"
+        >
+          {{ item.text }}
+        </router-link>
+      </div>
+    </div>
+  </nav>
+</template>
