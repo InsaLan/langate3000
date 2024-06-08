@@ -20,6 +20,12 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         exclude = ()
 
+    def create(self, validated_data):
+        """
+        Create a Device object.
+        """
+        return DeviceManager.create_device(**validated_data)
+
 
 class UserDeviceSerializer(serializers.ModelSerializer):
     """Serializer for an UserDevice"""
@@ -30,18 +36,23 @@ class UserDeviceSerializer(serializers.ModelSerializer):
         model = UserDevice
         exclude = ()
 
+    def create(self, validated_data):
+        """
+        Create a UserDevice object.
+        """
+        return DeviceManager.create_user_device(**validated_data)
 
 class FullDeviceSerializer(serializers.Serializer):
     """
     Serializer that can handle both UserDevice and Device objects.
     """
-    id = serializers.IntegerField()
-    name = serializers.CharField(max_length=100)
-    mac = serializers.CharField(max_length=17)
-    whitelisted = serializers.BooleanField()
-    ip = serializers.IPAddressField(allow_null=True)
-    user = serializers.CharField(allow_null=True)
-    area = serializers.CharField(allow_null=True)
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100, required=False)
+    mac = serializers.CharField(max_length=17, required=False)
+    whitelisted = serializers.BooleanField(read_only=True)
+    ip = serializers.IPAddressField(allow_null=True, required=False)
+    user = serializers.CharField(allow_null=True, required=False)
+    area = serializers.CharField(allow_null=True, read_only=True)
 
     def to_representation(self, instance):
         """
@@ -60,3 +71,28 @@ class FullDeviceSerializer(serializers.Serializer):
             representation['area'] = None
 
         return representation
+
+    def create(self, validated_data):
+        """
+        Create a UserDevice or a Device object.
+        """
+        # If the user field is present, create a UserDevice object
+        if 'user' in validated_data:
+            try:
+                user = User.objects.get(id=validated_data.pop('user'))
+            except User.DoesNotExist as e:
+                raise serializers.ValidationError(_("User not found")) from e
+            if not 'ip' in validated_data:
+                raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
+
+            return DeviceManager.create_user_device(user, **validated_data)
+
+        # Otherwise, create a Device object
+        if not 'mac' in validated_data:
+            raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
+        if not 'name' in validated_data:
+            raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
+        # A device object created from here has to be whitelisted
+        validated_data['whitelisted'] = True
+
+        return DeviceManager.create_device(**validated_data)
