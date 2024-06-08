@@ -1,9 +1,18 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { useUserStore } from '@/stores/user.store';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/views/Home.vue'),
+    beforeEnter: () => {
+      const { isConnected } = useUserStore();
+      return !isConnected ? { path: '/login' } : true;
+    },
+  },
+  {
+    path: '/login',
+    component: () => import('@/views/Login.vue'),
   },
 ];
 
