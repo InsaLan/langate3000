@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import Footer from '@/components/Footer.vue';
 import Navigation from '@/components/Navigation.vue';
 import { useUserStore } from '@/stores/user.store';
 
@@ -14,7 +15,7 @@ onMounted(async () => {
 
 <template>
   <Navigation/>
-  <div class="flex flex-1 flex-col">
+  <div class="flex flex-1 flex-col bg-theme-bg">
     <RouterView v-slot="{ Component }">
       <template v-if="Component">
         <Suspense timeout="0">
@@ -37,6 +38,7 @@ onMounted(async () => {
       </template>
     </RouterView>
   </div>
+  <Footer/>
 </template>
 
 <style>
