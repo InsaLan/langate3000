@@ -20,6 +20,9 @@ from langate.user.serializers import (
 
 from .models import User, Role
 
+from langate.network.models import UserDevice
+from langate.network.serializers import UserDeviceSerializer
+
 @require_GET
 @ensure_csrf_cookie
 def get_csrf(request):
@@ -69,6 +72,11 @@ class UserMe(generics.RetrieveAPIView):
         Returns an user's own informations
         """
         user = UserSerializer(request.user, context={"request": request}).data
+
+        # Add UserDevices that belong to the user
+        user["devices"] = UserDeviceSerializer(
+            UserDevice.objects.filter(user=request.user), many=True
+        ).data
 
         return Response(user)
 

@@ -1,3 +1,5 @@
+import type { UserDevice } from './device';
+
 export interface User {
   id: number;
   last_login: Date;
@@ -8,4 +10,5 @@ export interface User {
   max_device_nb: number;
   tournament?: string;
   team?: string;
+  devices: UserDevice[];
 }

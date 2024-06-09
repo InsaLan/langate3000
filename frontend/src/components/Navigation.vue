@@ -110,22 +110,35 @@ const burger_menu = ref(false);
           </button>
         </div>
       </div>
-      <div v-if="burger_menu" class="flex flex-col bg-theme-nav text-white">
-        <router-link
-          v-for="(item, i) in items"
-          :key="i"
-          :to="{ path: item.url }"
-          :class="{
-            'text-white': $route.path === item.url,
-            'text-gray-400': $route.path !== item.url,
-            hidden: (item.connected && !isConnected) || (item.admin && (user?.role !== 'admin' && user?.role !== 'staff')),
-          }"
-          class="mx-2 py-5 text-center font-bold transition duration-150 ease-in-out hover:text-blue-800"
-          @click="burger_menu = !burger_menu"
+      <transition
+        name="dropdown"
+        enter-active-class="transition ease-out duration-200 transform"
+        enter-from-class="-translate-y-2 opacity-0"
+        enter-to-class="translate-y-0 opacity-100"
+        leave-active-class="transition ease-in duration-75 transform"
+        leave-from-class="translate-y-0 opacity-100"
+        leave-to-class="-translate-y-2 opacity-0"
+      >
+        <div
+          v-show="burger_menu"
+          class="flex flex-col border-y border-gray-300 bg-theme-nav text-white"
         >
-          {{ item.text }}
-        </router-link>
-      </div>
+          <router-link
+            v-for="(item, i) in items"
+            :key="i"
+            :to="{ path: item.url }"
+            :class="{
+              'text-white': $route.path === item.url,
+              'text-gray-400': $route.path !== item.url,
+              hidden: (item.connected && !isConnected) || (item.admin && (user?.role !== 'admin' && user?.role !== 'staff')),
+            }"
+            class="mx-2 py-5 text-center font-bold transition duration-150 ease-in-out hover:text-blue-800"
+            @click="burger_menu = !burger_menu"
+          >
+            {{ item.text }}
+          </router-link>
+        </div>
+      </transition>
     </div>
   </nav>
 </template>
