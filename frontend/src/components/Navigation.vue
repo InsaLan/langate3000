@@ -18,7 +18,7 @@ const items = [
     url: '/helpdesk/admin', text: 'Gestion des tickets', connected: false, admin: true,
   },
   {
-    url: '/schedule', text: 'Demande d\'assistance', connected: false, admin: false,
+    url: '/schedule', text: 'Demande d\'assistance', connected: true, admin: false,
   },
 ] as const;
 
@@ -36,7 +36,7 @@ const logout_user = async () => {
 const burger_menu = ref(false);
 </script>
 <template>
-  <nav class="sticky top-0 z-50 h-14 bg-theme-nav">
+  <nav class="sticky top-0 z-50 h-16 border-b border-gray-300 bg-theme-nav">
     <div id="desktop" class="hidden justify-around lg:flex">
       <router-link class="m-2 flex content-center items-center justify-center gap-3" to="/">
         <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
@@ -61,6 +61,7 @@ const burger_menu = ref(false);
       </div>
       <div
         class="mx-4 my-2 flex cursor-pointer flex-col justify-center text-center font-bold text-gray-400 hover:text-white"
+        :class="{ hidden: !isConnected }"
         @click="logout_user"
         @keydown.enter="logout_user"
       >
@@ -72,7 +73,10 @@ const burger_menu = ref(false);
         <router-link class="m-2" to="/">
           <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
         </router-link>
-        <div class="mx-5 flex flex-1 flex-col items-center justify-center">
+        <div
+          class="mx-5 flex flex-1 flex-col items-center justify-center"
+          :class="{ hidden: !isConnected }"
+        >
           Déconnexion
         </div>
         <div class="m-2">
