@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -25,7 +25,7 @@ export const useUserStore = defineStore('user', () => {
     csrf.value = cookie;
   }
 
-  async function login(username: string, password: string) {
+  async function login(username: string, password: string): Promise<string | undefined> {
     await get_csrf();
 
     try {
@@ -42,8 +42,9 @@ export const useUserStore = defineStore('user', () => {
       isConnected.value = true;
       connectionTimestamp.value = Date.now();
       await router.push('/');
+      return undefined;
     } catch (err) {
-      console.error(err);
+      return ((err as AxiosError<{ user: string[] }>).response?.data?.user?.[0]);
     }
   }
 
@@ -57,6 +58,7 @@ export const useUserStore = defineStore('user', () => {
     });
     isConnected.value = false;
     user.value = {} as User;
+    await router.push('/login');
   }
 
   async function handle_session_cookie_expiration() {
