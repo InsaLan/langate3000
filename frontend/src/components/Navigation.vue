@@ -18,7 +18,7 @@ const items = [
     url: '/helpdesk/admin', text: 'Gestion des tickets', connected: false, admin: true,
   },
   {
-    url: '/schedule', text: 'Demande d\'assistance', connected: true, admin: false,
+    url: '/helpdesk/user', text: 'Demande d\'assistance', connected: true, admin: false,
   },
 ] as const;
 
