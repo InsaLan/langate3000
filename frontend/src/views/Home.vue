@@ -8,7 +8,7 @@ const { user } = userStore;
 
 <template>
   <div class="m-5 flex flex-1 flex-col items-center gap-5 bg-theme-bg">
-    <img src="@/assets/images/logo_green.png" alt="logo_green" class="w-96"/>
+    <img src="@/assets/images/logo_green.png" alt="logo_green" class="pulse w-96"/>
     <div class="text-center text-4xl">
       Bon jeu, {{ user?.username }} !
     </div>
@@ -70,3 +70,23 @@ const { user } = userStore;
     </table>
   </div>
 </template>
+
+<style>
+
+.pulse {
+  animation: pulse infinite 10s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+</style>
