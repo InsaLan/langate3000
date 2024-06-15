@@ -1,0 +1,6 @@
+[book]
+authors = ["Hector \"pixup1\" Vernet"]
+language = "fr"
+multilingual = false
+src = "src"
+title = "Manuel de la Langate3000"

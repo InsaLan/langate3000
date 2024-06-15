@@ -1,0 +1,44 @@
+on:
+  # Creating a release requires a tag
+  push:
+    tags:
+      "*"
+    paths:
+      - 'docs/manuel/**'
+      - '.github/workflows/manual.yaml'
+
+jobs:
+  build-manual:
+    runs-on: ubuntu-22.04
+    container:
+      image: rust:latest
+      options: --user 1001 # So we avoid ownership issues
+    env:
+      book-dir: ./docs/manuel
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Declare some variables
+        shell: bash
+        run: |
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "branch=$(echo $GITHUB_REF | sed 's/refs\/\(tags\|heads\)\///;s/\//_/g')" >> "$GITHUB_ENV"
+
+      # Install mdbook
+      - name: Install `mdbook`
+        run: cargo install mdbook
+
+      # Build the book
+      - name: Build the book
+        run: |
+          mdbook build
+          mv book manuel-backend-${{ env.sha_short }}
+          tar zcvf manuel.tar.gz manuel-backend-${{ env.sha_short }}
+        working-directory: ${{ env.book-dir }}
+
+      # Create a release
+      - name: Create a release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.book-dir }}/manuel.tar.gz
+
