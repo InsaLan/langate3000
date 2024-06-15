@@ -32,8 +32,8 @@ jobs:
       - name: Build the book
         run: |
           mdbook build
-          mv book manuel-backend-${{ env.sha_short }}
-          tar zcvf manuel.tar.gz manuel-backend-${{ env.sha_short }}
+          mv book manuel-langate-${{ env.sha_short }}
+          tar zcvf manuel.tar.gz manuel-langate-${{ env.sha_short }}
         working-directory: ${{ env.book-dir }}
 
       # Create a release
