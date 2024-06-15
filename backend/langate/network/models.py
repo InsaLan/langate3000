@@ -10,19 +10,6 @@ from langate.modules import netcontrol
 
 logger = logging.getLogger(__name__)
 
-def generate_dev_name():
-    """
-        Generate a random device name based on a list of names
-    """
-    try:
-        with open("assets/misc/device_names.txt", "r", encoding="utf-8") as f:
-            lines = f.read().splitlines()
-            return random.choice(lines)
-
-    except FileNotFoundError:
-        return "Computer"
-
-
 class Device(models.Model):
     """
     A device is a machine connected to the network
@@ -97,3 +84,27 @@ class DeviceManager(models.Manager):
 
         device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area)
         return device
+
+def generate_dev_name():
+    """
+        Generate a random device name based on a list of names
+    """
+    try:
+        with open("assets/misc/device_names.txt", "r", encoding="utf-8") as f:
+            lines = f.read().splitlines()
+            devices_count = Device.objects.count() + UserDevice.objects.count()
+            
+            if devices_count < len(lines) and devices_count < 1000 :
+                taken_names = Device.objects.values_list("name", flat=True)
+                taken_names.extend(UserDevice.objects.values_list("name", flat=True))
+                n = random.choice(lines)
+                while n in taken_names:
+                    n = random.choice(lines)
+                taken_names.append(n)
+                return n
+            
+            else:
+                return random.choice(lines)
+
+    except FileNotFoundError:
+        return "MISSINGNO"

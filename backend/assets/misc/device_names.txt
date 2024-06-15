@@ -20,7 +20,7 @@ Kylo Renn
 Grievous
 Qui-Gon Jinn
 Dark Maul
-Rey
+Rey Palpatine
 Dark Bane
 Gial Ackbar
 Armitage Hux
@@ -34,3 +34,556 @@ Shmi Skywalker
 Kit Fisto
 L3-37
 K-2SO
+Din Djarin
+Annona
+Avens
+Bells
+Bromi
+Bur
+Canna
+Cassava
+Chail
+Clary
+Clem
+Coleus
+Conoy
+Cycad
+Daz
+Din
+Escall
+Esker
+Feldspath
+Filix
+Foli
+Gabbro
+Galena
+Gneiss
+Gossan
+Hal
+Cornée
+Hyssop
+Idaea
+Ilex
+Keek
+Kousa
+Laevi
+Lami
+Mallow
+Marl
+Melorae
+Mica
+Mitis
+Moraine
+Neem
+Oeno
+Phlox
+Plume
+Poke
+Prphe
+Privet
+Pye
+Ramie
+Rhus
+Riébeck
+Root
+Rutile
+Secca
+Ardoise
+Solanum
+Spinel
+Spire
+Taget
+Tectite
+Téphra
+Thatch
+Tuf
+Yarrow
+Aragorn
+Arwen
+Bilbon Sacquet
+Frodon Sacquet
+Bergil
+Fredegar Bolger
+Tom Bombadil
+Boromir
+Marmadoc Brandebouck
+Prosper Poiredebeurré
+Celeborn
+Denethor
+Elrond
+Éomer
+Éowyn
+Faramir
+Galadriel
+Samsagace Gamegie
+Gamelin
+Gandalf
+Ghân-buri-Ghân
+Gildor Inglorion
+Gimli
+Glorfindel
+Gollum
+Gorbag
+Grimbold
+Gwaihir
+Imrahill
+Legolas
+Lugdush
+Mauhúr
+Saruman
+Sauron
+Shagrat
+Arachne
+Smaug
+Théoden
+Adelard Touque
+Peregrin Touque
+Sylvebarbe
+Gríma
+Bulbizarre
+Herbizarre
+Florizarre
+Salamèche
+Reptincel
+Dracaufeu
+Carapuce
+Carabaffe
+Tortank
+Chenipan
+Chrysacier
+Papilusion
+Aspicot
+Coconfort
+Dardargnan
+Roucool
+Roucoups
+Roucarnage
+Rattata
+Rattatac
+Piafabec
+Rapasdepic
+Abo
+Arbok
+Pikachu
+Raichu
+Sabelette
+Sablaireau
+Nidoran
+Nidorina
+Nidoqueen
+Nidorino
+Nidoking
+Mélofée
+Mélodelfe
+Goupix
+Feunard
+Rondoudou
+Grodoudou
+Nosferapti
+Nosferalto
+Mystherbe
+Ortide
+Rafflesia
+Paras
+Parasect
+Mimitoss
+Aéromite
+Taupiqueur
+Triopikeur
+Miaouss
+Persian
+Psykokwak
+Akwakwak
+Féroqinge
+Colossinge
+Caninos
+Arcanin
+Ptitard
+Ttarte
+Tartard
+Abra
+Kadabra
+Alakazam
+Machoc
+Machopeur
+Mackogneur
+Chétiflor
+Boustiflor
+Empiflor
+Tentacool
+Tentacruel
+Racaillou
+Gravalanch
+Grolem
+Ponyta
+Galopa
+Ramoloss
+Flagadoss
+Magnéti
+Magnéton
+Canarticho
+Doduo
+Dodrio
+Otaria
+Lamantine
+Tadmorv
+Grotadmorv
+Kokiyas
+Crustabri
+Fantominus
+Spectrum
+Ectoplasma
+Onix
+Soporifik
+Hypnomade
+Krabby
+Krabboss
+Voltorbe
+Électrode
+Nœunœuf
+Noadkoko
+Osselait
+Ossatueur
+Kicklee
+Tygnon
+Excelangue
+Smogo
+Smogogo
+Rhinocorne
+Rhinoféros
+Leveinard
+Saquedeneu
+Kangourex
+Hypotrempe
+Hypocéan
+Poissirène
+Poissoroy
+Stari
+Staross
+M. Mime
+Insécateur
+Lippoutou
+Élektek
+Magmar
+Scarabrute
+Tauros
+Magicarpe
+Léviator
+Lokhlass
+Métamorph
+Évoli
+Aquali
+Voltali
+Pyroli
+Porygon
+Amonita
+Amonistar
+Kabuto
+Kabutops
+Ptéra
+Ronflex
+Artikodin
+Électhor
+Sulfura
+Minidraco
+Draco
+Dracolosse
+Mewtwo
+Mew
+Tintin
+Milou
+Dupond
+Dupont
+Haddock
+Nestor
+Tournesol
+Castafiore
+Rastapopoulos
+Thompson
+Alcazar
+Müller
+Abdallah
+Lampion
+Sponsz
+Tchoupi
+Oui-oui
+Link
+Zelda
+Ganondorf
+Le vénérable arbre Mojo
+Daruk
+Epona
+Faras
+Impa
+Kilton
+Le Grand Kohga
+Pru'ha
+Mipha
+Midona
+Revali
+Skull Kid
+Ben Drowned
+Tingle
+Fay
+Urbosa
+Rhoam Bosphoramus Hyrule
+Among Us Sussy Crewmate
+Amy Rose
+Sonic
+Robo-Sonic
+Knuckles
+Eggman
+Cubot
+Orbot
+Johnathan Blow
+Cream
+Big
+Silver
+Tails
+Rouge
+Blaze
+Shadow
+Ryan Gosling
+Geralt
+Vesemir
+Eskel
+Jaskier
+Foltest
+Medell
+Adda
+Segelin
+Ostrit
+Velerad
+Nenneke
+Iola
+Falwick
+Tailles de Dorndal
+Hereward
+Ermella
+Nivellen
+Lenka
+Fenne
+Primula
+Ilka
+Venimira
+Vereena
+Caldemeyn
+Libouche
+Marilka
+Stegobor
+Zavist
+Eltibald
+Silvena
+Fialka
+Bernika
+Fredelfalk
+Aridea
+Renfri
+Nimir
+Nohorn
+Abergard
+Tavik
+Le Quinze
+Civril
+Calanthe
+Roegner
+Pavetta
+Adalia
+Haxo
+Vissegerde
+Eist Tuirseach
+Sac-à-souris
+Eylembert de Tigg
+Crach An Craite
+Draig Bon-Dhu
+Windhalm
+Rainfarn
+Herisson d'Erlenwald
+Akerspaark
+Ortillette
+Dhun
+Lille
+Torque
+Galarr
+Vanadain
+Toruviel
+Filavandrel
+Chireadan
+Errdil
+Vratimir
+Beau Berrant
+Yennefer
+Triss Merigold
+Krepp
+Neville
+Vizimir de Novigrad
+Dalka
+Bran
+Idi
+Audoen
+Abrad
+Heribert
+Ethain
+Korben Dallas
+Leeloo
+Zorg
+Cornelius
+Ruby Rhod
+Billy
+General Munro
+Neo
+Morpheus
+Trinity
+Agent Smith
+Cypher
+Tank
+Apoc
+Mouse
+Switch
+Dozer
+Toecutter
+The Humungus
+Immortan Joe
+Dementus
+Max Rockatansky
+Furiosa
+Coma-Doof
+Nux
+Elliot Alderson
+Mr. Robot
+Darlene
+Tyrell Wellick
+Angela Moss
+Whiterose
+Trenton
+Mobley
+Valérian
+Laureline
+Arthur Morgan
+John Marston
+Dutch van der Linde
+Abigail Roberts
+Jack Marston
+Hosea Matthews
+Micah Bell
+Michael De Santa
+Trevor Philips
+Franklin Clinton
+Lamar Davis
+Lester Crest
+Breakout
+Merc
+Octane
+Hotshot
+Gizmo
+Backfire
+X-Devil
+Paladin
+Road Hog
+Venom
+Dominus
+Seaglide
+Seamoth
+PRAWN
+Cyclops
+Neptune
+Steve
+Alex
+Creeper
+Enderman
+Golem
+The Butcher
+Deckard Cain
+Diablo
+Méphisto
+Adria
+Léoric
+Na'Krul
+Madeline
+Badeline
+Théo
+M. Oshiro
+Gordon Freeman
+G-Man
+Isaac Kleiner
+Alyx
+Kratos
+Atreus
+Laufey
+Freya
+Baldur
+Mimir
+Thor
+Odin
+Piku
+Niku
+Mario Mario
+Luigi Mario
+Flowey
+Toriel
+Sans
+Frisk
+Papyrus
+Undyne
+Alphys
+Mettaton
+Asgore
+Asriel
+Chara
+Zeus
+Héra
+Poséidon
+Déméter
+Athéna
+Apollon
+Artémis
+Arès
+Aphrodite
+Héphaïstos
+Hermès
+Hestia
+Hadès
+Perséphone
+Dionysos
+Hécate
+Hélios
+Éros
+Hébé
+Gaïa
+Ouranos
+Pan
+Séléné
+Nyx
+Éos
+Iris
+Némésis
+Érinyes
+Thanatos
+Moros
+Hypnos
+Phobos
+Déimos
+Harmonie
+Échidna
+Néréides
+Dryades
+Naïades
+Oréades
+Chaos
+Tartare
+Érébos
+Cronos
+Rhéa
+Océan
+Téthys
+Hypérion
+Thémis
+Mnémosyne
+Phébé
+Japet
+Prométhée
+Atlas
+Céos
+Clymène
+Épiméthée
+Métis
