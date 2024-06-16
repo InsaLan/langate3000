@@ -1,3 +1,3 @@
 # Frontend
 
-Le frontend
+Le frontend est écrit en [Vue](https://fr.vuejs.org).
