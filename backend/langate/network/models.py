@@ -92,15 +92,12 @@ def generate_dev_name():
     try:
         with open("assets/misc/device_names.txt", "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
-            devices_count = Device.objects.count() + UserDevice.objects.count()
+            taken_names = Device.objects.values_list("name", flat=True)
             
-            if devices_count < len(lines) and devices_count < 1000 :
-                taken_names = Device.objects.values_list("name", flat=True)
-                taken_names.extend(UserDevice.objects.values_list("name", flat=True))
+            if len(taken_names) < len(lines) :
                 n = random.choice(lines)
                 while n in taken_names:
                     n = random.choice(lines)
-                taken_names.append(n)
                 return n
             
             else:
