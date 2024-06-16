@@ -1,14 +1,32 @@
-# insalan.fr infrastructure
+# Langate 3000 infrastructure
 
 This repository is here to hold the langate infrastructure. It is composed of
 the frontend, the backend, and the nginx server.
 
-# Contributing
+## Documentation
 
-Please read carefully[the CONTRIBUTING.md file](CONTRIBUTING.md) before any
+Technical documentation is available [here](docs/manuel/src/SUMMARY.md) (in french).
+
+## Contributing
+
+Please read carefully [the CONTRIBUTING.md file](CONTRIBUTING.md) before any
 contribution.
 
-## Installing and running insalan.fr in local
+## Netcontrol
+
+The netcontrol component is an interface between the langate web pages and
+the kernel network components of the gateway used during the events.
+
+Having this component in between is important because we don't want the web server
+to have privileged access to kernel components as it is needed for this script.
+
+Both the langate web server and this components communicate using UNIX sockets.
+The messages exchanged begin with the size of the payload (as a 4 bytes int) followed by
+the payload itself. The payload is always a pickle-encoded python dict.
+
+launch command `make install` for the first setup of the langate on your computer, that will copy netcontrol.service in systemd.
+
+## Installing and running the langate in local
 
 ```sh
 git clone git@github.com:InsaLan/langate-3000.git
