@@ -264,11 +264,16 @@ class TestNetworkAPI(TestCase):
         """
         self.client.force_authenticate(user=self.user)
 
-        response = self.client.delete(reverse('device-detail', args=[self.user_device.pk]))
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with patch('langate.network.models.netcontrol.query') as mock_query:
+            mock_query.return_value = {
+              "success": True,
+              "mac": self.device.mac,
+            }
+            response = self.client.delete(reverse('device-detail', args=[self.user_device.pk]))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertFalse(Device.objects.filter(pk=self.user_device.pk).exists())
-        self.assertFalse(UserDevice.objects.filter(pk=self.user_device.pk).exists())
+            self.assertFalse(Device.objects.filter(pk=self.user_device.pk).exists())
+            self.assertFalse(UserDevice.objects.filter(pk=self.user_device.pk).exists())
 
     def test_delete_device_not_found(self):
         """
@@ -306,11 +311,16 @@ class TestNetworkAPI(TestCase):
           'mac': '00:11:22:33:44:57',
           'name': 'new_name'
         }
-        response = self.client.patch(reverse('device-detail', args=[self.device.pk]), new_data)
-        self.device.refresh_from_db()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.device.mac, new_data['mac'])
-        self.assertEqual(self.device.name, new_data['name'])
+        with patch('langate.network.models.netcontrol.query') as mock_query:
+            mock_query.return_value = {
+              "success": True,
+              "mac": new_data['mac'],
+            }
+            response = self.client.patch(reverse('device-detail', args=[self.device.pk]), new_data)
+            self.device.refresh_from_db()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(self.device.mac, new_data['mac'])
+            self.assertEqual(self.device.name, new_data['name'])
 
     def test_patch_device_not_found(self):
         """
