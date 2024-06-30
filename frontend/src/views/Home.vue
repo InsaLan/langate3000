@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PaginatedTable from '@/components/PaginatedTable.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const userStore = useUserStore();
@@ -21,53 +22,74 @@ const { user } = userStore;
       Voici la liste de vos appareils connectés au réseau :
     </div>
     <!-- Tableau des appareils connectés -->
-    <table class="table-auto border-collapse border border-gray-800 bg-theme-nav text-gray-400 lg:w-1/3">
-      <thead>
-        <tr>
-          <th class="border border-gray-800">
-            #
-          </th>
-          <th class="border border-gray-800">
-            Nom de l'appareil
-          </th>
-          <th class="border border-gray-800">
-            Réseau
-          </th>
-          <th class="border border-gray-800">
-            Actions
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(device, i) in user?.devices" :key="i">
-          <td class="border border-gray-800 p-1 px-2">
-            {{ i }}
-          </td>
-          <td class="border border-gray-800 p-1 px-2">
-            {{ device.name }}
-          </td>
-          <td class="border border-gray-800 p-1 px-2">
-            {{ device.area }}
-          </td>
-          <td class="w-1/6 border border-gray-800 p-1 px-2">
-            <div class="flex items-center justify-center gap-2">
-              <div class="group relative h-8 w-8 cursor-pointer rounded bg-gray-500 p-1 text-center hover:bg-gray-600">
-                <fa-awesome-icon icon="pencil" class="text-white"/>
-                <div class="pointer-events-none absolute left-0 top-0 z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                  Modifier l'appareil
-                </div>
-              </div>
-              <div class="group relative h-8 w-8 cursor-pointer rounded bg-gray-500 p-1 text-center hover:bg-gray-600">
-                <fa-awesome-icon icon="trash-can" class="text-white"/>
-                <div class="pointer-events-none absolute left-0 top-0 z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                  Supprimer l'appareil
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div
+      class="md:w-1/3"
+    >
+      <PaginatedTable
+        :data="user?.devices as { }[]"
+        :properties="[
+          {
+            name: 'Nom de l\'appareil',
+            key: 'name',
+            ordering: false,
+          },
+          {
+            name: 'Réseau',
+            key: 'area',
+            ordering: false,
+          },
+        ]"
+        :pagination="false"
+        :search="false"
+        :actions="[
+          {
+            hint: 'Modifier l\'appareil',
+            icon: 'pencil',
+            key: 'update',
+            modal: {
+              title: 'Modifier l\'appareil',
+              fields: [
+                {
+                  name: 'Nom',
+                  key: 'name',
+                  type: 'text',
+                },
+                {
+                  name: 'Zone',
+                  key: 'area',
+                  type: 'text',
+                },
+              ],
+            },
+            function: async (device, fields) => {
+              // TODO : implement update device
+              console.log('update', device);
+              console.log('fields', fields);
+            },
+          },
+          {
+            hint: 'Supprimer l\'appareil',
+            icon: 'trash-can',
+            key: 'delete',
+            modal: {
+              title: 'Supprimer l\'appareil',
+              fields: [
+                {
+                  name: 'Voulez-vous vraiment supprimer cet appareil ?',
+                  key: 'confirm',
+                  type: 'hidden',
+                },
+              ],
+            },
+            function: async (device, fields) => {
+              // TODO : implement delete device
+              console.log('delete', device);
+              console.log('fields', fields);
+            },
+          },
+        ]"
+      />
+    </div>
   </div>
 </template>
 

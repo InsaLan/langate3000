@@ -3,9 +3,10 @@ import {
   faArrowLeft,
   faArrowsRotate, faBolt, faChevronDown, faChevronUp,
   faCircle, faCircleCheck, faCirclePlus, faClock,
-  faCrown,
-  faDownload, faEye, faEyeSlash,
-  faFile, faHammer, faMagnifyingGlass, faPencil, faTrashCan, faWarning,
+  faCrown, faDownload, faEye, faEyeSlash,
+  faFile, faHammer, faKey, faMagnifyingGlass, faPencil, faRedo,
+  faSort, faSortDown, faSortUp, faSpinner,
+  faTrashCan, faWarning,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import axios, { type AxiosError } from 'axios';
@@ -40,6 +41,12 @@ library.add(
   faArrowLeft,
   faHammer,
   faCrown,
+  faSort,
+  faSortUp,
+  faSortDown,
+  faRedo,
+  faKey,
+  faSpinner,
 );
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
