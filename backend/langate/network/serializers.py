@@ -1,12 +1,11 @@
 """Data Serializers for the langate Network module"""
 # pylint: disable=too-few-public-methods
 
-from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
 from langate.network.models import Device, UserDevice, DeviceManager
 from langate.user.models import User
@@ -35,6 +34,14 @@ class UserDeviceSerializer(serializers.ModelSerializer):
 
         model = UserDevice
         exclude = ()
+
+    def to_representation(self, instance):
+        """
+        Convert the instance to a dictionary that can be used to create a Response.
+        """
+        representation = super().to_representation(instance)
+        representation['user'] = instance.user.username
+        return representation
 
     def create(self, validated_data):
         """
@@ -85,7 +92,14 @@ class FullDeviceSerializer(serializers.Serializer):
             if not 'ip' in validated_data:
                 raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
 
-            return DeviceManager.create_user_device(user, **validated_data)
+            try:
+                return DeviceManager.create_user_device(user, **validated_data)
+            except ValidationError as e:
+                raise serializers.ValidationError(e.message) from e
+            except IntegrityError as e:
+                raise serializers.ValidationError(_(e.__cause__.diag.message_detail)) from e
+            except Exception as e:
+                raise serializers.ValidationError(_("An error occurred while creating the device")) from e
 
         # Otherwise, create a Device object
         if not 'mac' in validated_data:
@@ -95,4 +109,11 @@ class FullDeviceSerializer(serializers.Serializer):
         # A device object created from here has to be whitelisted
         validated_data['whitelisted'] = True
 
-        return DeviceManager.create_device(**validated_data)
+        try:
+            return DeviceManager.create_device(**validated_data)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.message) from e
+        except IntegrityError as e:
+            raise serializers.ValidationError(_(e.__cause__.diag.message_detail)) from e
+        except Exception as e:
+            raise serializers.ValidationError(_("An error occurred while creating the device")) from e

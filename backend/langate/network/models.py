@@ -1,14 +1,25 @@
 import random, logging
+import re
 
 from django.contrib.auth.base_user import AbstractBaseUser as AbstractBaseUser
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from langate.user.models import User
 from langate.modules import netcontrol
 
 logger = logging.getLogger(__name__)
+
+
+def validate_mac(mac):
+    """
+    Validate a MAC address
+    """
+    if not re.match(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', mac):
+        raise ValidationError(_("Invalid MAC address"))
+
 
 class Device(models.Model):
     """
@@ -16,7 +27,11 @@ class Device(models.Model):
     """
 
     name = models.CharField(max_length=100)
-    mac = models.CharField(max_length=17)
+    mac = models.CharField(
+      max_length=17,
+      unique=True,
+      validators=[validate_mac]
+    )
     whitelisted = models.BooleanField(default=False)
 
 class UserDevice(Device):
@@ -43,11 +58,20 @@ class DeviceManager(models.Manager):
         if not name:
             name = generate_dev_name()
 
+        # Validate the MAC address
+        validate_mac(mac)
+
         netcontrol.query("connect", { "mac": mac, "name": name })
         logger.info("Connected device %s (the mac %s has been connected)", name, mac)
 
-        device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted)
-        return device
+        try:
+            device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted)
+            return device
+        except Exception as e:
+            netcontrol.query("disconnect_user", { "mac": mac })
+            raise ValidationError(
+              _("There was an error creating the device. Please try again.")
+            ) from e
 
     @staticmethod
     def delete_device(mac):
@@ -73,6 +97,9 @@ class DeviceManager(models.Manager):
         mac = r["mac"]
         area = "LAN"
 
+        # Validate the MAC address
+        validate_mac(mac)
+
         netcontrol.query("connect_user", { "mac": mac, "name": user.username })
 
         logger.info(
@@ -82,8 +109,33 @@ class DeviceManager(models.Manager):
             ip
         )
 
-        device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area)
-        return device
+        try:
+            device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area)
+            return device
+        except Exception as e:
+            netcontrol.query("disconnect_user", { "mac": mac })
+            raise ValidationError(
+              _("There was an error creating the device. Please try again.")
+            ) from e
+
+    @staticmethod
+    def edit_whitelist_device(device: Device, mac, name):
+        """
+        Edit the whitelist status of a device
+        """
+        # If name is provided, update it
+        if name and name != device.name:
+            device.name = name
+        if mac and mac != device.mac:
+          validate_mac(mac)
+          # Disconnect the old MAC
+          netcontrol.query("disconnect_user", { "mac": device.mac })
+
+          # Connect the new MAC
+          netcontrol.query("connect", { "mac": mac, "name": device.name })
+          device.mac = mac
+
+        device.save()
 
 def generate_dev_name():
     """
@@ -93,13 +145,13 @@ def generate_dev_name():
         with open("assets/misc/device_names.txt", "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
             taken_names = Device.objects.values_list("name", flat=True)
-            
+
             if len(taken_names) < len(lines) :
                 n = random.choice(lines)
                 while n in taken_names:
                     n = random.choice(lines)
                 return n
-            
+
             else:
                 return random.choice(lines)
 

@@ -6,7 +6,6 @@ from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
 from .models import User
 
@@ -19,7 +18,30 @@ class UserSerializer(serializers.ModelSerializer):
 
         model = User
         exclude = ("password",)
+        read_only_fields = ("date_joined",)
         # fields = ['url', 'username', 'email', 'groups']
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    """Serializer for a registration form submission"""
+
+    class Meta:
+        """Meta class, used to set parameters"""
+
+        model = User
+        read_only_fields = ("date_joined",)
+        fields = "__all__"
+
+    def create(self, validated_data):
+        """
+        Create a new user with the given data
+        """
+        if not "username" in validated_data:
+            raise serializers.ValidationError(_("Username is required"))
+        if not "password" in validated_data:
+            raise serializers.ValidationError(_("Password is required"))
+        validate_password(validated_data["password"])
+        user = User.objects.create_user(**validated_data)
+        return user
 
 class UserLoginSerializer(serializers.Serializer):
     """Serializer for a login form submission"""
