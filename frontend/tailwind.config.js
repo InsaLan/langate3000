@@ -14,6 +14,7 @@ export default {
       colors: {
         'theme-bg': '#36393f',
         'theme-nav': '#313339',
+        table: '#313339',
       },
     },
   },

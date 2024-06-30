@@ -6,19 +6,39 @@ import { useUserStore } from '@/stores/user.store';
 
 const items = [
   {
-    url: '/', text: 'Accueil', connected: false, admin: false,
+    url: ['/'] as string[],
+    text: 'Accueil',
+    connected: false,
+    admin: false,
   },
   {
-    url: '/faq', text: 'FAQ', connected: false, admin: false,
+    url: ['/faq'] as string[],
+    text: 'FAQ',
+    connected: false,
+    admin: false,
   },
   {
-    url: '/management/users', text: 'Gestion', connected: false, admin: true,
+    url: [
+      '/management/users',
+      '/management/devices',
+      '/management/whitelist',
+      '/management/announces',
+    ] as string[],
+    text: 'Gestion',
+    connected: false,
+    admin: true,
   },
   {
-    url: '/helpdesk/admin', text: 'Gestion des tickets', connected: false, admin: true,
+    url: ['/helpdesk/admin'] as string[],
+    text: 'Gestion des tickets',
+    connected: false,
+    admin: true,
   },
   {
-    url: '/helpdesk/user', text: 'Demande d\'assistance', connected: true, admin: false,
+    url: ['/helpdesk/user'] as string[],
+    text: 'Demande d\'assistance',
+    connected: true,
+    admin: false,
   },
 ] as const;
 
@@ -37,7 +57,7 @@ const burger_menu = ref(false);
 </script>
 <template>
   <nav class="sticky top-0 z-50 h-16 border-b border-gray-300 bg-theme-nav">
-    <div id="desktop" class="hidden justify-around lg:flex">
+    <div id="desktop" class="hidden justify-around md:flex">
       <router-link class="m-2 flex content-center items-center justify-center gap-3" to="/">
         <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
         <div class="text-xl font-bold text-white">
@@ -48,10 +68,10 @@ const burger_menu = ref(false);
         <router-link
           v-for="(item, i) in items"
           :key="i"
-          :to="{ path: item.url }"
+          :to="{ path: item.url[0] }"
           :class="{
-            'text-white': $route.path === item.url,
-            'text-gray-400': $route.path !== item.url,
+            'text-white': item.url.includes($route.path),
+            'text-gray-400': !item.url.includes($route.path),
             hidden: (item.connected && !isConnected) || (item.admin && (user?.role !== 'admin' && user?.role !== 'staff')),
           }"
           class="mx-2 py-5 text-center transition duration-150 ease-in-out hover:text-white"
@@ -68,7 +88,7 @@ const burger_menu = ref(false);
         Déconnexion
       </div>
     </div>
-    <div class="lg:hidden">
+    <div class="md:hidden">
       <div id="top" class="flex justify-between">
         <router-link class="m-2" to="/">
           <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
@@ -126,10 +146,10 @@ const burger_menu = ref(false);
           <router-link
             v-for="(item, i) in items"
             :key="i"
-            :to="{ path: item.url }"
+            :to="{ path: item.url[0] }"
             :class="{
-              'text-white': $route.path === item.url,
-              'text-gray-400': $route.path !== item.url,
+              'text-white': item.url.includes($route.path),
+              'text-gray-400': !item.url.includes($route.path),
               hidden: (item.connected && !isConnected) || (item.admin && (user?.role !== 'admin' && user?.role !== 'staff')),
             }"
             class="mx-2 py-5 text-center font-bold transition duration-150 ease-in-out hover:text-blue-800"

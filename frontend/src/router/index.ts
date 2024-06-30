@@ -19,6 +19,38 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FAQ.vue'),
   },
   {
+    path: '/management/users',
+    component: () => import('@/views/Management/Users.vue'),
+    beforeEnter: () => {
+      const { isConnected, user } = useUserStore();
+      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+    },
+  },
+  {
+    path: '/management/devices',
+    component: () => import('@/views/Management/Devices.vue'),
+    beforeEnter: () => {
+      const { isConnected, user } = useUserStore();
+      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+    },
+  },
+  {
+    path: '/management/whitelist',
+    component: () => import('@/views/Management/Whitelist.vue'),
+    beforeEnter: () => {
+      const { isConnected, user } = useUserStore();
+      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+    },
+  },
+  {
+    path: '/management/announces',
+    component: () => import('@/views/Management/Announces.vue'),
+    beforeEnter: () => {
+      const { isConnected, user } = useUserStore();
+      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     component: () => import('@/views/NotFound.vue'),
   },
