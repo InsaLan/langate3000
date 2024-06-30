@@ -2,11 +2,9 @@
 Module for the definition of models tied to users
 """
 from datetime import datetime
-import logging
 
 from django.contrib.auth.base_user import AbstractBaseUser as AbstractBaseUser
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from django.db import models
@@ -80,7 +78,9 @@ class User(AbstractBaseUser):
         default=Role.PLAYER,
     )
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField()
+    date_joined = models.DateTimeField(
+      default=timezone.now,
+    )
 
     # The number of devices a user can have, minimum is 2
     max_device_nb = models.IntegerField(
