@@ -6,7 +6,7 @@ export interface Device {
 }
 
 export interface UserDevice extends Device {
-  user: number;
+  user: string;
   ip: string;
   area: string;
 }
