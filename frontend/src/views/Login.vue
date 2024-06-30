@@ -39,16 +39,16 @@ const showPassword = ref(false);
 </script>
 
 <template>
-  <div class="m-4 flex flex-col items-center justify-center gap-16 lg:m-16">
+  <div class="m-4 flex flex-col items-center justify-center gap-16 md:m-16">
     <div class="flex flex-col gap-2">
-      <h1 class="text-center text-2xl font-bold lg:text-4xl">
+      <h1 class="text-center text-2xl font-bold md:text-4xl">
         Bienvenue sur le réseau de l'InsaLan !
       </h1>
       <div>
         Pour pouvoir accéder à internet et aux serveurs de jeu, il faut vous identifier avec votre compte insalan.fr
       </div>
     </div>
-    <form class="flex w-full flex-col gap-3 lg:w-1/3">
+    <form class="flex w-full flex-col gap-3 md:w-1/3">
       <div id="login_error" class="hidden rounded-lg border border-red-500 p-4 text-red-500">
         Erreur lors de la connexion, veuillez réessayer.
       </div>
