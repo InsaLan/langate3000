@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { UserRole } from '@/models/user';
 import { useUserStore } from '@/stores/user.store';
 
 const routes: RouteRecordRaw[] = [
@@ -23,7 +24,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Management/Users.vue'),
     beforeEnter: () => {
       const { isConnected, user } = useUserStore();
-      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+      return !isConnected || (
+        user.role !== UserRole.Admin
+        && user.role !== UserRole.Staff
+      ) ? { path: '/' } : true;
     },
   },
   {
@@ -31,7 +35,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Management/Devices.vue'),
     beforeEnter: () => {
       const { isConnected, user } = useUserStore();
-      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+      return !isConnected || (
+        user.role !== UserRole.Admin
+        && user.role !== UserRole.Staff
+      ) ? { path: '/' } : true;
     },
   },
   {
@@ -39,7 +46,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Management/Whitelist.vue'),
     beforeEnter: () => {
       const { isConnected, user } = useUserStore();
-      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+      return !isConnected || (
+        user.role !== UserRole.Admin
+        && user.role !== UserRole.Staff
+      ) ? { path: '/' } : true;
     },
   },
   {
@@ -47,7 +57,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Management/Announces.vue'),
     beforeEnter: () => {
       const { isConnected, user } = useUserStore();
-      return !isConnected || (user.role !== 'admin' && user.role !== 'staff') ? { path: '/' } : true;
+      return !isConnected || (
+        user.role !== UserRole.Admin
+        && user.role !== UserRole.Staff
+      ) ? { path: '/' } : true;
     },
   },
   {
