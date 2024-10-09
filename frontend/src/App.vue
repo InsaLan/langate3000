@@ -5,10 +5,11 @@ import Navigation from '@/components/Navigation.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const userStore = useUserStore();
-const { handle_session_cookie_expiration } = userStore;
+const { handle_session_cookie_expiration, fetch_user } = userStore;
 
 onMounted(async () => {
   await handle_session_cookie_expiration();
+  await fetch_user();
 });
 
 </script>
