@@ -36,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
     await get_csrf();
 
     try {
-      await axios.post('/user/login/', { username, password }, {
+      const user_data = await axios.post<User>('/user/login/', { username, password }, {
         headers: {
           'X-CSRFToken': csrf.value,
           'Content-Type': 'application/json',
@@ -44,7 +44,6 @@ export const useUserStore = defineStore('user', () => {
         withCredentials: true,
       });
 
-      const user_data = await axios.get<User>('/user/me/', { withCredentials: true });
       user.value = user_data.data;
       isConnected.value = true;
       connectionTimestamp.value = Date.now();
@@ -56,6 +55,8 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function logout() {
+    await get_csrf();
+
     await axios.post('/user/logout/', {}, {
       headers: {
         'X-CSRFToken': csrf.value,
@@ -64,8 +65,8 @@ export const useUserStore = defineStore('user', () => {
       withCredentials: true,
     });
     isConnected.value = false;
-    user.value = {} as User;
     await router.push('/login');
+    user.value = {} as User;
   }
 
   async function handle_session_cookie_expiration() {
@@ -152,6 +153,29 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function fetch_user() {
+    try {
+      const user_data = await axios.get<User>('/user/me/', {
+        withCredentials: true,
+      });
+      console.log(user_data);
+      user.value = user_data.data;
+      isConnected.value = true;
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 403) {
+        isConnected.value = false;
+
+        // clear user data
+        user.value = {} as User;
+
+        await router.push('/login');
+      }
+
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
   return {
     user,
     login,
@@ -163,6 +187,7 @@ export const useUserStore = defineStore('user', () => {
     reset_password,
     delete_user,
     edit_user,
+    fetch_user,
     isConnected,
     csrf,
     connectionTimestamp,

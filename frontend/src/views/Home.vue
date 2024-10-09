@@ -1,21 +1,47 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const userStore = useUserStore();
-const { user } = userStore;
+
+const { user } = storeToRefs(userStore);
 
 </script>
 
 <template>
   <div class="m-5 flex flex-1 flex-col items-center gap-5 bg-theme-bg">
-    <img src="@/assets/images/logo_green.png" alt="logo_green" class="pulse w-96"/>
-    <div class="text-center text-4xl">
-      Bon jeu, {{ user?.username }} !
-    </div>
-    <div class="text-center">
-      Vous êtes désormais connecté au réseau de l'InsaLan.
-    </div>
+    <template
+      v-if="user?.devices.length <= user?.max_device_nb"
+    >
+      <img
+        src="@/assets/images/logo_green.png"
+        alt="logo_green"
+        class="pulse w-96"
+      />
+      <div class="text-center text-4xl">
+        Bon jeu, {{ user?.username }} !
+      </div>
+      <div class="text-center">
+        Vous êtes désormais connecté au réseau de l'InsaLan.
+      </div>
+    </template>
+    <template
+      v-else
+    >
+      <img
+        src="@/assets/images/logo_red.png"
+        alt="logo_red"
+        class="w-96"
+      />
+      <div class="text-center text-4xl">
+        Trop d'appareils connectés !
+      </div>
+      <div class="text-center">
+        Vous avez atteint le nombre maximum d'appareils connectés au réseau.
+      </div>
+    </template>
+
     <div class="text-center">
       Vous pouvez connecter au maximum {{ user?.max_device_nb }} appareils sur le réseau.
       <br/>
