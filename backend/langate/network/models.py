@@ -66,6 +66,7 @@ class DeviceManager(models.Manager):
 
         try:
             device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted)
+            device.save()
             return device
         except Exception as e:
             netcontrol.query("disconnect_user", { "mac": mac })
@@ -111,12 +112,20 @@ class DeviceManager(models.Manager):
 
         try:
             device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area)
+            device.save()
             return device
         except Exception as e:
             netcontrol.query("disconnect_user", { "mac": mac })
             raise ValidationError(
               _("There was an error creating the device. Please try again.")
             ) from e
+
+    @staticmethod
+    def delete_user_device(Device):
+        """
+        Delete a device with the given mac address
+        """
+        return DeviceManager.delete_device(Device.mac)
 
     @staticmethod
     def edit_whitelist_device(device: Device, mac, name):

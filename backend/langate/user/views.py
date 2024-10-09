@@ -26,8 +26,9 @@ from langate.user.serializers import (
 )
 
 from .models import User, Role
+from langate.modules import netcontrol
 
-from langate.network.models import UserDevice
+from langate.network.models import UserDevice, Device, DeviceManager
 from langate.network.serializers import UserDeviceSerializer
 
 class Pagination(PageNumberPagination):
@@ -97,9 +98,48 @@ class UserMe(generics.RetrieveAPIView):
         """
         user = UserSerializer(request.user, context={"request": request}).data
 
+        user_devices = UserDevice.objects.filter(user=request.user)
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
+
+        if not user_devices.filter(ip=client_ip).exists():
+          # If the user is still logged in but the device is not registered on the network,
+          # we register it.
+          r = netcontrol.query("get_mac", { "ip": client_ip })
+          client_mac = r["mac"]
+          try:
+              # The following should never raise a MultipleObjectsReturned exception
+              # because it would mean that there are more than one devices
+              # already registered with the same MAC.
+
+              device = UserDevice.objects.get(mac=client_mac)
+              # If the device MAC is already registered on the network but with a different IP,
+              # This could happen if the DHCP has changed the IP of the client.
+
+              # * If the registered device is owned by another user, we delete the old device and we register the new one.
+              if device.user != request.user:
+                  if user_devices.count() >= request.user.max_device_nb:
+                      user["too_many_devices"] = True
+                      return Response(user, status=status.HTTP_200_OK)
+                  DeviceManager.delete_user_device(device)
+
+                  DeviceManager.create_user_device(request.user, client_ip)
+              # * If the registered device is owned by the requesting user, we change the IP of the registered device.
+              else:
+                  device.ip = client_ip
+                  device.save()
+
+          except UserDevice.DoesNotExist:
+              # If the device is not registered on the network, we register it.
+              if user_devices.count() >= request.user.max_device_nb:
+                  user["too_many_devices"] = True
+                  return Response(user, status=status.HTTP_200_OK)
+              DeviceManager.create_user_device(request.user, client_ip)
+
+        user_devices = UserDevice.objects.filter(user=request.user)
+
         # Add UserDevices that belong to the user
         user["devices"] = UserDeviceSerializer(
-            UserDevice.objects.filter(user=request.user), many=True
+            user_devices, many=True
         ).data
 
         return Response(user)
@@ -176,7 +216,56 @@ class UserLogin(APIView):
                     status=status.HTTP_404_NOT_FOUND,
                 )
             login(request, user)
-            return Response(status=status.HTTP_200_OK)
+
+            user = UserSerializer(user, context={"request": request}).data
+
+            # handle user device
+            client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
+            user_devices = UserDevice.objects.filter(user=request.user)
+
+            user["current_ip"] = client_ip
+            user["too_many_devices"] = False
+
+            # If this device is not registered on the network, we register it.
+            if not user_devices.filter(ip=client_ip).exists():
+                r = netcontrol.query("get_mac", { "ip": client_ip })
+                client_mac = r["mac"]
+                try:
+                    # The following should never raise a MultipleObjectsReturned exception
+                    # because it would mean that there are more than one devices
+                    # already registered with the same MAC.
+
+                    device = UserDevice.objects.get(mac=client_mac)
+                    # If the device MAC is already registered on the network but with a different IP,
+                    # This could happen if the DHCP has changed the IP of the client.
+
+                    # * If the registered device is owned by another user, we delete the old device and we register the new one.
+                    if device.user != request.user:
+                        if user_devices.count() >= request.user.max_device_nb:
+                            user["too_many_devices"] = True
+                            return Response(user, status=status.HTTP_200_OK)
+                        DeviceManager.delete_user_device(device)
+
+                        DeviceManager.create_user_device(request.user, client_ip)
+                    # * If the registered device is owned by the requesting user, we change the IP of the registered device.
+                    else:
+                        device.ip = client_ip
+                        device.save()
+
+                except UserDevice.DoesNotExist:
+                    # If the device is not registered on the network, we register it.
+                    if user_devices.count() >= request.user.max_device_nb:
+                        user["too_many_devices"] = True
+                        return Response(user, status=status.HTTP_200_OK)
+                    DeviceManager.create_user_device(request.user, client_ip)
+
+            user_devices = UserDevice.objects.filter(user=request.user)
+
+            user["devices"] = UserDeviceSerializer(
+                user_devices, many=True
+            ).data
+
+            return Response(status=status.HTTP_200_OK, data=user)
         return Response(
             {"user": [_("Invalid data format")]},
             status=status.HTTP_400_BAD_REQUEST,
@@ -188,13 +277,23 @@ class UserLogout(APIView):
     API endpoint that allows a user to logout.
     """
 
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = []
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def post(self, request):
         """
         Will logout an user.
         """
+        user_devices = UserDevice.objects.filter(user=request.user)
+        client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
+
+        if user_devices.filter(ip=client_ip).exists():
+            # When the user decides to disconnect from the portal from a device,
+            # we delete the device from the database.
+
+            device = user_devices.get(ip=client_ip)
+            DeviceManager.delete_user_device(device)
+
         logout(request)
         return Response(status=status.HTTP_200_OK)
 
@@ -210,7 +309,7 @@ class UserList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         """
-        Return a list of all UserDevice objects.
+        Return a list of all users
         """
         query = User.objects.all().order_by("-date_joined")
         orders = [
