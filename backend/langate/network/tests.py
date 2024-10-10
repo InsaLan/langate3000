@@ -7,6 +7,7 @@ from unittest.mock import patch, MagicMock
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from langate.settings import SETTINGS
 from langate.network.models import DeviceManager, Device, UserDevice
 from langate.user.models import User, Role
 from .serializers import FullDeviceSerializer
@@ -457,7 +458,8 @@ class TestNetworkAPI(TestCase):
               'whitelisted': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
-              'area': 'LAN'
+              'area': 'LAN',
+              'mark': SETTINGS['marks'][0]['value']
             }
           ]
         }
