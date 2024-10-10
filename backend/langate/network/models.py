@@ -10,6 +10,8 @@ from django.core.exceptions import ValidationError
 from langate.user.models import User
 from langate.modules import netcontrol
 
+from langate.settings import SETTINGS
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +35,7 @@ class Device(models.Model):
       validators=[validate_mac]
     )
     whitelisted = models.BooleanField(default=False)
+    mark = models.IntegerField(default=SETTINGS["marks"][0]["value"])
 
 class UserDevice(Device):
     """
@@ -51,21 +54,24 @@ class DeviceManager(models.Manager):
     """
 
     @staticmethod
-    def create_device(mac, name, whitelisted=False):
+    def create_device(mac, name, whitelisted=False, mark=None):
         """
         Create a device with the given mac address and name
         """
         if not name:
             name = generate_dev_name()
+        if not mark:
+            mark = SETTINGS["marks"][0]["value"]
 
         # Validate the MAC address
         validate_mac(mac)
 
         netcontrol.query("connect", { "mac": mac, "name": name })
+        netcontrol.query("set_mark", { "mac": mac, "mark": mark })
         logger.info("Connected device %s (the mac %s has been connected)", name, mac)
 
         try:
-            device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted)
+            device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted, mark=mark)
             device.save()
             return device
         except Exception as e:
@@ -128,7 +134,7 @@ class DeviceManager(models.Manager):
         return DeviceManager.delete_device(Device.mac)
 
     @staticmethod
-    def edit_whitelist_device(device: Device, mac, name):
+    def edit_whitelist_device(device: Device, mac, name, mark=None):
         """
         Edit the whitelist status of a device
         """
@@ -143,6 +149,8 @@ class DeviceManager(models.Manager):
           # Connect the new MAC
           netcontrol.query("connect", { "mac": mac, "name": device.name })
           device.mac = mac
+        if mark and mark != device.mark:
+            device.mark = mark
 
         device.save()
 

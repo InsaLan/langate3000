@@ -91,10 +91,28 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
+  async function change_userdevice_marks(data: { [device: string]: string }): Promise<void> {
+    await get_csrf();
+
+    const requests = Object.entries(data).map(([device, mark]) => axios.patch(`/network/devices/${device}/`, { mark }, {
+      headers: {
+        'X-CSRFToken': csrf.value,
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    }).catch((err) => {
+      // TODO : handle error appropriately
+      console.error((err as AxiosError).response?.data);
+    }));
+
+    await Promise.all(requests);
+  }
+
   return {
     deleteDevice,
     createDevice,
     createDevicesFromList,
     editDevice,
+    change_userdevice_marks,
   };
 }, { persist: false });
