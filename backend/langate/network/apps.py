@@ -9,6 +9,7 @@ from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
 from ..modules import netcontrol
+from langate.settings import SETTINGS
 
 logger = logging.getLogger(__name__)
 
@@ -70,20 +71,21 @@ class NetworkConfig(AppConfig):
                 with open("assets/misc/whitelist.txt", "r") as f:
                     for line in f:
                         line = line.strip().split("|")
-                        if len(line) == 2:
+                        if len(line) == 2 or len(line) == 3:
                             name = line[0]
                             mac = line[1]
+                            mark = line[2] if len(line) == 3 else SETTINGS["marks"][0]["value"]
                             dev = Device.objects.filter(mac=mac).first()
                             if dev is None:
-                                dev = DeviceManager.create_device(mac, name, True)
+                                dev = DeviceManager.create_device(mac, name, True, mark)
                             else:
                                 dev.whitelisted = True
                                 dev.save()
-                            connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
-                            if not connect_res["success"]:
-                                logger.info("[PortalConfig] Could not connect device %s", dev.mac)
-                            mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": 100})
-                            if not mark_res["success"]:
-                                logger.info("[PortalConfig] Could not set mark 0 for device %s", dev.name)
+                                connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
+                                if not connect_res["success"]:
+                                    logger.info("[PortalConfig] Could not connect device %s", dev.mac)
+                                mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": mark})
+                                if not mark_res["success"]:
+                                    logger.info("[PortalConfig] Could not set mark for device %s", dev.name)
                         else:
                             logger.error("[PortalConfig] Invalid line in whitelist.txt: %s", line)

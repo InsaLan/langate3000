@@ -80,11 +80,6 @@ const { user } = storeToRefs(userStore);
                   key: 'name',
                   type: 'text',
                 },
-                {
-                  name: 'Zone',
-                  key: 'area',
-                  type: 'text',
-                },
               ],
             },
             function: async (device, fields) => {

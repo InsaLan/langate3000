@@ -15,8 +15,12 @@ from os import getenv, path
 from pathlib import Path
 from sys import argv
 import json
+import logging
 
 from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -217,7 +221,29 @@ CSRF_COOKIE_DOMAIN = '.' + getenv("WEBSITE_HOST", "localhost")
 
 # Session cookie settings
 SESSION_COOKIE_AGE = int(getenv("SESSION_COOKIE_AGE", "1209600"))
+SETTINGS = {}
 
-# Netcontrol settings
-NETCONTROL_MARK = json.loads(getenv("NETCONTROL_MARK", "[100, 2]"))
+# Network settings
+if not path.exists("assets/misc/settings.json"):
+    logger.error("No settings.json found, defaulting to [100]")
+    SETTINGS = {
+      "marks": [{"name": "default", "value": 100, "priority":1}]
+    }
+else:
+    file = open("assets/misc/settings.json", "r")
+    with file as f:
+        data = json.load(f)
+        SETTINGS = data
+
+    if "marks" not in SETTINGS:
+        logger.error("No marks found in settings.json, defaulting to [100]")
+        SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
+
+    sum = 0
+    for mark in range(len(SETTINGS["marks"])):
+        sum += SETTINGS["marks"][mark]["priority"]
+    if sum != 1:
+        logger.error("Sum of priorities is not 1, defaulting to [100]")
+        SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
+
 NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")

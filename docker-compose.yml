@@ -20,7 +20,6 @@ services:
       DJANGO_SECRET: ${BACKEND_DJANGO_SECRET}
       SESSION_COOKIE_AGE: ${SESSION_COOKIE_AGE}
       DEV: 0
-      NETCONTROL_MARK: ${NETCONTROL_MARK}
       NETCONTROL_SOCKET_FILE: ${NETCONTROL_SOCKET_FILE}
     volumes:
       - ./volumes/prod/backend:/app/v1

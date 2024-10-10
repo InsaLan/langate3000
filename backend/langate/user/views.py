@@ -358,6 +358,14 @@ class UserList(generics.ListCreateAPIView):
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, self.request)
         serializer = UserSerializer(result_page, many=True)
+
+        # add devices to the response
+        for user in serializer.data:
+            user_devices = UserDevice.objects.filter(user=user['id'])
+            user["devices"] = UserDeviceSerializer(
+                user_devices, many=True
+            ).data
+
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(

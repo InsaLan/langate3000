@@ -1,7 +1,7 @@
 import sys, socket, struct
 import pickle
 import threading
-from ..settings import NETCONTROL_MARK, NETCONTROL_SOCKET_FILE
+from ..settings import NETCONTROL_SOCKET_FILE
 import random
 import sys
 
