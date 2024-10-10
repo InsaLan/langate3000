@@ -1,0 +1,39 @@
+{
+  "marks": [
+    {
+      "name": "sans vpn",
+      "value": 100,
+      "priority": 0
+    },
+    {
+      "name": "vpn1",
+      "value": 101,
+      "priority": 0.1
+    },
+    {
+      "name": "vpn2",
+      "value": 102,
+      "priority": 0.2
+    },
+    {
+      "name": "vpn3",
+      "value": 103,
+      "priority": 0.7
+    }
+  ],
+  "games": {
+    "csgo": [
+      101,
+      102
+    ],
+    "tm": [
+      102,
+      103
+    ],
+    "lol": [
+      103,
+      102,
+      101
+    ]
+  }
+}
