@@ -106,10 +106,10 @@ class UserDeviceList(generics.ListAPIView):
         query = UserDevice.objects.all().order_by("id")
 
         orders = [
-          "id", "-id", "ip", "-ip", "mac", "-mac", "name", "-name", "area", "-area", "user", "-user"
+          "id", "-id", "ip", "-ip", "mac", "-mac", "name", "-name", "area", "-area", "user", "-user", "mark", "-mark"
         ]
         filters = [
-          "ip", "mac", "name", "area", "user__username"
+          "ip", "mac", "name", "area", "user__username", "mark"
         ]
         # Fuzzy search
         if 'filter' in self.request.query_params:
@@ -229,7 +229,8 @@ class DeviceDetail(generics.RetrieveDestroyAPIView):
             DeviceManager.edit_whitelist_device(
               device,
               request.data.get("mac", device.mac),
-              request.data.get("name", device.name)
+              request.data.get("name", device.name),
+              request.data.get("mark", device.mark),
             )
 
             return Response(status=status.HTTP_200_OK)
@@ -256,10 +257,10 @@ class DeviceWhitelist(generics.ListAPIView):
         query = self.queryset
 
         orders = [
-          "id", "-id", "mac", "-mac", "name", "-name"
+          "id", "-id", "mac", "-mac", "name", "-name", "mark", "-mark"
         ]
         filters = [
-          "mac", "name"
+          "mac", "name", "mark"
         ]
         # Fuzzy search
         if 'filter' in self.request.query_params:
