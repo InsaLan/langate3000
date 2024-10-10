@@ -3,6 +3,7 @@ Network module. This module is responsible for the device and user connexion man
 """
 
 import sys, logging
+import os
 
 from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
@@ -26,9 +27,7 @@ class NetworkConfig(AppConfig):
             This is important to maintain the consistency between the device state from django's point of view
             and the device state from the Ipset's point of view.
         """
-        from langate.network.models import Device, UserDevice
-
-        print(sys.argv)
+        from langate.network.models import Device, UserDevice, DeviceManager
 
         if not any(
             x in sys.argv
@@ -65,3 +64,26 @@ class NetworkConfig(AppConfig):
                     mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": 100})
                     if not mark_res["success"]:
                         logger.info("[PortalConfig] Could not set mark 0 for device %s", dev.name)
+
+            logger.info(_("[PortalConfig] Add default whitelist devices to the ipset"))
+            if os.path.exists("assets/misc/whitelist.txt"):
+                with open("assets/misc/whitelist.txt", "r") as f:
+                    for line in f:
+                        line = line.strip().split("|")
+                        if len(line) == 2:
+                            name = line[0]
+                            mac = line[1]
+                            dev = Device.objects.filter(mac=mac).first()
+                            if dev is None:
+                                dev = DeviceManager.create_device(mac, name, True)
+                            else:
+                                dev.whitelisted = True
+                                dev.save()
+                            connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
+                            if not connect_res["success"]:
+                                logger.info("[PortalConfig] Could not connect device %s", dev.mac)
+                            mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": 100})
+                            if not mark_res["success"]:
+                                logger.info("[PortalConfig] Could not set mark 0 for device %s", dev.name)
+                        else:
+                            logger.error("[PortalConfig] Invalid line in whitelist.txt: %s", line)
