@@ -109,6 +109,9 @@ class DeviceManager(models.Manager):
 
         netcontrol.query("connect_user", { "mac": mac, "name": user.username })
 
+        mark = get_mark()
+        netcontrol.query("set_mark", { "mac": mac, "mark": mark })
+
         logger.info(
             "Connected device %s (owned by %s) at %s to the internet.",
             mac,
@@ -117,7 +120,7 @@ class DeviceManager(models.Manager):
         )
 
         try:
-            device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area)
+            device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area, mark=mark)
             device.save()
             return device
         except Exception as e:
@@ -134,9 +137,9 @@ class DeviceManager(models.Manager):
         return DeviceManager.delete_device(Device.mac)
 
     @staticmethod
-    def edit_whitelist_device(device: Device, mac, name, mark=None):
+    def edit_device(device: Device, mac, name, mark=None):
         """
-        Edit the whitelist status of a device
+        Edit the status of a device
         """
         # If name is provided, update it
         if name and name != device.name:
@@ -150,7 +153,11 @@ class DeviceManager(models.Manager):
           netcontrol.query("connect", { "mac": mac, "name": device.name })
           device.mac = mac
         if mark and mark != device.mark:
+            # Check if the mark is valid
+            if mark not in [m["value"] for m in SETTINGS["marks"]]:
+                raise ValidationError(_("Invalid mark"))
             device.mark = mark
+            netcontrol.query("set_mark", { "mac": device.mac, "mark": mark })
 
         device.save()
 
@@ -174,3 +181,20 @@ def generate_dev_name():
 
     except FileNotFoundError:
         return "MISSINGNO"
+
+def get_mark():
+    """
+        Get a mark from the settings based on random probability
+    """
+    # Get random between 0 and 1
+    random_choice = random.random()
+
+    # for each mark in the settings
+    total = 0
+    for mark in SETTINGS["marks"]:
+        if random_choice <= mark["priority"] + total:
+            return mark["value"]
+        total += mark["priority"]
+
+    # It should never reach this point but if it does, return the first mark
+    return SETTINGS["marks"][0]["value"]
