@@ -287,7 +287,13 @@ class MarkList(APIView):
         """
         Return a list of all marks
         """
-        return Response(SETTINGS["marks"])
+        marks = SETTINGS["marks"]
+
+        # for each mark, add the number of devices with that mark
+        for mark in marks:
+            mark["devices"] = Device.objects.filter(mark=mark["value"]).count()
+
+        return Response(marks)
 
     def patch(self, request):
         """
