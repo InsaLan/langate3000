@@ -7,10 +7,36 @@ from unittest.mock import patch, MagicMock
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from langate.settings import SETTINGS
-from langate.network.models import DeviceManager, Device, UserDevice
+from langate.network.models import DeviceManager, Device, UserDevice, get_mark
 from langate.user.models import User, Role
 from .serializers import FullDeviceSerializer
+
+# Using fixed values for the settings
+SETTINGS = {
+  "marks": [
+    {
+      "name": "sans vpn",
+      "value": 100,
+      "priority": 0
+    },
+    {
+      "name": "vpn1",
+      "value": 101,
+      "priority": 0.1
+    },
+    {
+      "name": "vpn2",
+      "value": 102,
+      "priority": 0.2
+    },
+    {
+      "name": "vpn3",
+      "value": 103,
+      "priority": 0.7
+    }
+  ]
+}
+
 
 
 class TestDeviceManager(TestCase):
@@ -552,3 +578,30 @@ class TestNetworkAPI(TestCase):
 
         response = self.client.post(reverse('device-list'), {})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class TestGetMark(TestCase):
+
+  @patch('random.random')
+  def test_get_mark_first_priority(self, mock_random):
+    mock_random.return_value = 0.06
+    expected_mark = SETTINGS["marks"][1]["value"]
+    self.assertEqual(get_mark(), expected_mark)
+
+  @patch('random.random')
+  def test_get_mark_second_priority(self, mock_random):
+    mock_random.return_value = 0.14
+    expected_mark = SETTINGS["marks"][2]["value"]
+    self.assertEqual(get_mark(), expected_mark)
+
+  @patch('random.random')
+  def test_get_mark_third_priority(self, mock_random):
+    mock_random.return_value = 0.86
+    expected_mark = SETTINGS["marks"][3]["value"]
+    self.assertEqual(get_mark(), expected_mark)
+
+  @patch('random.random')
+  def test_get_mark_cannot_be_none(self, mock_random):
+    for i in range(100):
+      mock_random.return_value = (i+1)/100
+      unexpected_mark = SETTINGS["marks"][0]["value"]
+      self.assertNotEqual(get_mark(), unexpected_mark)
