@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import Footer from '@/components/Footer.vue';
+import Navigation from '@/components/Navigation.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const userStore = useUserStore();
-const { handle_session_cookie_expiration } = userStore;
+const { handle_session_cookie_expiration, fetch_user } = userStore;
 
 onMounted(async () => {
   await handle_session_cookie_expiration();
+  await fetch_user();
 });
 
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col">
+  <Navigation/>
+  <div class="flex flex-1 flex-col bg-theme-bg">
     <RouterView v-slot="{ Component }">
       <template v-if="Component">
         <Suspense timeout="0">
@@ -35,6 +39,7 @@ onMounted(async () => {
       </template>
     </RouterView>
   </div>
+  <Footer/>
 </template>
 
 <style>

@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { User } from '@/models/user';
 
@@ -10,7 +10,13 @@ export const useUserStore = defineStore('user', () => {
   const csrf = ref('');
   const connectionTimestamp = ref(0);
   const router = useRouter();
-  const MailVerified = ref(false);
+
+  function create_temp_password(): string {
+    // create a 4 digits password
+    const password = Math.floor(Math.random() * 9999).toString();
+    // Ensure that the password is a string of 4 digits
+    return password.padStart(4, '0');
+  }
 
   /*
   * Get a new csrf token from the server
@@ -26,35 +32,11 @@ export const useUserStore = defineStore('user', () => {
     csrf.value = cookie;
   }
 
-  async function signin(
-    email: string,
-    username: string,
-    password: string,
-    password_validation: string,
-    decoy?: string,
-  ) {
-    await get_csrf();
-    const data = {
-      username,
-      email,
-      password,
-      password_validation,
-      decoy,
-    };
-    await axios.post('/user/register/', data, {
-      headers: {
-        'X-CSRFToken': csrf.value,
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
-  }
-
-  async function login(username: string, password: string) {
+  async function login(username: string, password: string): Promise<string | undefined> {
     await get_csrf();
 
     try {
-      await axios.post('/user/login/', { username, password }, {
+      const user_data = await axios.post<User>('/user/login/', { username, password }, {
         headers: {
           'X-CSRFToken': csrf.value,
           'Content-Type': 'application/json',
@@ -62,17 +44,19 @@ export const useUserStore = defineStore('user', () => {
         withCredentials: true,
       });
 
-      const user_data = await axios.get<User>('/user/me/', { withCredentials: true });
       user.value = user_data.data;
       isConnected.value = true;
       connectionTimestamp.value = Date.now();
-      await router.push('/me');
+      await router.push('/');
+      return undefined;
     } catch (err) {
-      /* empty */
+      return ((err as AxiosError<{ user: string[] }>).response?.data?.user?.[0]);
     }
   }
 
   async function logout() {
+    await get_csrf();
+
     await axios.post('/user/logout/', {}, {
       headers: {
         'X-CSRFToken': csrf.value,
@@ -81,6 +65,7 @@ export const useUserStore = defineStore('user', () => {
       withCredentials: true,
     });
     isConnected.value = false;
+    await router.push('/login');
     user.value = {} as User;
   }
 
@@ -92,26 +77,118 @@ export const useUserStore = defineStore('user', () => {
       > import.meta.env.VITE_SESSION_COOKIE_AGE * 1000
     ) {
       await logout();
-      await router.push('/register');
+      await router.push('/login');
     }
   }
 
-  const role = computed(() => {
-    if (user.value.is_superuser) return 'dev';
-    if (user.value.is_staff) return 'staff';
-    return 'joueur';
-  });
+  async function create_user(data: User): Promise<void> {
+    await get_csrf();
+
+    try {
+      await axios.post('/user/users/', data, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
+  async function reset_password(id: number): Promise<string | undefined> {
+    await get_csrf();
+
+    const password = create_temp_password();
+
+    try {
+      await axios.post(`/user/change-password/${id}/`, { password }, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      return password;
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+      return undefined;
+    }
+  }
+
+  async function delete_user(id: number): Promise<void> {
+    await get_csrf();
+
+    try {
+      await axios.delete(`/user/users/${id}/`, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
+  async function edit_user(id: number, data: User): Promise<void> {
+    await get_csrf();
+
+    try {
+      await axios.patch(`/user/users/${id}/`, data, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
+  async function fetch_user() {
+    try {
+      const user_data = await axios.get<User>('/user/me/', {
+        withCredentials: true,
+      });
+      console.log(user_data);
+      user.value = user_data.data;
+      isConnected.value = true;
+    } catch (err) {
+      if ((err as AxiosError).response?.status === 403) {
+        isConnected.value = false;
+
+        // clear user data
+        user.value = {} as User;
+
+        await router.push('/login');
+      }
+
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
 
   return {
     user,
-    signin,
     login,
     logout,
     get_csrf,
     handle_session_cookie_expiration,
-    role,
+    create_user,
+    create_temp_password,
+    reset_password,
+    delete_user,
+    edit_user,
+    fetch_user,
     isConnected,
-    MailVerified,
     csrf,
     connectionTimestamp,
   };

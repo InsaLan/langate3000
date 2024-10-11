@@ -1,7 +1,11 @@
-export interface UserPatch extends Partial<User> {
-  current_password?: string;
-  new_password?: string;
-  password_validation?: string;
+import type { UserDevice } from './device';
+
+export enum UserRole {
+  Player = 'player',
+  Manager = 'manager',
+  Guest = 'guest',
+  Staff = 'staff',
+  Admin = 'admin',
 }
 
 export interface User {
@@ -9,14 +13,10 @@ export interface User {
   last_login: Date;
   username: string;
   date_joined: Date;
-  is_staff: boolean;
-  is_superuser: boolean;
   is_active: boolean;
-  groups: string[];
-  user_permissions: unknown[];
-}
-
-export interface UserPatchError {
-  user?: string[];
-  password?: string;
+  role: UserRole;
+  max_device_nb: number;
+  tournament?: string;
+  team?: string;
+  devices: UserDevice[];
 }
