@@ -17,6 +17,13 @@ const props = defineProps<Props>();
       Utilisateurs
     </router-link>
     <router-link
+      to="/management/marks"
+      class="rounded-lg p-2 text-blue-500"
+      :class="{ 'bg-gray-600 text-white': props.type === 'marks' }"
+    >
+      Marks
+    </router-link>
+    <router-link
       to="/management/devices"
       class="rounded-lg p-2 text-blue-500"
       :class="{ 'bg-gray-600 text-white': props.type === 'devices' }"
