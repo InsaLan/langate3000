@@ -9,8 +9,9 @@ from django.core.exceptions import ValidationError
 
 from langate.user.models import User
 from langate.modules import netcontrol
-
 from langate.settings import SETTINGS
+
+from .utils import generate_dev_name, get_mark
 
 logger = logging.getLogger(__name__)
 
@@ -160,41 +161,3 @@ class DeviceManager(models.Manager):
             netcontrol.query("set_mark", { "mac": device.mac, "mark": mark })
 
         device.save()
-
-def generate_dev_name():
-    """
-        Generate a random device name based on a list of names
-    """
-    try:
-        with open("assets/misc/device_names.txt", "r", encoding="utf-8") as f:
-            lines = f.read().splitlines()
-            taken_names = Device.objects.values_list("name", flat=True)
-
-            if len(taken_names) < len(lines) :
-                n = random.choice(lines)
-                while n in taken_names:
-                    n = random.choice(lines)
-                return n
-
-            else:
-                return random.choice(lines)
-
-    except FileNotFoundError:
-        return "MISSINGNO"
-
-def get_mark():
-    """
-        Get a mark from the settings based on random probability
-    """
-    # Get random between 0 and 1
-    random_choice = random.random()
-
-    # for each mark in the settings
-    total = 0
-    for mark in SETTINGS["marks"]:
-        if random_choice <= mark["priority"] + total:
-            return mark["value"]
-        total += mark["priority"]
-
-    # It should never reach this point but if it does, return the first mark
-    return SETTINGS["marks"][0]["value"]

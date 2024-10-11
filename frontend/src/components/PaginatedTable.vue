@@ -103,7 +103,7 @@ const getProperty = (
   fct?: (data: unknown) => string,
 ) => {
   if (fct) return fct(object);
-  if (object[key]) return object[key];
+  if (object[key] !== undefined) return object[key];
   return '';
 };
 

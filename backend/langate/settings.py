@@ -18,6 +18,7 @@ import json
 import logging
 
 from django.utils.translation import gettext_lazy as _
+from langate.network.utils import validate_marks
 
 logger = logging.getLogger(__name__)
 
@@ -239,11 +240,8 @@ else:
         logger.error("No marks found in settings.json, defaulting to [100]")
         SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
 
-    sum = 0
-    for mark in range(len(SETTINGS["marks"])):
-        sum += SETTINGS["marks"][mark]["priority"]
-    if sum != 1:
-        logger.error("Sum of priorities is not 1, defaulting to [100]")
+    if not validate_marks(SETTINGS["marks"]):
+        logger.error("Invalid marks found in settings.json, defaulting to [100]")
         SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
 
 NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")

@@ -1,6 +1,8 @@
 import axios, { type AxiosError } from 'axios';
 import { defineStore, storeToRefs } from 'pinia';
+import { ref } from 'vue';
 import type { Device, UserDevice } from '@/models/device';
+import type { Mark } from '@/models/mark';
 
 import { useUserStore } from './user.store';
 
@@ -12,6 +14,8 @@ const { csrf } = storeToRefs(useUserStore());
  * The devices are not stored in the store because of the large amount of data and pagination
  */
 export const useDeviceStore = defineStore('device', () => {
+  const marks = ref<Mark[]>([] as Mark[]);
+
   async function deleteDevice(id: number): Promise<void> {
     await get_csrf();
     try {
@@ -108,11 +112,41 @@ export const useDeviceStore = defineStore('device', () => {
     await Promise.all(requests);
   }
 
+  async function fetch_marks(): Promise<void> {
+    try {
+      const response = await axios.get<Mark[]>('/network/marks/', { withCredentials: true });
+      marks.value = response.data;
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
+  async function patch_marks(data: Mark[]): Promise<void> {
+    await get_csrf();
+
+    try {
+      await axios.patch('/network/marks/', data, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
   return {
+    marks,
     deleteDevice,
     createDevice,
     createDevicesFromList,
     editDevice,
     change_userdevice_marks,
+    fetch_marks,
+    patch_marks,
   };
 }, { persist: false });

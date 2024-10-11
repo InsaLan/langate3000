@@ -7,7 +7,8 @@ from unittest.mock import patch, MagicMock
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from langate.network.models import DeviceManager, Device, UserDevice, get_mark
+from langate.network.models import DeviceManager, Device, UserDevice
+from langate.network.utils import get_mark
 from langate.user.models import User, Role
 from .serializers import FullDeviceSerializer
 
