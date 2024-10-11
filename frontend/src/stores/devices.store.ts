@@ -2,7 +2,7 @@ import axios, { type AxiosError } from 'axios';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import type { Device, UserDevice } from '@/models/device';
-import type { Mark } from '@/models/mark';
+import type { EditableMark, Mark } from '@/models/mark';
 
 import { useUserStore } from './user.store';
 
@@ -122,7 +122,7 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
-  async function patch_marks(data: Mark[]): Promise<void> {
+  async function patch_marks(data: EditableMark[]): Promise<void> {
     await get_csrf();
 
     try {
