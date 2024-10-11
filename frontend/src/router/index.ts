@@ -31,6 +31,17 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/management/marks',
+    component: () => import('@/views/Management/Marks.vue'),
+    beforeEnter: () => {
+      const { isConnected, user } = useUserStore();
+      return !isConnected || (
+        user.role !== UserRole.Admin
+        && user.role !== UserRole.Staff
+      ) ? { path: '/' } : true;
+    },
+  },
+  {
     path: '/management/devices',
     component: () => import('@/views/Management/Devices.vue'),
     beforeEnter: () => {

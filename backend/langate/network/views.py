@@ -8,12 +8,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+from langate.settings import SETTINGS
 from langate.user.models import Role
 from langate.network.models import Device, UserDevice, DeviceManager
+from langate.network.utils import validate_marks, save_settings
 
 from langate.network.serializers import DeviceSerializer, UserDeviceSerializer, FullDeviceSerializer
 
@@ -273,3 +276,28 @@ class DeviceWhitelist(generics.ListAPIView):
             if order in orders:
                 query = query.order_by(order)
         return query
+
+class MarkList(APIView):
+    """
+    API endpoint that allows marks to be viewed.
+    """
+    permission_classes = [StaffPermission]
+
+    def get(self, request):
+        """
+        Return a list of all marks
+        """
+        return Response(SETTINGS["marks"])
+
+    def patch(self, request):
+        """
+        Create a new mark
+        """
+        if not validate_marks(request.data):
+            return Response({"error": _("Invalid mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        SETTINGS["marks"] = request.data
+
+        save_settings(SETTINGS)
+
+        return Response(SETTINGS["marks"], status=status.HTTP_201_CREATED)
