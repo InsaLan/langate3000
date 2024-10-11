@@ -226,7 +226,7 @@ class DeviceDetail(generics.RetrieveDestroyAPIView):
         """
         try:
             device = Device.objects.get(pk=pk)
-            DeviceManager.edit_whitelist_device(
+            DeviceManager.edit_device(
               device,
               request.data.get("mac", device.mac),
               request.data.get("name", device.name),
