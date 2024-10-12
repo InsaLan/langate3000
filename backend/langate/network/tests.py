@@ -606,3 +606,67 @@ class TestGetMark(TestCase):
       mock_random.return_value = (i+1)/100
       unexpected_mark = SETTINGS["marks"][0]["value"]
       self.assertNotEqual(get_mark(), unexpected_mark)
+
+class TestMarkAPI(TestCase):
+    """
+    Test cases for the MarkDetail view
+    """
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('mark-list')
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.user.role = Role.STAFF
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.settings = {"marks":[
+          {"value": 100, "name": "Mark 1", "priority": 0.5},
+          {"value": 101, "name": "Mark 2", "priority": 0.5}
+        ]}
+        self.SETTINGS = self.settings
+        Device.objects.create(mac="00:00:00:00:00:01", mark=100, whitelisted=False)
+        Device.objects.create(mac="00:00:00:00:00:02", mark=101, whitelisted=True)
+        Device.objects.create(mac="00:00:00:00:00:03", mark=101, whitelisted=False)
+
+    @patch('langate.network.views.SETTINGS')
+    def test_get_marks(self, mock_settings):
+        mock_settings.__getitem__.side_effect = self.SETTINGS.__getitem__
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        for i in range(len(self.settings["marks"])):
+            self.assertEqual(response.data[i]["value"], self.settings["marks"][i]["value"])
+            self.assertEqual(response.data[i]["name"], self.settings["marks"][i]["name"])
+            self.assertEqual(response.data[i]["priority"], self.settings["marks"][i]["priority"])
+            self.assertEqual(response.data[i]["devices"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=False).count())
+            self.assertEqual(response.data[i]["whitelisted"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=True).count())
+
+    @patch('langate.network.views.save_settings')
+    #@patch('langate.network.views.SETTINGS')
+    def test_patch_marks(self, mock_save_settings):
+        #mock_settings.__getitem__.side_effect = self.SETTINGS.__getitem__
+        mock_save_settings.side_effect = lambda x: None
+
+        new_marks = [
+          {"value": 102, "name": "Mark 3", "priority": 0.3},
+          {"value": 103, "name": "Mark 4", "priority": 0.7}
+        ]
+        response = self.client.patch(self.url, new_marks, format='json')
+
+        from langate.settings import SETTINGS as ORIGINAL_SETTINGS
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(ORIGINAL_SETTINGS["marks"]), 2)
+        self.assertEqual(ORIGINAL_SETTINGS["marks"][0]["value"], 102)
+        self.assertEqual(ORIGINAL_SETTINGS["marks"][1]["value"], 103)
+
+    def test_patch_invalid_marks(self):
+        invalid_marks = [
+          {"value": 102, "name": "Mark 3", "priority": 0.3},
+          {"value": 103, "name": "Mark 4", "priority": 0.6}
+        ]
+        response = self.client.patch(self.url, invalid_marks, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "Invalid mark")
