@@ -139,6 +139,23 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
+  async function move_marks(oldMark: number, newMark: number) {
+    await get_csrf();
+
+    try {
+      await axios.post(`/network/mark/${oldMark}/move/${newMark}/`, {}, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
   return {
     marks,
     deleteDevice,
@@ -148,5 +165,6 @@ export const useDeviceStore = defineStore('device', () => {
     change_userdevice_marks,
     fetch_marks,
     patch_marks,
+    move_marks,
   };
 }, { persist: false });

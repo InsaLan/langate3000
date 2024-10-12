@@ -293,7 +293,8 @@ class MarkList(APIView):
         """
         Return a list of all marks
         """
-        marks = SETTINGS["marks"]
+        # Make a copy
+        marks = SETTINGS["marks"].copy()
 
         # for each mark, add the number of devices with that mark
         for mark in marks:
@@ -309,8 +310,43 @@ class MarkList(APIView):
         if not validate_marks(request.data):
             return Response({"error": _("Invalid mark")}, status=status.HTTP_400_BAD_REQUEST)
 
-        SETTINGS["marks"] = request.data
+        # Only keep the valid fields from the request
+        marks = []
+        for mark in request.data:
+            marks.append({
+              "name": mark["name"],
+              "value": mark["value"],
+              "priority": mark["priority"]
+            })
+
+        SETTINGS["marks"] = marks
 
         save_settings(SETTINGS)
 
         return Response(SETTINGS["marks"], status=status.HTTP_201_CREATED)
+
+class MarkMove(APIView):
+    """
+    API endpoint that allows all devices on a mark to be moved to another mark.
+    """
+
+    permission_classes = [StaffPermission]
+
+    def post(self, request, old, new):
+        """
+        Move all devices on a mark to another mark
+        """
+        # Check that the old and new marks are valid
+        marks = [m["value"] for m in SETTINGS["marks"]]
+
+        if old not in marks:
+            return Response({"error": _("Invalid origin mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new not in marks:
+            return Response({"error": _("Invalid destination mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        devices = Device.objects.filter(mark=old, whitelisted=False)
+        for device in devices:
+            DeviceManager.edit_device(device, device.mac, device.name, new)
+
+        return Response(status=status.HTTP_200_OK)
