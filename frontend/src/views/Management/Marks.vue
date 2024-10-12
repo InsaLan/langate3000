@@ -2,13 +2,15 @@
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import ManagementMenu from '@/components/ManagementMenu.vue';
-import type { EditableMark, Mark } from '@/models/mark';
+import type { EditableMark, GameMark, Mark } from '@/models/mark';
 import { useDeviceStore } from '@/stores/devices.store';
 
 const deviceStore = useDeviceStore();
 
-const { fetch_marks, patch_marks, move_marks } = deviceStore;
-const { marks } = storeToRefs(deviceStore);
+const {
+  fetch_marks, patch_marks, move_marks, fetch_game_marks, change_game_marks,
+} = deviceStore;
+const { marks, gameMarks } = storeToRefs(deviceStore);
 
 const marksCopy = ref<EditableMark[]>([]);
 
@@ -16,6 +18,7 @@ const edit = ref(false);
 
 onMounted(async () => {
   await fetch_marks();
+  await fetch_game_marks();
   // make a copy of the marks
   marksCopy.value = marks.value.map((mark) => ({ ...mark }));
 });
@@ -62,6 +65,36 @@ const validateMove = async () => {
 
   // reload the marks to update the number of devices
   await fetch_marks();
+};
+
+// -- Game Edit Modal --
+
+const game = ref(false);
+const gameMarksFields = ref<string[]>([]);
+const gameMarksValues = ref<number[]>([]);
+
+const openGameModal = () => {
+  // make a copy of the game marks
+  gameMarksFields.value = Object.keys(gameMarks.value);
+  gameMarksValues.value = Object.values(gameMarks.value);
+
+  game.value = true;
+};
+
+const submitGame = async () => {
+  // create a new GameMark object
+  const gameMarksObject: GameMark = {};
+  gameMarksFields.value.forEach((field, index) => {
+    gameMarksObject[field] = gameMarksValues.value[index];
+  });
+
+  await change_game_marks(gameMarksObject);
+
+  // close the modal
+  game.value = false;
+
+  // reload the game marks to update the number of devices
+  await fetch_game_marks();
 };
 
 </script>
@@ -238,8 +271,8 @@ const validateMove = async () => {
             </tbody>
           </table>
         </div>
-        <template v-if="edit">
-          <div class="mt-4 space-x-4">
+        <div class="mt-4 space-x-4">
+          <template v-if="edit">
             <button
               class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
               type="button"
@@ -261,10 +294,8 @@ const validateMove = async () => {
             >
               Valider
             </button>
-          </div>
-        </template>
-        <template v-else>
-          <div class="mt-4 space-x-4">
+          </template>
+          <template v-else>
             <button
               class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
               type="button"
@@ -272,8 +303,15 @@ const validateMove = async () => {
             >
               Modifier
             </button>
-          </div>
-        </template>
+          </template>
+          <button
+            class="rounded bg-purple-500 px-4 py-2 text-white hover:bg-purple-600"
+            type="button"
+            @click="openGameModal"
+          >
+            Modifier la répartition par Jeu
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -281,7 +319,7 @@ const validateMove = async () => {
   <!-- Mark move Modal -->
   <div
     v-if="move"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    class="fixed inset-0 flex items-center justify-center bg-black/50"
   >
     <div
       class="w-1/2 rounded-lg bg-zinc-800 p-4"
@@ -340,6 +378,103 @@ const validateMove = async () => {
             class="rounded-md bg-theme-nav px-4 py-2 text-white"
             type="button"
             @click="move = false"
+          >
+            Annuler
+          </button>
+          <button
+            class="rounded-md bg-blue-700 px-4 py-2 text-white"
+            type="submit"
+          >
+            Valider
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Game edit Modal-->
+  <div
+    v-if="game"
+    class="fixed inset-0 flex items-center justify-center bg-black/50"
+  >
+    <div
+      class="max-h-[75%] w-1/2 overflow-y-scroll rounded-lg bg-zinc-800 p-4"
+    >
+      <h2
+        class="text-center text-2xl font-bold text-white"
+      >
+        Modifier la répartition par Jeu
+      </h2>
+      <form
+        class="mt-4 flex flex-col gap-4"
+        @submit.prevent="submitGame"
+      >
+        <div
+          class="flex flex-col gap-4"
+        >
+          <template
+            v-for="(value, index) in gameMarksFields"
+            :key="index"
+          >
+            <div
+              class="flex flex-row items-center justify-between"
+            >
+              <div
+                class="flex flex-row items-center gap-2"
+              >
+                <label
+                  :for="`game-mark-${index}`"
+                  class="w-20 overflow-hidden"
+                >
+                  <input
+                    :id="`game-mark-${index}`"
+                    v-model="gameMarksFields[index]"
+                    class="w-20 truncate rounded-md bg-theme-nav p-1 font-bold text-white"
+                  />
+                </label>
+                <div>
+                  :
+                </div>
+                <input
+                  :id="`game-mark-${index}`"
+                  v-model.number="gameMarksValues[index]"
+                  class="rounded-md border border-black bg-theme-nav p-2 text-white"
+                  type="number"
+                />
+              </div>
+              <!-- Supprimer le jeu -->
+              <button
+                class="rounded-md bg-red-500 p-1 hover:bg-red-600"
+                type="button"
+                @click="gameMarksFields.splice(index, 1); gameMarksValues.splice(index, 1)"
+              >
+                <fa-awesome-icon
+                  icon="trash-can"
+                  size="lg"
+                />
+              </button>
+            </div>
+          </template>
+          <!-- Ajouter un jeu -->
+          <button
+            class="rounded-md bg-blue-500 p-1 hover:bg-blue-600"
+            type="button"
+            @click="gameMarksFields.push(''); gameMarksValues.push(0)"
+          >
+            <fa-awesome-icon
+              icon="plus"
+              size="lg"
+            />
+            Ajouter un jeu
+          </button>
+        </div>
+        <div
+          class="flex justify-end"
+        >
+          <button
+            class="mr-2 rounded-md bg-theme-nav px-4 py-2 text-white"
+            type="button"
+            @click="game = false"
           >
             Annuler
           </button>

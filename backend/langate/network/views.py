@@ -1,3 +1,4 @@
+import copy
 from functools import reduce
 from operator import or_
 
@@ -16,7 +17,7 @@ from drf_yasg import openapi
 from langate.settings import SETTINGS
 from langate.user.models import Role
 from langate.network.models import Device, UserDevice, DeviceManager
-from langate.network.utils import validate_marks, save_settings
+from langate.network.utils import validate_marks, validate_games, save_settings
 
 from langate.network.serializers import DeviceSerializer, UserDeviceSerializer, FullDeviceSerializer
 
@@ -294,7 +295,7 @@ class MarkList(APIView):
         Return a list of all marks
         """
         # Make a copy
-        marks = SETTINGS["marks"].copy()
+        marks = copy.deepcopy(SETTINGS["marks"])
 
         # for each mark, add the number of devices with that mark
         for mark in marks:
@@ -350,3 +351,28 @@ class MarkMove(APIView):
             DeviceManager.edit_device(device, device.mac, device.name, new)
 
         return Response(status=status.HTTP_200_OK)
+
+class GameList(APIView):
+    """
+    API endpoint that allows games to be viewed.
+    """
+    permission_classes = [StaffPermission]
+
+    def get(self, request):
+        """
+        Return a list of all games
+        """
+        return Response(SETTINGS["games"])
+
+    def patch(self, request):
+        """
+        Create a new game
+        """
+        if not validate_games(request.data):
+            return Response({"error": _("Invalid game")}, status=status.HTTP_400_BAD_REQUEST)
+
+        SETTINGS["games"] = request.data
+
+        save_settings(SETTINGS)
+
+        return Response(SETTINGS["games"], status=status.HTTP_201_CREATED)
