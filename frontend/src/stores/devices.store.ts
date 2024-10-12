@@ -2,7 +2,7 @@ import axios, { type AxiosError } from 'axios';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import type { Device, UserDevice } from '@/models/device';
-import type { EditableMark, Mark } from '@/models/mark';
+import type { EditableMark, GameMark, Mark } from '@/models/mark';
 
 import { useUserStore } from './user.store';
 
@@ -15,6 +15,7 @@ const { csrf } = storeToRefs(useUserStore());
  */
 export const useDeviceStore = defineStore('device', () => {
   const marks = ref<Mark[]>([] as Mark[]);
+  const gameMarks = ref<GameMark>({} as GameMark);
 
   async function deleteDevice(id: number): Promise<void> {
     await get_csrf();
@@ -156,8 +157,36 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
+  async function fetch_game_marks(): Promise<void> {
+    try {
+      const response = await axios.get<GameMark>('/network/games/', { withCredentials: true });
+      gameMarks.value = response.data;
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
+  async function change_game_marks(data: GameMark): Promise<void> {
+    await get_csrf();
+
+    try {
+      await axios.patch('/network/games/', data, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      // TODO : display error message with a component
+      console.error((err as AxiosError).response?.data);
+    }
+  }
+
   return {
     marks,
+    gameMarks,
     deleteDevice,
     createDevice,
     createDevicesFromList,
@@ -166,5 +195,7 @@ export const useDeviceStore = defineStore('device', () => {
     fetch_marks,
     patch_marks,
     move_marks,
+    fetch_game_marks,
+    change_game_marks,
   };
 }, { persist: false });

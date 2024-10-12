@@ -1,12 +1,12 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-  faArrowLeft,
-  faArrowsAlt,
+  faArrowLeft, faArrowsAlt,
   faArrowsRotate, faBolt, faChevronDown, faChevronUp,
   faCircle, faCircleCheck, faCirclePlus, faClock,
   faCrown, faDownload, faEye, faEyeSlash,
   faFile, faHammer, faKey, faLocationDot,
-  faMagnifyingGlass, faPencil, faRedo,
+  faMagnifyingGlass, faPencil, faPlus,
+  faRedo,
   faSort, faSortDown, faSortUp, faSpinner,
   faTrashCan, faWarning,
 } from '@fortawesome/free-solid-svg-icons';
@@ -51,6 +51,7 @@ library.add(
   faSpinner,
   faLocationDot,
   faArrowsAlt,
+  faPlus,
 );
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
