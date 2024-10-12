@@ -70,6 +70,12 @@ const reset = async () => {
                 >
                   Nb Appareils
                 </th>
+                <th
+                  v-if="!edit"
+                  class="border-2 border-zinc-800 px-2"
+                >
+                  Nb Appareils (Whitelisted)
+                </th>
                 <th class="border-2 border-zinc-800 px-2"/>
               </tr>
             </thead>
@@ -127,6 +133,14 @@ const reset = async () => {
                 >
                   <div>
                     {{ (mark as Mark).devices }}
+                  </div>
+                </td>
+                <td
+                  v-if="!edit"
+                  class="border-2 border-zinc-800 p-2 text-center"
+                >
+                  <div>
+                    {{ (mark as Mark).whitelisted }}
                   </div>
                 </td>
                 <td class="border-2 border-zinc-800 p-2 text-center">

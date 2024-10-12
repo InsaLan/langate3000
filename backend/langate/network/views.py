@@ -291,7 +291,8 @@ class MarkList(APIView):
 
         # for each mark, add the number of devices with that mark
         for mark in marks:
-            mark["devices"] = Device.objects.filter(mark=mark["value"]).count()
+            mark["devices"] = Device.objects.filter(mark=mark["value"], whitelisted=False).count()
+            mark["whitelisted"] = Device.objects.filter(mark=mark["value"], whitelisted=True).count()
 
         return Response(marks)
 

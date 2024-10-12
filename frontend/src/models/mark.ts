@@ -6,4 +6,5 @@ export interface EditableMark {
 
 export interface Mark extends EditableMark {
   devices: number;
+  whitelisted: number;
 }
