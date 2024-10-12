@@ -7,7 +7,7 @@ import { useDeviceStore } from '@/stores/devices.store';
 
 const deviceStore = useDeviceStore();
 
-const { fetch_marks, patch_marks } = deviceStore;
+const { fetch_marks, patch_marks, move_marks } = deviceStore;
 const { marks } = storeToRefs(deviceStore);
 
 const marksCopy = ref<EditableMark[]>([]);
@@ -37,6 +37,31 @@ const submitData = async () => {
 const reset = async () => {
   marksCopy.value = marks.value.map((mark) => ({ ...mark }));
   edit.value = false;
+};
+
+// -- Move Modal --
+
+const move = ref(false);
+const currentMark = ref(0);
+const chosenMark = ref(0);
+
+const openModal = (selectedMark: number) => {
+  currentMark.value = selectedMark;
+  // set the chosen mark to the first mark in the list
+  chosenMark.value = marks.value[0].value;
+  move.value = true;
+};
+
+const validateMove = async () => {
+  await move_marks(currentMark.value, chosenMark.value);
+  // TODO: display a success message
+  console.log('Data moved');
+
+  // close the modal
+  move.value = false;
+
+  // reload the marks to update the number of devices
+  await fetch_marks();
 };
 
 </script>
@@ -166,13 +191,9 @@ const reset = async () => {
                     </button>
                   </template>
                   <template v-else>
-                    <!--
-                      Add different actions here :
-                      - View devices with this mark
-                      - Change devices with this mark to another mark
-                      - ...
-                    -->
-                    <div>
+                    <div
+                      class="flex justify-center gap-2"
+                    >
                       <router-link
                         class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
                         :to="'/management/devices?mark=' + mark.value"
@@ -191,6 +212,25 @@ const reset = async () => {
                           Voir les appareils avec cette mark
                         </div>
                       </router-link>
+                      <button
+                        class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
+                        type="button"
+                        @click="openModal(mark.value)"
+                      >
+                        <fa-awesome-icon
+                          icon="arrows-alt"
+                          size="lg"
+                        />
+                        <div
+                          class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                          :class="{
+                            'bottom-8': index === (edit ? marksCopy.length - 1 : marks.length - 1),
+                            'top-0': index !== (edit ? marksCopy.length - 1 : marks.length - 1),
+                          }"
+                        >
+                          Déplacer les appareils avec cette mark
+                        </div>
+                      </button>
                     </div>
                   </template>
                 </td>
@@ -235,6 +275,82 @@ const reset = async () => {
           </div>
         </template>
       </div>
+    </div>
+  </div>
+
+  <!-- Mark move Modal -->
+  <div
+    v-if="move"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div
+      class="w-1/2 rounded-lg bg-zinc-800 p-4"
+    >
+      <h2
+        class="text-center text-2xl font-bold text-white"
+      >
+        Déplacer les appareils
+      </h2>
+      <form
+        class="mt-4 flex flex-col gap-4"
+        @submit.prevent="validateMove"
+      >
+        <div
+          class="flex flex-row items-center gap-2"
+        >
+          <div>
+            Déplacer les appareils avec la mark
+          </div>
+          <div
+            class="rounded-md bg-theme-nav p-1 font-bold text-white"
+          >
+            {{ currentMark }}
+          </div>
+          <div>
+            vers la mark
+          </div>
+        </div>
+        <div
+          class="flex flex-col"
+        >
+          <label
+            class="text-white"
+            for="mark"
+          >
+            Mark
+          </label>
+          <select
+            id="mark"
+            v-model="chosenMark"
+            class="rounded-md border border-black bg-theme-nav p-2 text-white"
+          >
+            <option
+              v-for="mark in marks"
+              :key="mark.value"
+              :value="mark.value"
+            >
+              {{ mark.name }} - {{ mark.value }}
+            </option>
+          </select>
+        </div>
+        <div
+          class="flex justify-end gap-4"
+        >
+          <button
+            class="rounded-md bg-theme-nav px-4 py-2 text-white"
+            type="button"
+            @click="move = false"
+          >
+            Annuler
+          </button>
+          <button
+            class="rounded-md bg-blue-700 px-4 py-2 text-white"
+            type="submit"
+          >
+            Valider
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
