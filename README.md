@@ -3,9 +3,13 @@
 This repository is here to hold the langate infrastructure. It is composed of
 the frontend, the backend, and the nginx server.
 
+## Documentation
+
+Technical documentation is available [here](docs/manuel/src/SUMMARY.md) (in french).
+
 ## Contributing
 
-Please read carefully[the CONTRIBUTING.md file](CONTRIBUTING.md) before any
+Please read carefully [the CONTRIBUTING.md file](CONTRIBUTING.md) before any
 contribution.
 
 ## Netcontrol
