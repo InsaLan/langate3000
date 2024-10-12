@@ -106,7 +106,7 @@ class DeviceManager(models.Manager):
 
         netcontrol.query("connect_user", { "mac": mac, "name": user.username })
 
-        mark = get_mark()
+        mark = get_mark(user)
         netcontrol.query("set_mark", { "mac": mac, "mark": mark })
 
         logger.info(

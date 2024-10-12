@@ -50,21 +50,11 @@ class NetworkConfig(AppConfig):
             for dev in Device.objects.all():
                 connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
                 if not connect_res["success"]:
-                    # If the device is a User device, we want to add it to the ipset
-                    userdev = UserDevice.objects.filter(mac=dev.mac).first()
-                    if userdev is not None:
-                        logger.info(
-                            "[PortalConfig] Could not connect device %s owned by user %s",
-                            dev.mac,
-                            userdev.user.username
-                        )
-                    else:
-                        logger.info("[PortalConfig] Could not connect device %s", dev.mac)
+                    logger.info("[PortalConfig] Could not connect device %s", dev.mac)
 
-                if dev.whitelisted:
-                    mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": 100})
-                    if not mark_res["success"]:
-                        logger.info("[PortalConfig] Could not set mark 0 for device %s", dev.name)
+                mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": 100})
+                if not mark_res["success"]:
+                    logger.info("[PortalConfig] Could not set mark for device %s", dev.name)
 
             logger.info(_("[PortalConfig] Add default whitelist devices to the ipset"))
             if os.path.exists("assets/misc/whitelist.txt"):
@@ -81,9 +71,11 @@ class NetworkConfig(AppConfig):
                             else:
                                 dev.whitelisted = True
                                 dev.save()
+
                                 connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
                                 if not connect_res["success"]:
                                     logger.info("[PortalConfig] Could not connect device %s", dev.mac)
+
                                 mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": mark})
                                 if not mark_res["success"]:
                                     logger.info("[PortalConfig] Could not set mark for device %s", dev.name)
