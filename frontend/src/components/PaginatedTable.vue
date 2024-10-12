@@ -119,7 +119,13 @@ const fetchData = async (page_number: number) => {
     }
 
     let start = (page_number - 1) * tabledata.pageSize;
-    let url = `${props.url}?page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
+    let { url } = props;
+    if (url.includes('?')) {
+      url += '&';
+    } else {
+      url += '?';
+    }
+    url += `page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     if (page_number !== -1) {
       for (let i = 0; i < start; i += 1) {
         if (!tabledata.objects[i]) tabledata.objects.push({});
@@ -656,7 +662,7 @@ const openFormModalCreateMultiple = (
                 class="animate-spin"
               />
             </div>
-            <tr v-for="object in paginatedData" :key="object.id">
+            <tr v-for="(object, index) in paginatedData" :key="object.id">
               <td
                 v-for="property in props.properties"
                 :key="property.key"
@@ -681,7 +687,11 @@ const openFormModalCreateMultiple = (
                       class="text-white"
                     />
                     <div
-                      class="pointer-events-none absolute right-[-40px] top-0 z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      :class="{
+                        'bottom-8': index === paginatedData.length - 1,
+                        'top-0': index !== paginatedData.length - 1,
+                      }"
                     >
                       {{ action.hint }}
                     </div>

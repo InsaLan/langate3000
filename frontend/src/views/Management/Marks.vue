@@ -143,10 +143,10 @@ const reset = async () => {
                     {{ (mark as Mark).whitelisted }}
                   </div>
                 </td>
-                <td class="border-2 border-zinc-800 p-2 text-center">
+                <td class="relative border-2 border-zinc-800 p-2 text-center">
                   <template v-if="edit">
                     <button
-                      class="rounded bg-red-500 p-1 hover:bg-red-600"
+                      class="group rounded bg-red-500 p-1 hover:bg-red-600"
                       type="button"
                       @click="removeMark(index)"
                     >
@@ -154,6 +154,15 @@ const reset = async () => {
                         icon="trash-can"
                         size="lg"
                       />
+                      <div
+                        class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                        :class="{
+                          'bottom-8': index === (edit ? marksCopy.length - 1 : marks.length - 1),
+                          'top-0': index !== (edit ? marksCopy.length - 1 : marks.length - 1),
+                        }"
+                      >
+                        Supprimer cette mark
+                      </div>
                     </button>
                   </template>
                   <template v-else>
@@ -164,7 +173,24 @@ const reset = async () => {
                       - ...
                     -->
                     <div>
-                      TODO
+                      <router-link
+                        class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
+                        :to="'/management/devices?mark=' + mark.value"
+                      >
+                        <fa-awesome-icon
+                          icon="eye"
+                          size="lg"
+                        />
+                        <div
+                          class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                          :class="{
+                            'bottom-8': index === (edit ? marksCopy.length - 1 : marks.length - 1),
+                            'top-0': index !== (edit ? marksCopy.length - 1 : marks.length - 1),
+                          }"
+                        >
+                          Voir les appareils avec cette mark
+                        </div>
+                      </router-link>
                     </div>
                   </template>
                 </td>
