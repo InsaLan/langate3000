@@ -109,10 +109,10 @@ class UserDeviceList(generics.ListAPIView):
         query = UserDevice.objects.all().order_by("id")
 
         orders = [
-          "id", "-id", "ip", "-ip", "mac", "-mac", "name", "-name", "area", "-area", "user", "-user", "mark", "-mark"
+          "id", "-id", "ip", "-ip", "mac", "-mac", "name", "-name", "user", "-user", "mark", "-mark"
         ]
         filters = [
-          "ip", "mac", "name", "area", "user__username", "mark"
+          "ip", "mac", "name", "user__username", "mark"
         ]
         # Fuzzy search
         if 'filter' in self.request.query_params:
@@ -138,13 +138,13 @@ class UserDeviceList(generics.ListAPIView):
                 name="filter",
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description="Filter the devices by IP, MAC, Name, Area or User",
+                description="Filter the devices by IP, MAC, Name or User",
             ),
             openapi.Parameter(
                 name="order",
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description="Order the devices by id, ip, mac, name, area or user",
+                description="Order the devices by id, ip, mac, name or user",
             ),
         ]
     )

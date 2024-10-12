@@ -8,5 +8,4 @@ export interface Device {
 export interface UserDevice extends Device {
   user: string;
   ip: string;
-  area: string;
 }

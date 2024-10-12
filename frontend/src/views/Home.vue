@@ -61,7 +61,7 @@ const { user } = storeToRefs(userStore);
           },
           {
             name: 'Réseau',
-            key: 'area',
+            key: 'mac',
             ordering: false,
           },
         ]"

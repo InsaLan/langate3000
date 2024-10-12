@@ -59,7 +59,6 @@ class FullDeviceSerializer(serializers.Serializer):
     whitelisted = serializers.BooleanField(read_only=True)
     ip = serializers.IPAddressField(allow_null=True, required=False)
     user = serializers.CharField(allow_null=True, required=False)
-    area = serializers.CharField(allow_null=True, read_only=True)
 
     def to_representation(self, instance):
         """
@@ -67,15 +66,13 @@ class FullDeviceSerializer(serializers.Serializer):
         """
         representation = super().to_representation(instance)
 
-        # If the instance is a Device, set ip, user, and area to None
+        # If the instance is a Device, set ip, user to None
         if isinstance(instance, UserDevice):
             representation['ip'] = instance.ip
             representation['user'] = instance.user.username
-            representation['area'] = instance.area
         else:
             representation['ip'] = None
             representation['user'] = None
-            representation['area'] = None
 
         return representation
 
