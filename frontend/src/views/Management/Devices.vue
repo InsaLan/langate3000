@@ -40,11 +40,6 @@ const queryParams = window.location.search;
             ordering: false,
           },
           {
-            name: 'Zone',
-            key: 'area',
-            ordering: false,
-          },
-          {
             name: 'Mark',
             key: 'mark',
             ordering: true,

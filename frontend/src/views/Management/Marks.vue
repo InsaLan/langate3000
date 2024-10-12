@@ -307,7 +307,7 @@ const validateMove = async () => {
             {{ currentMark }}
           </div>
           <div>
-            vers la mark
+            vers la mark :
           </div>
         </div>
         <div
@@ -317,7 +317,7 @@ const validateMove = async () => {
             class="text-white"
             for="mark"
           >
-            Mark
+            Nouvelle Mark
           </label>
           <select
             id="mark"

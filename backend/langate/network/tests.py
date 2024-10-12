@@ -124,7 +124,6 @@ class TestDeviceManager(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:55",
-              "area": "LAN"
             }
             device = DeviceManager.create_user_device(
               user=self.user, ip="123.123.123.123", name="TestDevice"
@@ -135,7 +134,6 @@ class TestDeviceManager(TestCase):
             self.assertFalse(device.whitelisted)
             self.assertEqual(device.user, self.user)
             self.assertEqual(device.ip, "123.123.123.123")
-            self.assertEqual(device.area, "LAN")
 
     def test_create_user_device_invalid_ip(self):
         """
@@ -146,7 +144,6 @@ class TestDeviceManager(TestCase):
                 mock_query.return_value = {
                   "success": True,
                   "mac": "00:11:22:33:44:55",
-                  "area": "LAN"
                 }
                 DeviceManager.create_user_device(
                   user=self.user, ip="123.123.123.823", name="TestDevice"
@@ -161,7 +158,6 @@ class TestDeviceManager(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:55",
-              "area": "LAN"
             }
             device = DeviceManager.create_user_device(
               user=self.user, ip="123.123.123.123", name=None
@@ -177,7 +173,6 @@ class TestDeviceManager(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:55",
-              "area": "LAN"
             }
             with self.assertRaises(ValidationError):
                 DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice")
@@ -210,7 +205,6 @@ class TestNetworkAPI(TestCase):
           ip="123.123.123.123",
           mac="00:11:22:33:44:55",
           name="TestDevice",
-          area="LAN"
         )
         self.device = Device.objects.create(
           mac="00:11:22:33:44:56",
@@ -234,7 +228,6 @@ class TestNetworkAPI(TestCase):
           'whitelisted': False,
           'ip': '123.123.123.123',
           'user': 'testuser',
-          'area': 'LAN'
         }
 
         self.assertJSONEqual(response.content, expected)
@@ -255,7 +248,6 @@ class TestNetworkAPI(TestCase):
           'whitelisted': True,
           'ip': None,
           'user': None,
-          'area': None
         }
 
         self.assertJSONEqual(response.content, expected)
@@ -421,7 +413,6 @@ class TestNetworkAPI(TestCase):
               'whitelisted': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
-              'area': 'LAN'
             },
             {
               'id': self.device.pk,
@@ -430,7 +421,6 @@ class TestNetworkAPI(TestCase):
               'whitelisted': True,
               'ip': None,
               'user': None,
-              'area': None
             }
           ]
         }
@@ -485,7 +475,6 @@ class TestNetworkAPI(TestCase):
               'whitelisted': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
-              'area': 'LAN',
               'mark': SETTINGS['marks'][0]['value']
             }
           ]
@@ -546,7 +535,6 @@ class TestNetworkAPI(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:57",
-              "area": "LAN"
             }
             response = self.client.post(reverse('device-list'), new_data)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)

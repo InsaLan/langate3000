@@ -46,9 +46,6 @@ class UserDevice(Device):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ip = models.GenericIPAddressField(blank=False)
 
-    # Area of the device, i.e. LAN or WiFi
-    area = models.CharField(max_length=4, default="LAN")
-
 class DeviceManager(models.Manager):
     """
     Manager for the Device and UserDevice models
@@ -103,7 +100,6 @@ class DeviceManager(models.Manager):
 
         r = netcontrol.query("get_mac", { "ip": ip })
         mac = r["mac"]
-        area = "LAN"
 
         # Validate the MAC address
         validate_mac(mac)
@@ -121,7 +117,7 @@ class DeviceManager(models.Manager):
         )
 
         try:
-            device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, area=area, mark=mark)
+            device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, mark=mark)
             device.save()
             return device
         except Exception as e:
