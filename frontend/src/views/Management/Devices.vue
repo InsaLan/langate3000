@@ -5,6 +5,7 @@ import type { Device } from '@/models/device';
 import { useDeviceStore } from '@/stores/devices.store';
 
 const { deleteDevice, editDevice } = useDeviceStore();
+const queryParams = window.location.search;
 
 </script>
 
@@ -16,7 +17,7 @@ const { deleteDevice, editDevice } = useDeviceStore();
     <div class="flex flex-col md:flex-row">
       <ManagementMenu type="devices"/>
       <PaginatedTable
-        url="/network/userdevices"
+        :url="'/network/userdevices' + queryParams"
         :properties="[
           {
             name: '#',

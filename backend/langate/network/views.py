@@ -119,6 +119,9 @@ class UserDeviceList(generics.ListAPIView):
             filter = self.request.query_params['filter']
             q_objects = [Q(**{f'{f}__icontains': filter}) for f in filters]
             query = query.filter(reduce(or_, q_objects))
+        # Search specific mark
+        if 'mark' in self.request.query_params:
+            query = query.filter(mark=self.request.query_params['mark'])
         # Manage ordering
         if 'order' in self.request.query_params:
             order = self.request.query_params['order']
@@ -149,7 +152,10 @@ class UserDeviceList(generics.ListAPIView):
         """
         Return a list of all UserDevice objects.
         """
-        queryset = self.get_queryset()
+        try:
+          queryset = self.get_queryset()
+        except Exception as e:
+          return Response({"error": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
         paginator = self.pagination_class()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         serializer = UserDeviceSerializer(paginated_queryset, many=True)
