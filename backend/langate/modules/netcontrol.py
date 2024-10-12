@@ -1,9 +1,7 @@
-import sys, socket, struct
+import  socket, struct
 import pickle
 import threading
 from ..settings import NETCONTROL_SOCKET_FILE
-import random
-import sys
 
 lock = threading.Lock()
 
@@ -50,17 +48,5 @@ def communicate(payload):
                 raise NetworkDaemonError(response["message"])
 
 def query(q, opts = {}):
-    TESTING = sys.argv[1:2] == ['test']
-    if (TESTING):
-      # Generate random MAC address
-      mac_address = ':'.join(['{:02x}'.format(random.randint(0, 255)) for _ in range(6)])
-
-      return {
-        "success": True,
-        "mac": mac_address,
-        "ip": "127.0.0.1",
-        "area": "LAN",
-      }
-
     b = { "query": q }
     return communicate({ **b, **opts })
