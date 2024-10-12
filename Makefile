@@ -1,10 +1,18 @@
-@PHONY: build-prod run-prod stop-prod clean-all clean-custom
+@PHONY: install build-prod run-prod stop-prod clean-all clean-custom
+
+WORKING_DIR := $(shell pwd)
+
+install:
+	@echo "Installing netcontrol"
+	cp langate3000-netcontrol.service /etc/systemd/system/
+	sed -i 's|__WORKING_DIR__|${WORKING_DIR}|g' /etc/systemd/system/langate3000-netcontrol.service
 
 build-prod:
 	@echo "Building production images"
 	docker compose -f docker-compose.yml build
 
 run-prod:
+	systemctl start langate2000-netcontrol
 	@echo "Running the production stack"
 	docker compose -f docker-compose.yml up -d
 
@@ -17,7 +25,7 @@ run-beta:
 	docker compose -f docker-compose-beta.yml up --build -d
 
 stop-beta:
-	@echo "Stopping the pre-production stack" 
+	@echo "Stopping the pre-production stack"
 	docker compose -f docker-compose-beta.yml down
 
 clean-all:

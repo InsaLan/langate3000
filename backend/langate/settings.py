@@ -216,3 +216,7 @@ CSRF_COOKIE_DOMAIN = '.' + getenv("WEBSITE_HOST", "localhost")
 
 # Session cookie settings
 SESSION_COOKIE_AGE = int(getenv("SESSION_COOKIE_AGE", "1209600"))
+
+# Netcontrol settings
+NETCONTROL_MARK = json.loads(getenv("NETCONTROL_MARK", "[100, 2]"))
+NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")
