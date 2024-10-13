@@ -5,6 +5,7 @@ import type { Device } from '@/models/device';
 import type { User } from '@/models/user';
 import { UserRole } from '@/models/user';
 import { useDeviceStore } from '@/stores/devices.store';
+import { useNotificationStore } from '@/stores/notification.stores';
 import { useUserStore } from '@/stores/user.store';
 
 const {
@@ -14,6 +15,8 @@ const {
 const {
   change_userdevice_marks,
 } = useDeviceStore();
+
+const { addNotification } = useNotificationStore();
 
 </script>
 
@@ -190,22 +193,23 @@ const {
             },
           },
           {
-            hint: 'Réinitialiser le mot de passe',
+            hint: 'Changer le mot de passe',
             icon: 'key',
             key: 'reset',
             modal: {
-              title: 'Réinitialiser le mot de passe',
+              title: 'Changer le mot de passe',
               fields: [
                 {
-                  name: 'Voulez-vous vraiment réinitialiser le mot de passe de cet utilisateur ?',
-                  key: 'confirm',
-                  type: 'hidden',
+                  name: 'Nouveau mot de passe',
+                  key: 'password',
+                  type: 'text',
                 },
               ],
             },
             function: async (device, fields) => {
-              const password = await reset_password((device as unknown as User).id);
-              return 'Le mot de passe a bien été réinitialisé, le nouveau mot de passe est : ' + password;
+              if (await reset_password((device as unknown as User).id, fields.password)) {
+                return 'Le mot de passe a bien été changé';
+              }
             },
           },
           {
@@ -226,7 +230,9 @@ const {
               },
             },
             function: async (user, fields) => {
-              await change_userdevice_marks(fields);
+              if (await change_userdevice_marks(fields)) {
+                addNotification('Les marks ont bien été modifiés', 'info');
+              }
             },
           },
           {
