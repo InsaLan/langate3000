@@ -5,6 +5,9 @@ import {
   ref,
 } from 'vue';
 import FormModal from '@/components/FormModal.vue';
+import { useNotificationStore } from '@/stores/notification.stores';
+
+const { addNotification } = useNotificationStore();
 
 const searchValue = ref('');
 const dataSet = ref([]) as Ref<{ [key: string]: string }[]>;
@@ -125,14 +128,14 @@ const fetchData = async (page_number: number) => {
     } else {
       url += '?';
     }
-    url += `page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     if (page_number !== -1) {
       for (let i = 0; i < start; i += 1) {
         if (!tabledata.objects[i]) tabledata.objects.push({});
       }
+      url += `page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     } else {
       start = 0;
-      url = `${props.url}?page=1&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
+      url += `page=1&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     }
 
     axios.get<{
@@ -192,8 +195,10 @@ const fetchData = async (page_number: number) => {
     tabledata.total = tabledata.objects.length;
     tabledata.loading = false;
   } else {
-    // TODO : display error message with a component
-    console.error('No data or url provided');
+    addNotification(
+      'Erreur lors de l\'initialisation de la table',
+      'error',
+    );
   }
 };
 
@@ -438,8 +443,10 @@ const openFormModalCreateMultiple = (
     if (
       !modal.fields[0].value.includes('|')
     ) {
-      // TODO : display error message with a component
-      console.error('The format is not correct');
+      addNotification(
+        'Le format n\'est pas correct',
+        'error',
+      );
       return;
     }
 
@@ -453,8 +460,10 @@ const openFormModalCreateMultiple = (
     modal.fields[0].value.split('\n').forEach((line) => {
       const values = line.split('|');
       if (values.length !== create.modal.fields.length) {
-        // TODO : display error message with a component
-        console.error('The format is not correct');
+        addNotification(
+          'Le format n\'est pas correct',
+          'error',
+        );
         return;
       }
       const field = create.modal.fields.map((f, index) => ({
@@ -581,7 +590,7 @@ const openFormModalCreateMultiple = (
           </div>
         </div>
       </div>
-      <div class="flex flex-row justify-between overflow-x-auto overflow-y-hidden md:overflow-x-hidden">
+      <div class="flex flex-row justify-between overflow-x-auto overflow-y-hidden md:overflow-x-scroll">
         <table
           class="w-full rounded-lg border border-black bg-table text-gray-300"
         >

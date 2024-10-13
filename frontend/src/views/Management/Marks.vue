@@ -4,6 +4,9 @@ import { onMounted, ref } from 'vue';
 import ManagementMenu from '@/components/ManagementMenu.vue';
 import type { EditableMark, GameMark, Mark } from '@/models/mark';
 import { useDeviceStore } from '@/stores/devices.store';
+import { useNotificationStore } from '@/stores/notification.stores';
+
+const { addNotification } = useNotificationStore();
 
 const deviceStore = useDeviceStore();
 
@@ -32,14 +35,14 @@ const removeMark = (index: number) => {
 };
 
 const submitData = async () => {
-  await patch_marks(marksCopy.value);
-  // TODO: display a success message
-  console.log('Data submitted');
+  if (await patch_marks(marksCopy.value)) {
+    addNotification('Les marks ont bien été modifiées', 'info');
 
-  edit.value = false;
-  await fetch_marks();
-  // make a copy of the marks
-  marksCopy.value = marks.value.map((mark) => ({ ...mark }));
+    edit.value = false;
+    await fetch_marks();
+    // make a copy of the marks
+    marksCopy.value = marks.value.map((mark) => ({ ...mark }));
+  }
 };
 
 const reset = async () => {
@@ -61,15 +64,14 @@ const openModal = (selectedMark: number) => {
 };
 
 const validateMove = async () => {
-  await move_marks(currentMark.value, chosenMark.value);
-  // TODO: display a success message
-  console.log('Data moved');
+  if (await move_marks(currentMark.value, chosenMark.value)) {
+    addNotification('Les appareils ont bien été déplacés', 'info');
+    // close the modal
+    move.value = false;
 
-  // close the modal
-  move.value = false;
-
-  // reload the marks to update the number of devices
-  await fetch_marks();
+    // reload the marks to update the number of devices
+    await fetch_marks();
+  }
 };
 
 // -- Game Edit Modal --
@@ -110,13 +112,15 @@ const submitGame = async () => {
     gameMarksObject[field] = gameMarksValues.value[index].split(',').map((value) => Number(value));
   });
 
-  await change_game_marks(gameMarksObject);
+  if (await change_game_marks(gameMarksObject)) {
+    // close the modal
+    game.value = false;
 
-  // close the modal
-  game.value = false;
+    addNotification('La répartition par jeu a bien été modifiée', 'info');
 
-  // reload the game marks to update the number of devices
-  await fetch_game_marks();
+    // reload the game marks to update the number of devices
+    await fetch_game_marks();
+  }
 };
 
 </script>

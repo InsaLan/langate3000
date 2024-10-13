@@ -76,7 +76,7 @@ class UserView(generics.RetrieveUpdateDestroyAPIView):
         if "password" in request.data:
             del request.data["password"]
             return Response(
-                {"user": [_("Password cannot be changed")]},
+                {"error": [_("Password cannot be changed")]},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return self.partial_update(request, *args, **kwargs)
@@ -179,7 +179,7 @@ class UserLogin(APIView):
             400: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "user": openapi.Schema(
+                    "error": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
                         items=openapi.Schema(
                             type=openapi.TYPE_STRING,
@@ -191,7 +191,7 @@ class UserLogin(APIView):
             404: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "user": openapi.Schema(
+                    "error": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
                         items=openapi.Schema(
                             type=openapi.TYPE_STRING,
@@ -212,7 +212,7 @@ class UserLogin(APIView):
             user = serializer.check_validity(data)
             if user is None:
                 return Response(
-                    {"user": [_("Bad Username or password")]},
+                    {"error": [_("Bad Username or password")]},
                     status=status.HTTP_404_NOT_FOUND,
                 )
             login(request, user)
@@ -267,7 +267,7 @@ class UserLogin(APIView):
 
             return Response(status=status.HTTP_200_OK, data=user)
         return Response(
-            {"user": [_("Invalid data format")]},
+            {"error": [_("Invalid data format")]},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -387,7 +387,7 @@ class UserList(generics.ListCreateAPIView):
             400: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "user": openapi.Schema(
+                    "error": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
                         items=openapi.Schema(
                             type=openapi.TYPE_STRING,
@@ -413,7 +413,10 @@ class UserList(generics.ListCreateAPIView):
             except Exception as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+          {"error": serializer.errors},
+          status=status.HTTP_400_BAD_REQUEST
+        )
 
 class ChangePassword(APIView):
     """
@@ -447,7 +450,7 @@ class ChangePassword(APIView):
             400: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "user": openapi.Schema(
+                    "error": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
                         items=openapi.Schema(
                             type=openapi.TYPE_STRING,
@@ -459,7 +462,7 @@ class ChangePassword(APIView):
             404: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "user": openapi.Schema(
+                    "error": openapi.Schema(
                         type=openapi.TYPE_ARRAY,
                         items=openapi.Schema(
                             type=openapi.TYPE_STRING,
@@ -478,7 +481,7 @@ class ChangePassword(APIView):
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
             return Response(
-                {"user": [_("User not found")]},
+                {"error": [_("User not found")]},
                 status=status.HTTP_404_NOT_FOUND,
             )
         if "password" in request.data:
@@ -486,6 +489,6 @@ class ChangePassword(APIView):
             user.save()
             return Response(status=status.HTTP_200_OK)
         return Response(
-            {"user": [_("Invalid data format")]},
+            {"error": [_("Invalid data format")]},
             status=status.HTTP_400_BAD_REQUEST,
         )
