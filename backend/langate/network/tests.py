@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -632,9 +634,7 @@ class TestMarkAPI(TestCase):
             self.assertEqual(response.data[i]["whitelisted"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=True).count())
 
     @patch('langate.network.views.save_settings')
-    #@patch('langate.network.views.SETTINGS')
     def test_patch_marks(self, mock_save_settings):
-        #mock_settings.__getitem__.side_effect = self.SETTINGS.__getitem__
         mock_save_settings.side_effect = lambda x: None
 
         new_marks = [
@@ -658,3 +658,84 @@ class TestMarkAPI(TestCase):
         response = self.client.patch(self.url, invalid_marks, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "Invalid mark")
+
+    @patch('langate.network.views.save_settings')
+    def test_patch_marks_not_authenticated(self, mock_save_settings):
+        self.client.force_authenticate(user=None)
+        response = self.client.patch(self.url, [], format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class TestsGameMarkAPI(TestCase):
+  def setUp(self):
+    self.settings = {
+      "marks": [
+        {
+          "name": "sans vpn",
+          "value": 100,
+          "priority": 0
+        },
+        {
+          "name": "vpn1",
+          "value": 101,
+          "priority": 0.1
+        },
+        {
+          "name": "vpn2",
+          "value": 102,
+          "priority": 0.2
+        },
+        {
+          "name": "vpn3",
+          "value": 103,
+          "priority": 0.7
+        }
+      ],
+      "games": [
+        {"name": "Game1", "value": 101},
+        {"name": "Game2", "value": 102}
+      ]
+    }
+
+    self.client = APIClient()
+    self.url = reverse('game-list')
+    self.user = User.objects.create_user(username='testuser', password='testpassword')
+    self.user.role = Role.STAFF
+    self.user.save()
+    self.client.force_authenticate(user=self.user)
+
+  @patch('langate.network.views.SETTINGS')
+  def test_get_games(self, mock_settings):
+    mock_settings.__getitem__.side_effect = self.settings.__getitem__
+
+    response = self.client.get(self.url)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertIsInstance(response.data, list)
+    self.assertEqual(len(response.data), 2)
+    self.assertEqual(response.data[0], {"name": "Game1", "value": 101})
+    self.assertEqual(response.data[1], {"name": "Game2", "value": 102})
+
+
+  @patch('langate.network.views.save_settings')
+  def test_patch_games_valid(self, mock_save_settings):
+    mock_save_settings.side_effect = lambda x: None
+
+    valid_data = {"Game1": 102, "Game2": 103}
+
+    response = self.client.patch(self.url, data=json.dumps(valid_data), content_type='application/json')
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertEqual(response.data, valid_data)
+
+  def test_patch_games_invalid(self):
+    invalid_data = [
+      {"name": "Game1"},
+      {"value": "game2"}
+    ]
+    response = self.client.patch(self.url, data=json.dumps(invalid_data), content_type='application/json')
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    self.assertIn("error", response.data)
+
+  @patch('langate.network.views.save_settings')
+  def test_patch_games_not_authenticated(self, mock_save_settings):
+    self.client.force_authenticate(user=None)
+    response = self.client.patch(self.url, data=json.dumps({}), content_type='application/json')
+    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
