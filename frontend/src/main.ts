@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft, faArrowsAlt,
