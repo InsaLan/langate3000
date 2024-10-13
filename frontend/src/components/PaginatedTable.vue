@@ -154,7 +154,10 @@ const fetchData = async (page_number: number) => {
         tabledata.loading = false;
       })
       .catch((error) => {
-        console.error(error);
+        addNotification(
+          `Erreur lors de la récupération des données: ${error}`,
+          'error',
+        );
       });
   } else if (props.data || (props.url && !props.pagination)) {
     if (tabledata.order === '') {
