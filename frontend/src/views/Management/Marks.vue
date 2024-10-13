@@ -435,16 +435,16 @@ const submitGame = async () => {
         Modifier la répartition par Jeu
       </h2>
       <div
-        class="mt-4 text-white flex flex-row gap-2 items-center border-b-2 border-gray-500 pb-4"
+        class="mt-4 flex flex-row items-center gap-2 border-b-2 border-gray-500 pb-4 text-white"
       >
         Format :
         <div
-          class="rounded-md bg-theme-nav p-1 font-bold text-white border border-gray-500"
+          class="rounded-md border border-gray-500 bg-theme-nav p-1 font-bold text-white"
         >
           Nom du jeu
         </div> :
         <div
-          class="rounded-md bg-theme-nav p-1 font-bold text-white border border-black"
+          class="rounded-md border border-black bg-theme-nav p-1 font-bold text-white"
         >
           Mark1,Mark2,...
         </div>
