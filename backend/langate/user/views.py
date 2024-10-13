@@ -1,37 +1,24 @@
 """User module API Endpoints"""
 
-import sys
-
-from datetime import datetime
-
 from django.contrib.auth import login, logout
-from django.contrib.auth.models import Group, Permission
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import PermissionDenied, BadRequest
 from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET
 from rest_framework import generics, permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.core.exceptions import ValidationError
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from langate.user.serializers import (
-    GroupSerializer,
-    PermissionSerializer,
     UserLoginSerializer,
-    UserRegisterSerializer,
     UserSerializer,
 )
 
-from .models import User, UserManager
+from .models import User, Role
 
 @require_GET
 @ensure_csrf_cookie
@@ -42,13 +29,27 @@ def get_csrf(request):
     return JsonResponse({"csrf": _("CSRF cookie set")})
 
 
+# Filter, can only acces this view when user.role == 'admin' or 'staff'
+class StaffPermission(permissions.BasePermission):
+    """
+    Custom permission to only allow staff or admin to access the view
+    """
+
+    def has_permission(self, request, view):
+        """
+        Check if the user has the permission to access the view
+        """
+        if request.user.is_authenticated:
+            return request.user.role in [Role.ADMIN, Role.STAFF]
+        return False
+
 class UserView(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint that allows users to be viewed or edited.
     """
 
     queryset = User.objects.all().order_by("-date_joined")
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [StaffPermission]
     authentication_classes = [SessionAuthentication]
     serializer_class = UserSerializer
 
@@ -69,42 +70,7 @@ class UserMe(generics.RetrieveAPIView):
         """
         user = UserSerializer(request.user, context={"request": request}).data
 
-        user_groups = []
-        for group in request.user.groups.all():
-            user_groups.append(group.name)
-
-        user["groups"] = user_groups
-
         return Response(user)
-
-class PermissionViewSet(generics.ListCreateAPIView):
-    """
-    Django's `Permission` ViewSet to be able to add them to the admin panel
-    """
-
-    queryset = Permission.objects.all().order_by("name")
-    serializer_class = PermissionSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-
-class GroupViewSet(generics.ListCreateAPIView):
-    """
-    Django's `Group` ViewSet to be able to add them to the admin panel
-    """
-
-    queryset = Group.objects.all().order_by("name")
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-class UserRegister(generics.CreateAPIView):
-    """
-    API endpoint that allows user creation.
-    """
-
-    queryset = User.objects.all()
-    permission_classes = [permissions.AllowAny]
-    serializer_class = UserRegisterSerializer
-
 
 class UserLogin(APIView):
     """

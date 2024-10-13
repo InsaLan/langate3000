@@ -28,6 +28,7 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path("", include(router.urls)),
     path("user/", include("langate.user.urls")),
+    path("network/", include("langate.network.urls")),
 ]
 if getenv("DEV", "1") == "1":
     from drf_yasg.views import get_schema_view
