@@ -36,20 +36,28 @@ def get_mark(user=None):
     if user:
         if user.tournament:
             if SETTINGS["games"] and SETTINGS["games"][user.tournament]:
-                return SETTINGS["games"][user.tournament]
 
-    # Get random between 0 and 1
-    random_choice = random.random()
+                existing_marks = [
+                  mark
+                  for mark in SETTINGS["games"][user.tournament]
+                  if mark in [x["value"] for x in SETTINGS["marks"]]
+                ]
 
-    # for each mark in the settings
-    total = 0
-    for mark in SETTINGS["marks"]:
-        if random_choice <= mark["priority"] + total:
-            return mark["value"]
-        total += mark["priority"]
+                mark_proba = [
+                  mark_data["priority"]
+                  for mark in existing_marks
+                  for mark_data in SETTINGS["marks"]
+                  if mark_data["value"] == mark
+                ]
 
-    # It should never reach this point but if it does, return the first mark
-    return SETTINGS["marks"][0]["value"]
+                # Chose a random mark from the user's tournament based on the probability
+                return random.choices(existing_marks, weights=mark_proba)[0]
+
+    # Get a random mark from the settings based on the probability
+    return random.choices(
+      [mark["value"] for mark in SETTINGS["marks"]],
+      weights=[mark["priority"] for mark in SETTINGS["marks"]]
+    )[0]
 
 def validate_marks(marks):
     """
@@ -89,7 +97,13 @@ def validate_marks(marks):
 
 def validate_games(games):
     """
-    Validate the games data
+    Validate the games data.
+    The games data is a dictionary with the tournament name as key and a list of marks as value.
+    For example:
+    {
+        "tournament1": [100, 101, 102],
+        "tournament2": [100, 103]
+    }
     """
     # Check if the games are not empty
     if not games:
@@ -103,8 +117,11 @@ def validate_games(games):
     for game in games:
         if not isinstance(game, str):
             return False
-        if not isinstance(games[game], int):
+        if not isinstance(games[game], list):
             return False
+        for mark in games[game]:
+            if not isinstance(mark, int):
+                return False
 
     return True
 

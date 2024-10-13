@@ -71,21 +71,38 @@ const validateMove = async () => {
 
 const game = ref(false);
 const gameMarksFields = ref<string[]>([]);
-const gameMarksValues = ref<number[]>([]);
+const gameMarksValues = ref<string[]>([]);
 
 const openGameModal = () => {
   // make a copy of the game marks
   gameMarksFields.value = Object.keys(gameMarks.value);
-  gameMarksValues.value = Object.values(gameMarks.value);
+  // make a copy of the game marks values. Convert each number[] into string "value1,value2,..."
+  gameMarksValues.value = Object.values(gameMarks.value).map((values) => values.join(','));
 
   game.value = true;
 };
 
 const submitGame = async () => {
+  let valid = true;
+  // if the values field are not "number,number,..."
+  gameMarksValues.value.forEach((value) => {
+    value.split(',').forEach((number) => {
+      if (Number.isNaN(Number(number))) {
+        // display an error message
+        console.error('Invalid value');
+        valid = false;
+      }
+    });
+  });
+
+  if (!valid) {
+    return;
+  }
+
   // create a new GameMark object
   const gameMarksObject: GameMark = {};
   gameMarksFields.value.forEach((field, index) => {
-    gameMarksObject[field] = gameMarksValues.value[index];
+    gameMarksObject[field] = gameMarksValues.value[index].split(',').map((value) => Number(value));
   });
 
   await change_game_marks(gameMarksObject);
@@ -409,6 +426,21 @@ const submitGame = async () => {
       >
         Modifier la répartition par Jeu
       </h2>
+      <div
+        class="mt-4 text-white flex flex-row gap-2 items-center border-b-2 border-gray-500 pb-4"
+      >
+        Format :
+        <div
+          class="rounded-md bg-theme-nav p-1 font-bold text-white border border-gray-500"
+        >
+          Nom du jeu
+        </div> :
+        <div
+          class="rounded-md bg-theme-nav p-1 font-bold text-white border border-black"
+        >
+          Mark1,Mark2,...
+        </div>
+      </div>
       <form
         class="mt-4 flex flex-col gap-4"
         @submit.prevent="submitGame"
@@ -441,9 +473,8 @@ const submitGame = async () => {
                 </div>
                 <input
                   :id="`game-mark-${index}`"
-                  v-model.number="gameMarksValues[index]"
+                  v-model="gameMarksValues[index]"
                   class="rounded-md border border-black bg-theme-nav p-2 text-white"
-                  type="number"
                 />
               </div>
               <!-- Supprimer le jeu -->
@@ -463,7 +494,7 @@ const submitGame = async () => {
           <button
             class="rounded-md bg-blue-500 p-1 hover:bg-blue-600"
             type="button"
-            @click="gameMarksFields.push(''); gameMarksValues.push(0)"
+            @click="gameMarksFields.push(''); gameMarksValues.push('')"
           >
             <fa-awesome-icon
               icon="plus"

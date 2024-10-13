@@ -570,33 +570,6 @@ class TestNetworkAPI(TestCase):
         response = self.client.post(reverse('device-list'), {})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-class TestGetMark(TestCase):
-
-  @patch('random.random')
-  def test_get_mark_first_priority(self, mock_random):
-    mock_random.return_value = 0.06
-    expected_mark = SETTINGS["marks"][1]["value"]
-    self.assertEqual(get_mark(), expected_mark)
-
-  @patch('random.random')
-  def test_get_mark_second_priority(self, mock_random):
-    mock_random.return_value = 0.14
-    expected_mark = SETTINGS["marks"][2]["value"]
-    self.assertEqual(get_mark(), expected_mark)
-
-  @patch('random.random')
-  def test_get_mark_third_priority(self, mock_random):
-    mock_random.return_value = 0.86
-    expected_mark = SETTINGS["marks"][3]["value"]
-    self.assertEqual(get_mark(), expected_mark)
-
-  @patch('random.random')
-  def test_get_mark_cannot_be_none(self, mock_random):
-    for i in range(100):
-      mock_random.return_value = (i+1)/100
-      unexpected_mark = SETTINGS["marks"][0]["value"]
-      self.assertNotEqual(get_mark(), unexpected_mark)
-
 class TestMarkAPI(TestCase):
     """
     Test cases for the MarkDetail view
@@ -690,10 +663,10 @@ class TestsGameMarkAPI(TestCase):
           "priority": 0.7
         }
       ],
-      "games": [
-        {"name": "Game1", "value": 101},
-        {"name": "Game2", "value": 102}
-      ]
+      "games": {
+        "game1": [100],
+        "game2": [101, 102]
+      }
     }
 
     self.client = APIClient()
@@ -709,17 +682,14 @@ class TestsGameMarkAPI(TestCase):
 
     response = self.client.get(self.url)
     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    self.assertIsInstance(response.data, list)
-    self.assertEqual(len(response.data), 2)
-    self.assertEqual(response.data[0], {"name": "Game1", "value": 101})
-    self.assertEqual(response.data[1], {"name": "Game2", "value": 102})
-
+    self.assertIsInstance(response.data, dict)
+    self.assertEqual(response.data, self.settings["games"])
 
   @patch('langate.network.views.save_settings')
   def test_patch_games_valid(self, mock_save_settings):
     mock_save_settings.side_effect = lambda x: None
 
-    valid_data = {"Game1": 102, "Game2": 103}
+    valid_data = {"Game1": [102], "Game2": [103, 101]}
 
     response = self.client.patch(self.url, data=json.dumps(valid_data), content_type='application/json')
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)

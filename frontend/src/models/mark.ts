@@ -10,5 +10,5 @@ export interface Mark extends EditableMark {
 }
 
 export interface GameMark {
-  [game: string]: number;
+  [game: string]: number[];
 }

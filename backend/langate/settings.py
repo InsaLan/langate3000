@@ -18,7 +18,7 @@ import json
 import logging
 
 from django.utils.translation import gettext_lazy as _
-from langate.network.utils import validate_marks
+from langate.network.utils import validate_marks, validate_games
 
 logger = logging.getLogger(__name__)
 
@@ -228,7 +228,8 @@ SETTINGS = {}
 if not path.exists("assets/misc/settings.json"):
     logger.error("No settings.json found, defaulting to [100]")
     SETTINGS = {
-      "marks": [{"name": "default", "value": 100, "priority":1}]
+      "marks": [{"name": "default", "value": 100, "priority":1}],
+      "games": {}
     }
 else:
     file = open("assets/misc/settings.json", "r")
@@ -243,5 +244,13 @@ else:
     if not validate_marks(SETTINGS["marks"]):
         logger.error("Invalid marks found in settings.json, defaulting to [100]")
         SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
+
+    if "games" not in SETTINGS:
+        logger.error("No games found in settings.json, defaulting to {}")
+        SETTINGS["games"] = {}
+
+    if not validate_games(SETTINGS["games"]):
+        logger.error("Invalid games found in settings.json, defaulting to {}")
+        SETTINGS["games"] = {}
 
 NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")
