@@ -186,7 +186,6 @@ export const useUserStore = defineStore('user', () => {
       const user_data = await axios.get<User>('/user/me/', {
         withCredentials: true,
       });
-      console.log(user_data);
       user.value = user_data.data;
       isConnected.value = true;
 
