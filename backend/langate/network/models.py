@@ -29,7 +29,7 @@ class Device(models.Model):
     A device is a machine connected to the network
     """
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=50)
     mac = models.CharField(
       max_length=17,
       unique=True,
@@ -156,4 +156,7 @@ class DeviceManager(models.Manager):
             device.mark = mark
             netcontrol.query("set_mark", { "mac": device.mac, "mark": mark })
 
-        device.save()
+        try:
+            device.save()
+        except Exception as e:
+            raise ValidationError(_("The data provided is invalid")) from e

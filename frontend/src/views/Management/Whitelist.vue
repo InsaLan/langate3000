@@ -3,10 +3,13 @@ import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
 import { useDeviceStore } from '@/stores/devices.store';
+import { useNotificationStore } from '@/stores/notification.stores';
 
 const {
   createDevice, createDevicesFromList, deleteDevice, editDevice,
 } = useDeviceStore();
+
+const { addNotification } = useNotificationStore();
 
 </script>
 
@@ -72,7 +75,9 @@ const {
               ],
             },
             function: async (device, data) => {
-              await editDevice((device as unknown as Device).id, data as unknown as Device);
+              if (await editDevice((device as unknown as Device).id, data as unknown as Device)) {
+                addNotification('L\'appareil a bien été modifié', 'info');
+              }
             },
           },
           {
@@ -90,13 +95,17 @@ const {
               ],
             },
             function: async (device, fields) => {
-              await deleteDevice((device as unknown as Device).id);
+              if (await deleteDevice((device as unknown as Device).id)) {
+                addNotification('L\'appareil a bien été supprimé', 'info');
+              }
             },
           },
         ]"
         :create="{
           multiple: async (data) => {
-            await createDevicesFromList(data as unknown as Device[])
+            if (await createDevicesFromList(data as unknown as Device[])) {
+              addNotification('Les appareils ont bien été ajoutés', 'info');
+            }
           },
           modal: {
             title: 'Ajouter un appareil à la whitelist',
@@ -122,7 +131,9 @@ const {
             ],
           },
           function: async (data) => {
-            await createDevice(data as unknown as Device);
+            if (await createDevice(data as unknown as Device)) {
+              addNotification('L\'appareil a bien été ajouté', 'info');
+            }
           },
         }"
       />

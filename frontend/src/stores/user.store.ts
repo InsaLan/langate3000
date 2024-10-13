@@ -4,12 +4,15 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { User } from '@/models/user';
 
+import { useNotificationStore } from './notification.stores';
+
 export const useUserStore = defineStore('user', () => {
   const user = ref<User>({} as User);
   const isConnected = ref(false);
   const csrf = ref('');
   const connectionTimestamp = ref(0);
   const router = useRouter();
+  const { addNotification } = useNotificationStore();
 
   function create_temp_password(): string {
     // create a 4 digits password
@@ -32,7 +35,7 @@ export const useUserStore = defineStore('user', () => {
     csrf.value = cookie;
   }
 
-  async function login(username: string, password: string): Promise<string | undefined> {
+  async function login(username: string, password: string): Promise<boolean> {
     await get_csrf();
 
     try {
@@ -48,25 +51,38 @@ export const useUserStore = defineStore('user', () => {
       isConnected.value = true;
       connectionTimestamp.value = Date.now();
       await router.push('/');
-      return undefined;
+      return true;
     } catch (err) {
-      return ((err as AxiosError<{ user: string[] }>).response?.data?.user?.[0]);
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while logging in',
+        'error',
+      );
+      return false;
     }
   }
 
-  async function logout() {
+  async function logout(): Promise<boolean> {
     await get_csrf();
 
-    await axios.post('/user/logout/', {}, {
-      headers: {
-        'X-CSRFToken': csrf.value,
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
-    isConnected.value = false;
-    await router.push('/login');
-    user.value = {} as User;
+    try {
+      await axios.post('/user/logout/', {}, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      isConnected.value = false;
+      await router.push('/login');
+      user.value = {} as User;
+      return true;
+    } catch (err) {
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while logging out',
+        'error',
+      );
+      return false;
+    }
   }
 
   async function handle_session_cookie_expiration() {
@@ -81,7 +97,7 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function create_user(data: User): Promise<void> {
+  async function create_user(data: User): Promise<boolean> {
     await get_csrf();
 
     try {
@@ -92,16 +108,18 @@ export const useUserStore = defineStore('user', () => {
         },
         withCredentials: true,
       });
+      return true;
     } catch (err) {
-      // TODO : display error message with a component
-      console.error((err as AxiosError).response?.data);
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while creating the user',
+        'error',
+      );
+      return false;
     }
   }
 
-  async function reset_password(id: number): Promise<string | undefined> {
+  async function reset_password(id: number, password: string): Promise<boolean> {
     await get_csrf();
-
-    const password = create_temp_password();
 
     try {
       await axios.post(`/user/change-password/${id}/`, { password }, {
@@ -111,15 +129,17 @@ export const useUserStore = defineStore('user', () => {
         },
         withCredentials: true,
       });
-      return password;
+      return true;
     } catch (err) {
-      // TODO : display error message with a component
-      console.error((err as AxiosError).response?.data);
-      return undefined;
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while resetting the password',
+        'error',
+      );
+      return false;
     }
   }
 
-  async function delete_user(id: number): Promise<void> {
+  async function delete_user(id: number): Promise<boolean> {
     await get_csrf();
 
     try {
@@ -130,13 +150,17 @@ export const useUserStore = defineStore('user', () => {
         },
         withCredentials: true,
       });
+      return true;
     } catch (err) {
-      // TODO : display error message with a component
-      console.error((err as AxiosError).response?.data);
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while deleting the user',
+        'error',
+      );
+      return false;
     }
   }
 
-  async function edit_user(id: number, data: User): Promise<void> {
+  async function edit_user(id: number, data: User): Promise<boolean> {
     await get_csrf();
 
     try {
@@ -147,13 +171,17 @@ export const useUserStore = defineStore('user', () => {
         },
         withCredentials: true,
       });
+      return true;
     } catch (err) {
-      // TODO : display error message with a component
-      console.error((err as AxiosError).response?.data);
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the user',
+        'error',
+      );
+      return false;
     }
   }
 
-  async function fetch_user() {
+  async function fetch_user(): Promise<boolean> {
     try {
       const user_data = await axios.get<User>('/user/me/', {
         withCredentials: true,
@@ -161,6 +189,8 @@ export const useUserStore = defineStore('user', () => {
       console.log(user_data);
       user.value = user_data.data;
       isConnected.value = true;
+
+      return true;
     } catch (err) {
       if ((err as AxiosError).response?.status === 403) {
         isConnected.value = false;
@@ -169,10 +199,13 @@ export const useUserStore = defineStore('user', () => {
         user.value = {} as User;
 
         await router.push('/login');
+        return false;
       }
-
-      // TODO : display error message with a component
-      console.error((err as AxiosError).response?.data);
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while fetching the user',
+        'error',
+      );
+      return false;
     }
   }
 

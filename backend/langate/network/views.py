@@ -376,3 +376,65 @@ class GameList(APIView):
         save_settings(SETTINGS)
 
         return Response(SETTINGS["games"], status=status.HTTP_201_CREATED)
+
+class UserDeviceDetail(APIView):
+    """
+    API endpoint that allows a user to edit or delete their devices
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        responses={
+            204: "Device deleted",
+            403: {"error": _("You are not allowed to delete this device")},
+            404: {"error": _("Device not found")},
+        }
+    )
+    def delete(self, request, pk):
+        """
+        Delete a device by its primary key
+        """
+        try:
+            device = UserDevice.objects.get(pk=pk)
+
+            # Check if the user is the owner of the device
+            if device.user != request.user:
+                return Response({"error": _("You are not allowed to delete this device")}, status=status.HTTP_403_FORBIDDEN)
+
+            DeviceManager.delete_device(device.mac)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except UserDevice.DoesNotExist:
+            return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)
+
+    @swagger_auto_schema(
+        responses={
+            200: "Device updated",
+            400: {"error": _("Bad request")},
+            403: {"error": _("You are not allowed to edit this device")},
+            404: {"error": _("Device not found")},
+        }
+    )
+    def patch(self, request, pk):
+        """
+        Update a device by its primary key
+        """
+        try:
+            device = UserDevice.objects.get(pk=pk)
+
+            # Check if the user is the owner of the device
+            if device.user != request.user:
+                return Response({"error": _("You are not allowed to edit this device")}, status=status.HTTP_403_FORBIDDEN)
+
+            DeviceManager.edit_device(
+              device,
+              request.data.get("mac", device.mac),
+              request.data.get("name", device.name),
+              request.data.get("mark", device.mark),
+            )
+
+            return Response(status=status.HTTP_200_OK)
+
+        except UserDevice.DoesNotExist:
+            return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as e:
+            return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)

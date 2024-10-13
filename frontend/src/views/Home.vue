@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import PaginatedTable from '@/components/PaginatedTable.vue';
+import type { Device } from '@/models/device';
+import { useDeviceStore } from '@/stores/devices.store';
+import { useNotificationStore } from '@/stores/notification.stores';
 import { useUserStore } from '@/stores/user.store';
 
-const userStore = useUserStore();
+const { fetch_user } = useUserStore();
 
+const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
+
+const { edit_own_device, delete_own_device } = useDeviceStore();
+const { addNotification } = useNotificationStore();
 
 </script>
 
@@ -49,7 +56,7 @@ const { user } = storeToRefs(userStore);
     </div>
     <!-- Tableau des appareils connectés -->
     <div
-      class="md:w-1/3"
+      class="w-full lg:w-1/3"
     >
       <PaginatedTable
         :data="user?.devices as { }[]"
@@ -83,9 +90,11 @@ const { user } = storeToRefs(userStore);
               ],
             },
             function: async (device, fields) => {
-              // TODO : implement update device
-              console.log('update', device);
-              console.log('fields', fields);
+              if (await edit_own_device((device as unknown as Device).id, fields.name)) {
+                addNotification('Appareil modifié avec succès', 'info');
+                // refresh the user
+                await fetch_user();
+              }
             },
           },
           {
@@ -103,9 +112,11 @@ const { user } = storeToRefs(userStore);
               ],
             },
             function: async (device, fields) => {
-              // TODO : implement delete device
-              console.log('delete', device);
-              console.log('fields', fields);
+              if (await delete_own_device((device as unknown as Device).id)) {
+                addNotification('Appareil supprimé avec succès', 'info');
+                // refresh the user
+                await fetch_user();
+              }
             },
           },
         ]"
