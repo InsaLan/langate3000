@@ -95,8 +95,7 @@ const submitGame = async () => {
   gameMarksValues.value.forEach((value) => {
     value.split(',').forEach((number) => {
       if (Number.isNaN(Number(number))) {
-        // display an error message
-        console.error('Invalid value');
+        addNotification('Les valeurs doivent être des nombres séparés par des virgules', 'error');
         valid = false;
       }
     });
