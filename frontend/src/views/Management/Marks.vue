@@ -271,38 +271,42 @@ const submitGame = async () => {
             </tbody>
           </table>
         </div>
-        <div class="mt-4 space-x-4">
+        <div class="mt-4 flex flex-col justify-between gap-4 md:flex-row">
           <template v-if="edit">
-            <button
-              class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-              type="button"
-              @click="reset"
-            >
-              Annuler
-            </button>
-            <button
-              class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-              type="button"
-              @click="addMark"
-            >
-              Ajouter une nouvelle mark
-            </button>
-            <button
-              class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-              type="button"
-              @click="submitData"
-            >
-              Valider
-            </button>
+            <div class="flex flex-col gap-4 md:flex-row">
+              <button
+                class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                type="button"
+                @click="reset"
+              >
+                Annuler
+              </button>
+              <button
+                class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                type="button"
+                @click="addMark"
+              >
+                Ajouter une nouvelle mark
+              </button>
+              <button
+                class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+                type="button"
+                @click="submitData"
+              >
+                Valider
+              </button>
+            </div>
           </template>
           <template v-else>
-            <button
-              class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-              type="button"
-              @click="edit = true"
-            >
-              Modifier
-            </button>
+            <div class="flex flex-col gap-4 md:flex-row">
+              <button
+                class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                type="button"
+                @click="edit = true"
+              >
+                Modifier
+              </button>
+            </div>
           </template>
           <button
             class="rounded bg-purple-500 px-4 py-2 text-white hover:bg-purple-600"
