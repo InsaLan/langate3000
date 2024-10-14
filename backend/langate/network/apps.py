@@ -48,11 +48,15 @@ class NetworkConfig(AppConfig):
             logger.info(_("[PortalConfig] Adding previously connected devices to the ipset"))
 
             for dev in Device.objects.all():
-                connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
+                userdevice = UserDevice.objects.filter(mac=dev.mac).first()
+                if userdevice is not None:
+                    connect_res = netcontrol.query("connect_user", {"mac": userdevice.mac, "name": userdevice.name})
+                else:
+                    connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
                 if not connect_res["success"]:
                     logger.info("[PortalConfig] Could not connect device %s", dev.mac)
 
-                mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": 100})
+                mark_res = netcontrol.query("set_mark", {"mac": dev.mac, "mark": dev.mark})
                 if not mark_res["success"]:
                     logger.info("[PortalConfig] Could not set mark for device %s", dev.name)
 
