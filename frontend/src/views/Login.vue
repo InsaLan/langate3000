@@ -49,8 +49,8 @@ const showPassword = ref(false);
         <div class="relative">
           <input id="password" v-model="login_form.password" :type="showPassword ? 'text' : 'password'" name="password" required class="w-full flex-1 rounded-lg border border-black bg-theme-nav text-white"/>
           <button type="button" class="absolute right-3 top-2 text-white" @click.prevent="showPassword = !showPassword">
-            <fa-awesome-icon v-if="showPassword" icon="eye-slash" class="h-6 w-6"/>
-            <fa-awesome-icon v-else icon="eye" class="h-6 w-6"/>
+            <fa-awesome-icon v-if="showPassword" icon="eye-slash" class="size-6"/>
+            <fa-awesome-icon v-else icon="eye" class="size-6"/>
           </button>
         </div>
       </div>

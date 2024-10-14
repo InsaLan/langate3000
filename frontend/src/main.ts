@@ -15,8 +15,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import axios, { type AxiosError } from 'axios';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import type { Component } from 'vue';
 import { createApp } from 'vue';
-import Multiselect from 'vue-multiselect';
 import { router } from '@/router';
 
 import App from './App.vue';
@@ -62,8 +62,7 @@ const pinia = createPinia();
 
 pinia.use(piniaPluginPersistedstate);
 
-createApp(App)
-  .component('multiselect', Multiselect)
+createApp(App as Component)
   .component('fa-awesome-icon', FontAwesomeIcon)
   .use(pinia)
   .use(router)
