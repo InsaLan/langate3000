@@ -220,7 +220,7 @@ const { addNotification } = useNotificationStore();
               title: 'Modifier les marks',
               fields: (devices: unknown) => {
                 return (devices as Device[]).map((device: any) => ({
-                  name: 'Mark de ' + device.name + (' (' + device.ip + ')'),
+                  name: `Mark de ${device.name} (${device.ip})`,
                   key: device.id,
                   type: 'number',
                   value: device.mark,

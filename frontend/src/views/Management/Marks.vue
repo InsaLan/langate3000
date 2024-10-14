@@ -174,6 +174,7 @@ const submitGame = async () => {
                   <template v-if="edit">
                     <label class="sr-only" for="name">Name</label>
                     <input
+                      id="name"
                       v-model="mark.name"
                       class="w-full rounded-md border border-black bg-theme-nav p-2"
                       type="text"
@@ -187,6 +188,7 @@ const submitGame = async () => {
                   <template v-if="edit">
                     <label class="sr-only" for="value">Value</label>
                     <input
+                      id="value"
                       v-model.number="mark.value"
                       class="w-full rounded-md border border-black bg-theme-nav p-2"
                       type="number"
@@ -267,7 +269,7 @@ const submitGame = async () => {
                     >
                       <router-link
                         class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
-                        :to="'/management/devices?mark=' + mark.value"
+                        :to="`/management/devices?mark=${mark.value}`"
                       >
                         <fa-awesome-icon
                           icon="eye"
