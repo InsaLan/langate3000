@@ -50,7 +50,7 @@ class NetworkConfig(AppConfig):
             for dev in Device.objects.all():
                 userdevice = UserDevice.objects.filter(mac=dev.mac).first()
                 if userdevice is not None:
-                    connect_res = netcontrol.query("connect_user", {"mac": userdevice.mac, "name": userdevice.name})
+                    connect_res = netcontrol.query("connect_user", {"mac": userdevice.mac, "name": userdevice.user.username})
                 else:
                     connect_res = netcontrol.query("connect_user", {"mac": dev.mac, "name": dev.name})
                 if not connect_res["success"]:
