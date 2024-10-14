@@ -59,7 +59,7 @@ const burger_menu = ref(false);
   <nav class="sticky top-0 z-50 h-16 border-b border-gray-300 bg-theme-nav">
     <div id="desktop" class="hidden justify-around md:flex">
       <router-link class="m-2 flex content-center items-center justify-center gap-3" to="/">
-        <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
+        <img alt="Logo InsaLan" class="size-[40px]" src="@/assets/images/logo_retro.png"/>
         <div class="text-xl font-bold text-white">
           Portail InsaLan
         </div>
@@ -91,7 +91,7 @@ const burger_menu = ref(false);
     <div class="md:hidden">
       <div id="top" class="flex justify-between">
         <router-link class="m-2" to="/">
-          <img alt="Logo InsaLan" class="h-[40px] w-[40px]" src="@/assets/images/logo_retro.png"/>
+          <img alt="Logo InsaLan" class="size-[40px]" src="@/assets/images/logo_retro.png"/>
         </router-link>
         <div
           class="mx-5 flex flex-1 flex-col items-center justify-center"
@@ -101,13 +101,13 @@ const burger_menu = ref(false);
         </div>
         <div class="m-2">
           <button
-            class="m-auto mr-2 h-8 w-8 rounded text-center text-gray-400 ring-2 ring-gray-400 hover:text-white"
+            class="m-auto mr-2 size-8 rounded text-center text-gray-400 ring-2 ring-gray-400 hover:text-white"
             type="button"
             @click="burger_menu = !burger_menu"
           >
             <svg
               v-if="!burger_menu"
-              class="m-auto h-6 w-6 stroke-2"
+              class="m-auto size-6 stroke-2"
               fill="none"
               stroke="currentColor"
               stroke-width="{1.5}"
@@ -118,7 +118,7 @@ const burger_menu = ref(false);
             </svg>
             <svg
               v-else
-              class="m-auto h-6 w-6 stroke-2"
+              class="m-auto size-6 stroke-2"
               fill="none"
               stroke="currentColor"
               stroke-width="1.5"

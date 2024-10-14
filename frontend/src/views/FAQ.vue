@@ -70,12 +70,12 @@ md.renderer.rules.list_item_open = function listItemOpen(tokens, idx, options, e
               <fa-awesome-icon
                 v-if="question.visible.value"
                 icon="chevron-up"
-                class="h-3 w-3"
+                class="size-3"
               />
               <fa-awesome-icon
                 v-else
                 icon="chevron-down"
-                class="h-3 w-3"
+                class="size-3"
               />
             </div>
             <transition
