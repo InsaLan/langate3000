@@ -21,7 +21,7 @@ const queryParams = window.location.search;
     <div class="flex flex-col md:flex-row">
       <ManagementMenu type="devices"/>
       <PaginatedTable
-        :url="'/network/userdevices' + queryParams"
+        :url="`/network/userdevices${queryParams}`"
         :properties="[
           {
             name: '#',
