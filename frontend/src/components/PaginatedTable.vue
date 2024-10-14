@@ -546,6 +546,7 @@ const openFormModalCreateMultiple = (
               Nombre par pages :
             </label>
             <select
+              id="pageSize"
               class="h-8 w-auto rounded-lg border border-zinc-800 bg-table py-0 pr-6 text-xs text-white"
               @change="changeNumberPerPage"
             >
@@ -650,7 +651,7 @@ const openFormModalCreateMultiple = (
                     v-if="property.ordering"
                   >
                     <span
-                      v-if="tabledata.order === property.key || tabledata.order === '-' + property.key"
+                      v-if="tabledata.order === property.key || tabledata.order === `-${property.key}`"
                       class="ml-2 text-blue-500"
                     >
                       <fa-awesome-icon
@@ -691,16 +692,16 @@ const openFormModalCreateMultiple = (
               'h-8': tabledata.loading,
             }"
           >
-            <div
+            <tr
               v-show="tabledata.loading"
-              class="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center gap-2 bg-zinc-800/70 text-2xl"
+              class="absolute left-0 top-0 z-10 flex size-full items-center justify-center gap-2 bg-zinc-800/70 text-2xl"
             >
               Chargement
               <fa-awesome-icon
                 icon="spinner"
                 class="animate-spin"
               />
-            </div>
+            </tr>
             <tr v-for="(object, index) in paginatedData" :key="object.id">
               <td
                 v-for="property in props.properties"
@@ -717,7 +718,7 @@ const openFormModalCreateMultiple = (
                   <div
                     v-for="action in props.actions"
                     :key="action.key"
-                    class="group h-8 w-8 cursor-pointer rounded bg-gray-500 p-1 text-center hover:bg-gray-600"
+                    class="group size-8 cursor-pointer rounded bg-gray-500 p-1 text-center hover:bg-gray-600"
                     @click="openFormModal(action, object)"
                     @keydown.enter="openFormModal(action, object)"
                   >
@@ -768,7 +769,7 @@ const openFormModalCreateMultiple = (
         <div class="flex gap-2">
           <button
             type="button"
-            class="hidden h-8 w-8 rounded-lg text-blue-500 md:block"
+            class="hidden size-8 rounded-lg text-blue-500 md:block"
             :class="{
               'bg-blue-600 text-white': tabledata.currentPage === 1,
               invisible: tabledata.currentPage <= 2,
@@ -779,7 +780,7 @@ const openFormModalCreateMultiple = (
           </button>
           <button
             type="button"
-            class="hidden h-8 w-8 rounded-lg text-blue-500 md:block"
+            class="hidden size-8 rounded-lg text-blue-500 md:block"
             :class="{
               invisible: tabledata.currentPage < 3,
             }"
@@ -790,7 +791,7 @@ const openFormModalCreateMultiple = (
             v-for="i in [-1, 0, 1]"
             :key="i"
             type="button"
-            class="h-8 w-8 rounded-lg text-blue-500"
+            class="size-8 rounded-lg text-blue-500"
             :class="{
               'bg-blue-600 text-white': i === 0,
               invisible: tabledata.currentPage + i < 1 || tabledata.currentPage + i > totalPages,
@@ -802,7 +803,7 @@ const openFormModalCreateMultiple = (
           </button>
           <button
             type="button"
-            class="hidden h-8 w-8 rounded-lg text-blue-500 md:block"
+            class="hidden size-8 rounded-lg text-blue-500 md:block"
             :class="{
               invisible: tabledata.currentPage > totalPages - 2,
             }"
@@ -812,7 +813,7 @@ const openFormModalCreateMultiple = (
 
           <button
             type="button"
-            class="hidden h-8 w-8 rounded-lg text-blue-500 md:block"
+            class="hidden size-8 rounded-lg text-blue-500 md:block"
             :class="{
               'bg-blue-600 text-white': tabledata.currentPage === totalPages,
               invisible: tabledata.currentPage >= totalPages - 1,
