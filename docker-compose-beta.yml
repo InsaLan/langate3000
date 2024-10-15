@@ -112,8 +112,6 @@ services:
     environment:
       - MARK=${NETCONTROL_MARK}
       - SOCKET_FILE=${NETCONTROL_SOCKET_FILE}
-    volumes:
-      - ./netcontrol:/nctl
     cap_add:
       - NET_ADMIN
     network_mode: "host"
