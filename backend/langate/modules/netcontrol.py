@@ -28,10 +28,10 @@ class Netcontrol:
                 response = requests.delete(self.REQUEST_URL + endpoint, params=args)
             elif endpoint in PUT_REQUESTS:
                 response = requests.put(self.REQUEST_URL + endpoint, params=args)
-            
+
             response.raise_for_status()
             return response.json()
-        
+
         except requests.exceptions.ConnectionError:
             raise requests.HTTPError("Could not connect to the netcontrol API.")
         except requests.exceptions.Timeout:
@@ -50,35 +50,35 @@ class Netcontrol:
         """
         self.logger.info(f"Getting MAC address of {ip}...")
         return self.request("get_mac", {"ip": ip})["mac"]
-    
+
     def get_ip(self, mac: str):
         """
         Get the IP address of the device with the given MAC address.
         """
         self.logger.info(f"Getting IP address of {mac}...")
         return self.request("get_ip", {"mac": mac})["ip"]
-    
+
     def connect_user(self, mac: str, mark: int, name: str):
         """
         Connect the user with the given MAC address.
         """
         self.logger.info(f"Connecting user with MAC address {mac} ({name})...")
         return self.request("connect_user", {"mac": mac, "mark": mark, "name": name})
-    
+
     def disconnect_user(self, mac: str):
         """
         Disconnect the user with the given MAC address.
         """
         self.logger.info(f"Disconnecting user with MAC address {mac}...")
         return self.request("disconnect_user", {"mac": mac})
-    
+
     def set_mark(self, mac: str, mark: int):
         """
         Set the mark of the user with the given MAC address.
         """
         self.logger.info(f"Setting mark of user with MAC address {mac} to {mark}...")
         return self.request("set_mark", {"mac": mac, "mark": mark})
-    
+
     def __init__(self):
         """
         Initialize HOST_IP to the docker's default route, set up REQUEST_URL and check the connection with the netcontrol API.

@@ -20,10 +20,8 @@ services:
       DJANGO_SECRET: ${BACKEND_DJANGO_SECRET}
       SESSION_COOKIE_AGE: ${SESSION_COOKIE_AGE}
       DEV: 0
-      NETCONTROL_SOCKET_FILE: ${NETCONTROL_SOCKET_FILE}
     volumes:
       - ./volumes/prod/backend:/app/v1
-      - ${NETCONTROL_SOCKET_FILE}:${NETCONTROL_SOCKET_FILE}
     expose:
       - 8000
     networks:
@@ -97,9 +95,6 @@ services:
     build: ./netcontrol
     image: langate/netcontrol
     restart: unless-stopped
-    environment:
-      - MARK=${NETCONTROL_MARK}
-      - SOCKET_FILE=${NETCONTROL_SOCKET_FILE}
     cap_add:
       - NET_ADMIN
     network_mode: "host"
