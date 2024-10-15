@@ -1,3 +1,4 @@
+import copy
 from functools import reduce
 from operator import or_
 
@@ -8,12 +9,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+from langate.settings import SETTINGS
 from langate.user.models import Role
 from langate.network.models import Device, UserDevice, DeviceManager
+from langate.network.utils import validate_marks, validate_games, save_settings
 
 from langate.network.serializers import DeviceSerializer, UserDeviceSerializer, FullDeviceSerializer
 
@@ -106,16 +110,19 @@ class UserDeviceList(generics.ListAPIView):
         query = UserDevice.objects.all().order_by("id")
 
         orders = [
-          "id", "-id", "ip", "-ip", "mac", "-mac", "name", "-name", "area", "-area", "user", "-user"
+          "id", "-id", "ip", "-ip", "mac", "-mac", "name", "-name", "user", "-user", "mark", "-mark"
         ]
         filters = [
-          "ip", "mac", "name", "area", "user__username"
+          "ip", "mac", "name", "user__username", "mark"
         ]
         # Fuzzy search
         if 'filter' in self.request.query_params:
             filter = self.request.query_params['filter']
             q_objects = [Q(**{f'{f}__icontains': filter}) for f in filters]
             query = query.filter(reduce(or_, q_objects))
+        # Search specific mark
+        if 'mark' in self.request.query_params:
+            query = query.filter(mark=self.request.query_params['mark'])
         # Manage ordering
         if 'order' in self.request.query_params:
             order = self.request.query_params['order']
@@ -132,13 +139,13 @@ class UserDeviceList(generics.ListAPIView):
                 name="filter",
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description="Filter the devices by IP, MAC, Name, Area or User",
+                description="Filter the devices by IP, MAC, Name or User",
             ),
             openapi.Parameter(
                 name="order",
                 in_=openapi.IN_QUERY,
                 type=openapi.TYPE_STRING,
-                description="Order the devices by id, ip, mac, name, area or user",
+                description="Order the devices by id, ip, mac, name or user",
             ),
         ]
     )
@@ -146,7 +153,10 @@ class UserDeviceList(generics.ListAPIView):
         """
         Return a list of all UserDevice objects.
         """
-        queryset = self.get_queryset()
+        try:
+          queryset = self.get_queryset()
+        except Exception as e:
+          return Response({"error": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
         paginator = self.pagination_class()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         serializer = UserDeviceSerializer(paginated_queryset, many=True)
@@ -226,10 +236,11 @@ class DeviceDetail(generics.RetrieveDestroyAPIView):
         """
         try:
             device = Device.objects.get(pk=pk)
-            DeviceManager.edit_whitelist_device(
+            DeviceManager.edit_device(
               device,
               request.data.get("mac", device.mac),
-              request.data.get("name", device.name)
+              request.data.get("name", device.name),
+              request.data.get("mark", device.mark),
             )
 
             return Response(status=status.HTTP_200_OK)
@@ -256,10 +267,10 @@ class DeviceWhitelist(generics.ListAPIView):
         query = self.queryset
 
         orders = [
-          "id", "-id", "mac", "-mac", "name", "-name"
+          "id", "-id", "mac", "-mac", "name", "-name", "mark", "-mark"
         ]
         filters = [
-          "mac", "name"
+          "mac", "name", "mark"
         ]
         # Fuzzy search
         if 'filter' in self.request.query_params:
@@ -272,3 +283,96 @@ class DeviceWhitelist(generics.ListAPIView):
             if order in orders:
                 query = query.order_by(order)
         return query
+
+class MarkList(APIView):
+    """
+    API endpoint that allows marks to be viewed.
+    """
+    permission_classes = [StaffPermission]
+
+    def get(self, request):
+        """
+        Return a list of all marks
+        """
+        # Make a copy
+        marks = copy.deepcopy(SETTINGS["marks"])
+
+        # for each mark, add the number of devices with that mark
+        for mark in marks:
+            mark["devices"] = Device.objects.filter(mark=mark["value"], whitelisted=False).count()
+            mark["whitelisted"] = Device.objects.filter(mark=mark["value"], whitelisted=True).count()
+
+        return Response(marks)
+
+    def patch(self, request):
+        """
+        Create a new mark
+        """
+        if not validate_marks(request.data):
+            return Response({"error": _("Invalid mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Only keep the valid fields from the request
+        marks = []
+        for mark in request.data:
+            marks.append({
+              "name": mark["name"],
+              "value": mark["value"],
+              "priority": mark["priority"]
+            })
+
+        SETTINGS["marks"] = marks
+
+        save_settings(SETTINGS)
+
+        return Response(SETTINGS["marks"], status=status.HTTP_201_CREATED)
+
+class MarkMove(APIView):
+    """
+    API endpoint that allows all devices on a mark to be moved to another mark.
+    """
+
+    permission_classes = [StaffPermission]
+
+    def post(self, request, old, new):
+        """
+        Move all devices on a mark to another mark
+        """
+        # Check that the old and new marks are valid
+        marks = [m["value"] for m in SETTINGS["marks"]]
+
+        if old not in marks:
+            return Response({"error": _("Invalid origin mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        if new not in marks:
+            return Response({"error": _("Invalid destination mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        devices = Device.objects.filter(mark=old, whitelisted=False)
+        for device in devices:
+            DeviceManager.edit_device(device, device.mac, device.name, new)
+
+        return Response(status=status.HTTP_200_OK)
+
+class GameList(APIView):
+    """
+    API endpoint that allows games to be viewed.
+    """
+    permission_classes = [StaffPermission]
+
+    def get(self, request):
+        """
+        Return a list of all games
+        """
+        return Response(SETTINGS["games"])
+
+    def patch(self, request):
+        """
+        Create a new game
+        """
+        if not validate_games(request.data):
+            return Response({"error": _("Invalid game")}, status=status.HTTP_400_BAD_REQUEST)
+
+        SETTINGS["games"] = request.data
+
+        save_settings(SETTINGS)
+
+        return Response(SETTINGS["games"], status=status.HTTP_201_CREATED)

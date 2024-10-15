@@ -4,7 +4,8 @@ import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
 import { useDeviceStore } from '@/stores/devices.store';
 
-const { deleteDevice } = useDeviceStore();
+const { deleteDevice, editDevice } = useDeviceStore();
+const queryParams = window.location.search;
 
 </script>
 
@@ -16,7 +17,7 @@ const { deleteDevice } = useDeviceStore();
     <div class="flex flex-col md:flex-row">
       <ManagementMenu type="devices"/>
       <PaginatedTable
-        url="/network/userdevices"
+        :url="'/network/userdevices' + queryParams"
         :properties="[
           {
             name: '#',
@@ -39,9 +40,9 @@ const { deleteDevice } = useDeviceStore();
             ordering: false,
           },
           {
-            name: 'Zone',
-            key: 'area',
-            ordering: false,
+            name: 'Mark',
+            key: 'mark',
+            ordering: true,
           },
           {
             name: 'Propriétaire',
@@ -68,6 +69,29 @@ const { deleteDevice } = useDeviceStore();
             },
             function: async (device, fields) => {
               await deleteDevice((device as unknown as Device).id);
+            },
+          },
+          {
+            hint: 'Modifier la mark',
+            icon: 'pencil',
+            key: 'update',
+            modal: {
+              title: 'Modifier l\'appareil',
+              fields: [
+                {
+                  name: 'Nom de l\'appareil',
+                  key: 'name',
+                  type: 'text',
+                },
+                {
+                  name: 'Mark',
+                  key: 'mark',
+                  type: 'number',
+                },
+              ],
+            },
+            function: async (device, fields) => {
+              await editDevice((device as unknown as Device).id, fields as unknown as Device);
             },
           },
         ]"
