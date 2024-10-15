@@ -277,13 +277,17 @@ class UserLogout(APIView):
     API endpoint that allows a user to logout.
     """
 
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [SessionAuthentication]
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         """
         Will logout an user.
         """
+        # if the user is not authenticated, we return a 200 OK
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_200_OK)
+
         user_devices = UserDevice.objects.filter(user=request.user)
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
 
