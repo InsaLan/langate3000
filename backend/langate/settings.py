@@ -252,5 +252,3 @@ else:
     if not validate_games(SETTINGS["games"]):
         logger.error("Invalid games found in settings.json, defaulting to {}")
         SETTINGS["games"] = {}
-
-NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")
