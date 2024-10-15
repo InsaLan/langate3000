@@ -35,6 +35,11 @@ const submitData = async () => {
   await patch_marks(marksCopy.value);
   // TODO: display a success message
   console.log('Data submitted');
+
+  edit.value = false;
+  await fetch_marks();
+  // make a copy of the marks
+  marksCopy.value = marks.value.map((mark) => ({ ...mark }));
 };
 
 const reset = async () => {
