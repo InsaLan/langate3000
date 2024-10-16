@@ -2,13 +2,13 @@
 
 WORKDIR /nctl
 
-COPY requirements.txt /nctl/
-
-RUN pip install -r /nctl/requirements.txt
-
 RUN apk add --no-cache nftables git \
 	&& pip install 'git+https://git.netfilter.org/nftables@v1.1.0#egg=nftables&subdirectory=py' \
 	&& apk del git
+
+COPY requirements.txt /nctl/
+
+RUN pip install -r /nctl/requirements.txt
 
 COPY . /nctl
 
