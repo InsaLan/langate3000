@@ -2,7 +2,7 @@
 
 Netcontrol est le composant de la langate qui interface le backend avec la tête de réseau.
 
-Il permet à la langate de pouvoir effectuer des opérations de plus bas niveau grace à un niveau de privilège plus élevé sur la tête.
+Il permet à la langate de pouvoir effectuer des opérations de plus bas niveau grace à un niveau de privilège plus élevé sur la tête : pour cela, il tourne dans un conteneur ayant la capabilité NET_ADMIN et dans le network host.
 
 Le backend communique via des requêtes HTTP à l'API REST ([FastAPI](https://fastapi.tiangolo.com/)) du module netcontrol de la langate. L'adresse utilisée pour les requêtes est la route par défaut du docker du backend, sur laquelle est bind l'API.
 
