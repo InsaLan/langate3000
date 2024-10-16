@@ -3,7 +3,8 @@ import json
 import logging
 
 class Nft:
-    """Class which interacts with the nftables backend
+    """
+    Class which interacts with the nftables backend
     """
     def __init__(self, logger: logging.Logger):
         self.logger = logger
@@ -16,7 +17,8 @@ class Nft:
         self.logger.info(f"Found running nftables version {metainfo['version']} with {len(data)} ruleset entries.")
     
     def _execute_nft_cmd(self, cmd: str) -> dict:
-        """Executes an nft command, handles the exception properly and returns an object
+        """
+        Executes an nft command, handles the exception properly and returns an object
 
         Args:
             cmd (str): string representation of the command
@@ -32,6 +34,15 @@ class Nft:
         if rc != 0 or (error is not None and error != ""):
             raise NftablesException(rc, error)
         return json.loads(output)["nftables"]
+    
+    def connect_user(mac: str = "", mark: int = 0, name: str = ""):
+        return {"error": "Not implemented"}
+    
+    def delete_user(mac: str):
+        return {"error": "Not implemented"}
+
+    def set_mark(mac: str, mark: int):
+        return {"error": "Not implemented"}
 
 class NftablesException(Exception):
     pass
