@@ -32,7 +32,7 @@ const shakeLogo = () => {
         <img
           id="logo"
           alt="Logo InsaLan"
-          class="h-[100px] w-[100px]"
+          class="size-[100px]"
           src="@/assets/images/logo_retro.png"
           @click="shakeLogo"
           @keydown.enter="shakeLogo"

@@ -174,6 +174,7 @@ const submitGame = async () => {
                   <template v-if="edit">
                     <label class="sr-only" for="name">Name</label>
                     <input
+                      id="name"
                       v-model="mark.name"
                       class="w-full rounded-md border border-black bg-theme-nav p-2"
                       type="text"
@@ -187,6 +188,7 @@ const submitGame = async () => {
                   <template v-if="edit">
                     <label class="sr-only" for="value">Value</label>
                     <input
+                      id="value"
                       v-model.number="mark.value"
                       class="w-full rounded-md border border-black bg-theme-nav p-2"
                       type="number"
@@ -204,14 +206,16 @@ const submitGame = async () => {
                       <label class="sr-only" for="priority">Priority</label>
                       <!-- Add a slider alongside the input -->
                       <input
+                        id="priority"
                         v-model.number="mark.priority"
-                        class="w-full rounded-md border border-black bg-theme-nav p-2"
+                        class="w-full rounded-md border border-black bg-theme-nav p-2 accent-blue-500"
                         type="range"
                         min="0"
                         max="10"
                         step="0.1"
                       />
                       <input
+                        id="priority"
                         v-model.number="mark.priority"
                         class="w-20 rounded-md border border-black bg-theme-nav p-2"
                         type="number"
@@ -267,7 +271,7 @@ const submitGame = async () => {
                     >
                       <router-link
                         class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
-                        :to="'/management/devices?mark=' + mark.value"
+                        :to="`/management/devices?mark=${mark.value}`"
                       >
                         <fa-awesome-icon
                           icon="eye"
