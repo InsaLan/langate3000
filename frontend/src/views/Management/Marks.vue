@@ -208,7 +208,7 @@ const submitGame = async () => {
                       <input
                         id="priority"
                         v-model.number="mark.priority"
-                        class="w-full rounded-md border border-black bg-theme-nav p-2"
+                        class="w-full rounded-md border border-black bg-theme-nav p-2 accent-blue-500"
                         type="range"
                         min="0"
                         max="10"
