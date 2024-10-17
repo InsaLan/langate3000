@@ -36,7 +36,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while deleting the device',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while deleting the device',
         'error',
       );
       return false;
@@ -60,7 +60,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while creating the device',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while creating the device',
         'error',
       );
       return false;
@@ -84,7 +84,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while creating the devices',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while creating the devices',
         'error',
       );
       return false;
@@ -108,7 +108,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the device',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while editing the device',
         'error',
       );
       return false;
@@ -128,7 +128,7 @@ export const useDeviceStore = defineStore('device', () => {
       withCredentials: true,
     }).catch((err) => {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the device',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while editing the device',
         'error',
       );
       errors = true;
@@ -145,7 +145,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while fetching the marks',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while fetching the marks',
         'error',
       );
       return false;
@@ -166,7 +166,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the marks',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while editing the marks',
         'error',
       );
       return false;
@@ -187,7 +187,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while moving the marks',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while moving the marks',
         'error',
       );
       return false;
@@ -201,7 +201,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while fetching the game marks',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while fetching the game marks',
         'error',
       );
       return false;
@@ -222,7 +222,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the game marks',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while editing the game marks',
         'error',
       );
       return false;
@@ -246,7 +246,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the device',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while editing the device',
         'error',
       );
       return false;
@@ -269,7 +269,7 @@ export const useDeviceStore = defineStore('device', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while deleting the device',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while deleting the device',
         'error',
       );
       return false;

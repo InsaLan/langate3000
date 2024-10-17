@@ -72,7 +72,7 @@ const queryParams = window.location.search;
               ],
             },
             function: async (device, fields) => {
-              await deleteDevice((device as unknown as Device).id);
+              return await deleteDevice((device as unknown as Device).id);
             },
           },
           {
@@ -95,9 +95,11 @@ const queryParams = window.location.search;
               ],
             },
             function: async (device, fields) => {
-              if (await editDevice((device as unknown as Device).id, fields as unknown as Device)) {
+              const success = await editDevice((device as unknown as Device).id, fields as unknown as Device)
+              if (success) {
                 addNotification('L\'appareil a bien été modifiée', 'info');
               }
+              return success;
             },
           },
         ]"

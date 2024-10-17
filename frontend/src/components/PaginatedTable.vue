@@ -25,7 +25,7 @@ export interface Props {
     multiple?: (
       (fields: {
         [key: string]: string;
-      }[]) => Promise<string | void>
+      }[]) => Promise<string | boolean | void>
     );
     modal: {
       title: string;
@@ -40,7 +40,7 @@ export interface Props {
     function: (
       (fields: {
         [key: string]: string;
-      }) => Promise<string | void>
+      }) => Promise<string | boolean | void>
     );
   };
   pagination: boolean;
@@ -67,14 +67,14 @@ export interface Props {
       }[]);
     };
     function: (
-      (object: { [key: string]: string }) => Promise<string | void>
+      (object: { [key: string]: string }) => Promise<string | boolean | void>
     ) | (
       (
         object: { [key: string]: string },
         fields: {
           [key: string]: string;
         }
-      ) => Promise<string | void>
+      ) => Promise<string | boolean | void>
     );
   }[];
 }
@@ -308,11 +308,11 @@ const openFormModal = (
       }[]);
     };
     function: (
-      (object: { [key: string]: string }) => Promise<string | void>
+      (object: { [key: string]: string }) => Promise<string | boolean | void>
     ) | (
       (object: { [key: string]: string }, fields: {
         [key: string]: string;
-      }) => Promise<string | void>
+      }) => Promise<string | boolean | void>
     );
   },
   object: { [key: string]: string },
@@ -341,7 +341,8 @@ const openFormModal = (
         }
       });
       const confirm = await action.function(object, data);
-      if (confirm) {
+      // if the function returns a string, open a confirmation modal
+      if (typeof confirm === 'string') {
         confirm_modal.title = 'Confirmation';
         confirm_modal.fields = [
           {
@@ -353,9 +354,11 @@ const openFormModal = (
         ];
         confirm_modal.open = true;
       }
-
-      await fetchData(-1);
-      modal.open = false;
+      // if the function returns a boolean, fetch the data
+      if (confirm !== false) {
+        await fetchData(-1);
+        modal.open = false;
+      }
     };
     modal.title = action.modal.title;
     modal.open = true;
@@ -383,7 +386,7 @@ const openFormModalCreate = (
     function: (
       (fields: {
         [key: string]: string;
-      }) => Promise<string | void>
+      }) => Promise<string | boolean | void>
     );
   },
 ) => {
@@ -403,9 +406,33 @@ const openFormModalCreate = (
         data[field.key] = field.value;
       }
     });
-    await create.function(data);
-    await fetchData(-1);
-    modal.open = false;
+    let confirm = await create.function(data);
+    // if the function returns a string, open a confirmation modal
+    if (typeof confirm === 'string') {
+      confirm_modal.title = 'Confirmation';
+      confirm_modal.fields = [
+        {
+          name: confirm,
+          key: 'confirmation',
+          value: '',
+          type: 'hidden',
+        },
+      ];
+      confirm_modal.function = async () => {
+        confirm = await create.function(data);
+        if (confirm !== false) {
+          await fetchData(-1);
+          modal.open = false;
+        }
+        confirm_modal.open = false;
+      };
+      confirm_modal.open = true;
+    }
+    // if the function returns a boolean, fetch the data
+    if (confirm !== false) {
+      await fetchData(-1);
+      modal.open = false;
+    }
   };
   modal.title = create.modal.title;
   modal.open = true;
@@ -427,7 +454,7 @@ const openFormModalCreateMultiple = (
     multiple?: (
       (fields: {
         [key: string]: string;
-      }[]) => Promise<string | void>);
+      }[]) => Promise<string | boolean | void>);
   },
 ) => {
   // create the name of the unique field from the properties
