@@ -75,9 +75,11 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, data) => {
-              if (await editDevice((device as unknown as Device).id, data as unknown as Device)) {
+              const success = await editDevice((device as unknown as Device).id, data as unknown as Device)
+              if (success) {
                 addNotification('L\'appareil a bien été modifié', 'info');
               }
+              return success;
             },
           },
           {
@@ -95,17 +97,21 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, fields) => {
-              if (await deleteDevice((device as unknown as Device).id)) {
+              const success = await deleteDevice((device as unknown as Device).id);
+              if (success) {
                 addNotification('L\'appareil a bien été supprimé', 'info');
               }
+              return success;
             },
           },
         ]"
         :create="{
           multiple: async (data) => {
-            if (await createDevicesFromList(data as unknown as Device[])) {
+            const success = await createDevicesFromList(data as unknown as Device[]);
+            if (success) {
               addNotification('Les appareils ont bien été ajoutés', 'info');
             }
+            return success;
           },
           modal: {
             title: 'Ajouter un appareil à la whitelist',
@@ -131,9 +137,11 @@ const { addNotification } = useNotificationStore();
             ],
           },
           function: async (data) => {
-            if (await createDevice(data as unknown as Device)) {
+            const success = await createDevice(data as unknown as Device);
+            if (success) {
               addNotification('L\'appareil a bien été ajouté', 'info');
             }
+            return success;
           },
         }"
       />
