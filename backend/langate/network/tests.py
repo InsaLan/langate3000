@@ -625,7 +625,7 @@ class TestMarkAPI(TestCase):
 
     def test_patch_invalid_marks(self):
         invalid_marks = [
-          {"value": 102, "name": "Mark 3", "priority": 0.3},
+          {"value": 102, "name": "Mark 3", "priority": "aa"},
           {"value": 103, "name": "Mark 4", "priority": 0.6}
         ]
         response = self.client.patch(self.url, invalid_marks, format='json')
