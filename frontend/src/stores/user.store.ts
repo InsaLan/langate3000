@@ -15,10 +15,9 @@ export const useUserStore = defineStore('user', () => {
   const { addNotification } = useNotificationStore();
 
   function create_temp_password(): string {
-    // create a 4 digits password
-    const password = Math.floor(Math.random() * 9999).toString();
-    // Ensure that the password is a string of 4 digits
-    return password.padStart(4, '0');
+    // create a 10 character long password with random characters
+    const password = Math.random().toString(36).slice(2, 6) + Math.random().toString(36).slice(2, 6);
+    return password;
   }
 
   /*
@@ -54,7 +53,7 @@ export const useUserStore = defineStore('user', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while logging in',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while logging in',
         'error',
       );
       return false;
@@ -78,7 +77,7 @@ export const useUserStore = defineStore('user', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while logging out',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while logging out',
         'error',
       );
       return false;
@@ -111,7 +110,7 @@ export const useUserStore = defineStore('user', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while creating the user',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while creating the user',
         'error',
       );
       return false;
@@ -132,7 +131,7 @@ export const useUserStore = defineStore('user', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while resetting the password',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while resetting the password',
         'error',
       );
       return false;
@@ -153,7 +152,7 @@ export const useUserStore = defineStore('user', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while deleting the user',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while deleting the user',
         'error',
       );
       return false;
@@ -174,7 +173,7 @@ export const useUserStore = defineStore('user', () => {
       return true;
     } catch (err) {
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while editing the user',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while editing the user',
         'error',
       );
       return false;
@@ -201,7 +200,7 @@ export const useUserStore = defineStore('user', () => {
         return false;
       }
       addNotification(
-        (err as AxiosError<{ error?: string }>).response?.data?.error || 'An error occurred while fetching the user',
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while fetching the user',
         'error',
       );
       return false;

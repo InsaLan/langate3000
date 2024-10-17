@@ -90,11 +90,13 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, fields) => {
-              if (await edit_own_device((device as unknown as Device).id, fields.name)) {
+              const success = await edit_own_device((device as unknown as Device).id, fields.name);
+              if (success) {
                 addNotification('Appareil modifié avec succès', 'info');
                 // refresh the user
                 await fetch_user();
               }
+              return success;
             },
           },
           {
@@ -112,11 +114,13 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, fields) => {
-              if (await delete_own_device((device as unknown as Device).id)) {
+              const success = await delete_own_device((device as unknown as Device).id);
+              if (success) {
                 addNotification('Appareil supprimé avec succès', 'info');
                 // refresh the user
                 await fetch_user();
               }
+              return success;
             },
           },
         ]"
