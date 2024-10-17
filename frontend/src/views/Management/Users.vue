@@ -126,7 +126,7 @@ const { addNotification } = useNotificationStore();
             ],
           },
           function: async (data) => {
-            const password = await create_user(data as unknown as User);
+            return await create_user(data as unknown as User);
           },
         }"
         :pagination="true"
@@ -189,7 +189,7 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, fields) => {
-              await edit_user((device as unknown as User).id, fields as unknown as User);
+              return await edit_user((device as unknown as User).id, fields as unknown as User);
             },
           },
           {
