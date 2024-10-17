@@ -86,13 +86,6 @@ def validate_marks(marks):
         if not isinstance(mark["name"], str) or not isinstance(mark["value"], int) or not (isinstance(mark["priority"], int) or isinstance(mark["priority"], float)):
             return False
 
-    # Check if the marks have the right values
-    sum = 0
-    for mark in range(len(marks)):
-        sum += marks[mark]["priority"]
-    if sum != 1:
-        return False
-
     return True
 
 def validate_games(games):

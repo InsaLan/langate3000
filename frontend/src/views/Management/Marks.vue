@@ -198,13 +198,26 @@ const submitGame = async () => {
                 </td>
                 <td class="border-2 border-zinc-800 p-2">
                   <template v-if="edit">
-                    <label class="sr-only" for="priority">Priority</label>
-                    <input
-                      v-model.number="mark.priority"
-                      class="w-full rounded-md border border-black bg-theme-nav p-2"
-                      type="number"
-                      step="0.1"
-                    />
+                    <div
+                      class="flex flex-row gap-4"
+                    >
+                      <label class="sr-only" for="priority">Priority</label>
+                      <!-- Add a slider alongside the input -->
+                      <input
+                        v-model.number="mark.priority"
+                        class="w-full rounded-md border border-black bg-theme-nav p-2"
+                        type="range"
+                        min="0"
+                        max="10"
+                        step="0.1"
+                      />
+                      <input
+                        v-model.number="mark.priority"
+                        class="w-20 rounded-md border border-black bg-theme-nav p-2"
+                        type="number"
+                        step="0.1"
+                      />
+                    </div>
                   </template>
                   <template v-else>
                     {{ mark.priority }}
