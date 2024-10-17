@@ -4,6 +4,9 @@ import { onMounted, ref } from 'vue';
 import ManagementMenu from '@/components/ManagementMenu.vue';
 import type { EditableMark, GameMark, Mark } from '@/models/mark';
 import { useDeviceStore } from '@/stores/devices.store';
+import { useNotificationStore } from '@/stores/notification.stores';
+
+const { addNotification } = useNotificationStore();
 
 const deviceStore = useDeviceStore();
 
@@ -32,14 +35,14 @@ const removeMark = (index: number) => {
 };
 
 const submitData = async () => {
-  await patch_marks(marksCopy.value);
-  // TODO: display a success message
-  console.log('Data submitted');
+  if (await patch_marks(marksCopy.value)) {
+    addNotification('Les marks ont bien été modifiées', 'info');
 
-  edit.value = false;
-  await fetch_marks();
-  // make a copy of the marks
-  marksCopy.value = marks.value.map((mark) => ({ ...mark }));
+    edit.value = false;
+    await fetch_marks();
+    // make a copy of the marks
+    marksCopy.value = marks.value.map((mark) => ({ ...mark }));
+  }
 };
 
 const reset = async () => {
@@ -61,15 +64,14 @@ const openModal = (selectedMark: number) => {
 };
 
 const validateMove = async () => {
-  await move_marks(currentMark.value, chosenMark.value);
-  // TODO: display a success message
-  console.log('Data moved');
+  if (await move_marks(currentMark.value, chosenMark.value)) {
+    addNotification('Les appareils ont bien été déplacés', 'info');
+    // close the modal
+    move.value = false;
 
-  // close the modal
-  move.value = false;
-
-  // reload the marks to update the number of devices
-  await fetch_marks();
+    // reload the marks to update the number of devices
+    await fetch_marks();
+  }
 };
 
 // -- Game Edit Modal --
@@ -93,8 +95,7 @@ const submitGame = async () => {
   gameMarksValues.value.forEach((value) => {
     value.split(',').forEach((number) => {
       if (Number.isNaN(Number(number))) {
-        // display an error message
-        console.error('Invalid value');
+        addNotification('Les valeurs doivent être des nombres séparés par des virgules', 'error');
         valid = false;
       }
     });
@@ -110,13 +111,15 @@ const submitGame = async () => {
     gameMarksObject[field] = gameMarksValues.value[index].split(',').map((value) => Number(value));
   });
 
-  await change_game_marks(gameMarksObject);
+  if (await change_game_marks(gameMarksObject)) {
+    // close the modal
+    game.value = false;
 
-  // close the modal
-  game.value = false;
+    addNotification('La répartition par jeu a bien été modifiée', 'info');
 
-  // reload the game marks to update the number of devices
-  await fetch_game_marks();
+    // reload the game marks to update the number of devices
+    await fetch_game_marks();
+  }
 };
 
 </script>
@@ -195,13 +198,26 @@ const submitGame = async () => {
                 </td>
                 <td class="border-2 border-zinc-800 p-2">
                   <template v-if="edit">
-                    <label class="sr-only" for="priority">Priority</label>
-                    <input
-                      v-model.number="mark.priority"
-                      class="w-full rounded-md border border-black bg-theme-nav p-2"
-                      type="number"
-                      step="0.1"
-                    />
+                    <div
+                      class="flex flex-row gap-4"
+                    >
+                      <label class="sr-only" for="priority">Priority</label>
+                      <!-- Add a slider alongside the input -->
+                      <input
+                        v-model.number="mark.priority"
+                        class="w-full rounded-md border border-black bg-theme-nav p-2"
+                        type="range"
+                        min="0"
+                        max="10"
+                        step="0.1"
+                      />
+                      <input
+                        v-model.number="mark.priority"
+                        class="w-20 rounded-md border border-black bg-theme-nav p-2"
+                        type="number"
+                        step="0.1"
+                      />
+                    </div>
                   </template>
                   <template v-else>
                     {{ mark.priority }}
@@ -432,16 +448,16 @@ const submitGame = async () => {
         Modifier la répartition par Jeu
       </h2>
       <div
-        class="mt-4 text-white flex flex-row gap-2 items-center border-b-2 border-gray-500 pb-4"
+        class="mt-4 flex flex-row items-center gap-2 border-b-2 border-gray-500 pb-4 text-white"
       >
         Format :
         <div
-          class="rounded-md bg-theme-nav p-1 font-bold text-white border border-gray-500"
+          class="rounded-md border border-gray-500 bg-theme-nav p-1 font-bold text-white"
         >
           Nom du jeu
         </div> :
         <div
-          class="rounded-md bg-theme-nav p-1 font-bold text-white border border-black"
+          class="rounded-md border border-black bg-theme-nav p-1 font-bold text-white"
         >
           Mark1,Mark2,...
         </div>

@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import Footer from '@/components/Footer.vue';
 import Navigation from '@/components/Navigation.vue';
+import Notification from '@/components/Notification.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const userStore = useUserStore();
@@ -38,6 +39,7 @@ onMounted(async () => {
         </Suspense>
       </template>
     </RouterView>
+    <Notification/>
   </div>
   <Footer/>
 </template>
