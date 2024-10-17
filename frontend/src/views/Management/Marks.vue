@@ -206,6 +206,7 @@ const submitGame = async () => {
                       <label class="sr-only" for="priority">Priority</label>
                       <!-- Add a slider alongside the input -->
                       <input
+                        id="priority"
                         v-model.number="mark.priority"
                         class="w-full rounded-md border border-black bg-theme-nav p-2"
                         type="range"
@@ -214,6 +215,7 @@ const submitGame = async () => {
                         step="0.1"
                       />
                       <input
+                        id="priority"
                         v-model.number="mark.priority"
                         class="w-20 rounded-md border border-black bg-theme-nav p-2"
                         type="number"
