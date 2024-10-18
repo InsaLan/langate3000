@@ -26,7 +26,7 @@ from langate.user.serializers import (
 )
 
 from .models import User, Role
-from langate.modules import netcontrol
+from langate.settings import netcontrol
 
 from langate.network.models import UserDevice, Device, DeviceManager
 from langate.network.serializers import UserDeviceSerializer
@@ -104,7 +104,7 @@ class UserMe(generics.RetrieveAPIView):
         if not user_devices.filter(ip=client_ip).exists():
           # If the user is still logged in but the device is not registered on the network,
           # we register it.
-          r = netcontrol.query("get_mac", { "ip": client_ip })
+          r = netcontrol.get_mac(client_ip)
           client_mac = r["mac"]
           try:
               # The following should never raise a MultipleObjectsReturned exception
@@ -228,7 +228,7 @@ class UserLogin(APIView):
 
             # If this device is not registered on the network, we register it.
             if not user_devices.filter(ip=client_ip).exists():
-                r = netcontrol.query("get_mac", { "ip": client_ip })
+                r = netcontrol.get_mac(client_ip)
                 client_mac = r["mac"]
                 try:
                     # The following should never raise a MultipleObjectsReturned exception

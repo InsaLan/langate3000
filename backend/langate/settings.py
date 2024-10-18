@@ -16,6 +16,7 @@ from pathlib import Path
 from sys import argv
 import json
 import logging
+from langate.modules.netcontrol import Netcontrol
 
 from django.utils.translation import gettext_lazy as _
 from langate.network.utils import validate_marks, validate_games
@@ -254,3 +255,6 @@ else:
         SETTINGS["games"] = {}
 
 NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")
+
+# Netcontrol interface
+netcontrol = Netcontrol()
