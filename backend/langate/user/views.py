@@ -277,13 +277,17 @@ class UserLogout(APIView):
     API endpoint that allows a user to logout.
     """
 
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [SessionAuthentication]
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         """
         Will logout an user.
         """
+        # if the user is not authenticated, we return a 200 OK
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_200_OK)
+
         user_devices = UserDevice.objects.filter(user=request.user)
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
 
@@ -358,6 +362,14 @@ class UserList(generics.ListCreateAPIView):
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, self.request)
         serializer = UserSerializer(result_page, many=True)
+
+        # add devices to the response
+        for user in serializer.data:
+            user_devices = UserDevice.objects.filter(user=user['id'])
+            user["devices"] = UserDeviceSerializer(
+                user_devices, many=True
+            ).data
+
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(

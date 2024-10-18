@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -8,8 +10,36 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from langate.network.models import DeviceManager, Device, UserDevice
+from langate.network.utils import get_mark
 from langate.user.models import User, Role
 from .serializers import FullDeviceSerializer
+
+# Using fixed values for the settings
+SETTINGS = {
+  "marks": [
+    {
+      "name": "sans vpn",
+      "value": 100,
+      "priority": 0
+    },
+    {
+      "name": "vpn1",
+      "value": 101,
+      "priority": 0.1
+    },
+    {
+      "name": "vpn2",
+      "value": 102,
+      "priority": 0.2
+    },
+    {
+      "name": "vpn3",
+      "value": 103,
+      "priority": 0.7
+    }
+  ]
+}
+
 
 
 class TestDeviceManager(TestCase):
@@ -96,7 +126,6 @@ class TestDeviceManager(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:55",
-              "area": "LAN"
             }
             device = DeviceManager.create_user_device(
               user=self.user, ip="123.123.123.123", name="TestDevice"
@@ -107,7 +136,6 @@ class TestDeviceManager(TestCase):
             self.assertFalse(device.whitelisted)
             self.assertEqual(device.user, self.user)
             self.assertEqual(device.ip, "123.123.123.123")
-            self.assertEqual(device.area, "LAN")
 
     def test_create_user_device_invalid_ip(self):
         """
@@ -118,7 +146,6 @@ class TestDeviceManager(TestCase):
                 mock_query.return_value = {
                   "success": True,
                   "mac": "00:11:22:33:44:55",
-                  "area": "LAN"
                 }
                 DeviceManager.create_user_device(
                   user=self.user, ip="123.123.123.823", name="TestDevice"
@@ -133,7 +160,6 @@ class TestDeviceManager(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:55",
-              "area": "LAN"
             }
             device = DeviceManager.create_user_device(
               user=self.user, ip="123.123.123.123", name=None
@@ -149,7 +175,6 @@ class TestDeviceManager(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:55",
-              "area": "LAN"
             }
             with self.assertRaises(ValidationError):
                 DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice")
@@ -182,7 +207,6 @@ class TestNetworkAPI(TestCase):
           ip="123.123.123.123",
           mac="00:11:22:33:44:55",
           name="TestDevice",
-          area="LAN"
         )
         self.device = Device.objects.create(
           mac="00:11:22:33:44:56",
@@ -206,7 +230,6 @@ class TestNetworkAPI(TestCase):
           'whitelisted': False,
           'ip': '123.123.123.123',
           'user': 'testuser',
-          'area': 'LAN'
         }
 
         self.assertJSONEqual(response.content, expected)
@@ -227,7 +250,6 @@ class TestNetworkAPI(TestCase):
           'whitelisted': True,
           'ip': None,
           'user': None,
-          'area': None
         }
 
         self.assertJSONEqual(response.content, expected)
@@ -393,7 +415,6 @@ class TestNetworkAPI(TestCase):
               'whitelisted': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
-              'area': 'LAN'
             },
             {
               'id': self.device.pk,
@@ -402,7 +423,6 @@ class TestNetworkAPI(TestCase):
               'whitelisted': True,
               'ip': None,
               'user': None,
-              'area': None
             }
           ]
         }
@@ -457,7 +477,7 @@ class TestNetworkAPI(TestCase):
               'whitelisted': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
-              'area': 'LAN'
+              'mark': SETTINGS['marks'][0]['value']
             }
           ]
         }
@@ -517,7 +537,6 @@ class TestNetworkAPI(TestCase):
             mock_query.return_value = {
               "success": True,
               "mac": "00:11:22:33:44:57",
-              "area": "LAN"
             }
             response = self.client.post(reverse('device-list'), new_data)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -550,3 +569,143 @@ class TestNetworkAPI(TestCase):
 
         response = self.client.post(reverse('device-list'), {})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class TestMarkAPI(TestCase):
+    """
+    Test cases for the MarkDetail view
+    """
+
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('mark-list')
+        self.user = User.objects.create_user(username='testuser', password='testpass')
+        self.user.role = Role.STAFF
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.settings = {"marks":[
+          {"value": 100, "name": "Mark 1", "priority": 0.5},
+          {"value": 101, "name": "Mark 2", "priority": 0.5}
+        ]}
+        self.SETTINGS = self.settings
+        Device.objects.create(mac="00:00:00:00:00:01", mark=100, whitelisted=False)
+        Device.objects.create(mac="00:00:00:00:00:02", mark=101, whitelisted=True)
+        Device.objects.create(mac="00:00:00:00:00:03", mark=101, whitelisted=False)
+
+    @patch('langate.network.views.SETTINGS')
+    def test_get_marks(self, mock_settings):
+        mock_settings.__getitem__.side_effect = self.SETTINGS.__getitem__
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        for i in range(len(self.settings["marks"])):
+            self.assertEqual(response.data[i]["value"], self.settings["marks"][i]["value"])
+            self.assertEqual(response.data[i]["name"], self.settings["marks"][i]["name"])
+            self.assertEqual(response.data[i]["priority"], self.settings["marks"][i]["priority"])
+            self.assertEqual(response.data[i]["devices"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=False).count())
+            self.assertEqual(response.data[i]["whitelisted"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=True).count())
+
+    @patch('langate.network.views.save_settings')
+    def test_patch_marks(self, mock_save_settings):
+        mock_save_settings.side_effect = lambda x: None
+
+        new_marks = [
+          {"value": 102, "name": "Mark 3", "priority": 0.3},
+          {"value": 103, "name": "Mark 4", "priority": 0.7}
+        ]
+        response = self.client.patch(self.url, new_marks, format='json')
+
+        from langate.settings import SETTINGS as ORIGINAL_SETTINGS
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(ORIGINAL_SETTINGS["marks"]), 2)
+        self.assertEqual(ORIGINAL_SETTINGS["marks"][0]["value"], 102)
+        self.assertEqual(ORIGINAL_SETTINGS["marks"][1]["value"], 103)
+
+    def test_patch_invalid_marks(self):
+        invalid_marks = [
+          {"value": 102, "name": "Mark 3", "priority": 0.3},
+          {"value": 103, "name": "Mark 4", "priority": 0.6}
+        ]
+        response = self.client.patch(self.url, invalid_marks, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "Invalid mark")
+
+    @patch('langate.network.views.save_settings')
+    def test_patch_marks_not_authenticated(self, mock_save_settings):
+        self.client.force_authenticate(user=None)
+        response = self.client.patch(self.url, [], format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class TestsGameMarkAPI(TestCase):
+  def setUp(self):
+    self.settings = {
+      "marks": [
+        {
+          "name": "sans vpn",
+          "value": 100,
+          "priority": 0
+        },
+        {
+          "name": "vpn1",
+          "value": 101,
+          "priority": 0.1
+        },
+        {
+          "name": "vpn2",
+          "value": 102,
+          "priority": 0.2
+        },
+        {
+          "name": "vpn3",
+          "value": 103,
+          "priority": 0.7
+        }
+      ],
+      "games": {
+        "game1": [100],
+        "game2": [101, 102]
+      }
+    }
+
+    self.client = APIClient()
+    self.url = reverse('game-list')
+    self.user = User.objects.create_user(username='testuser', password='testpassword')
+    self.user.role = Role.STAFF
+    self.user.save()
+    self.client.force_authenticate(user=self.user)
+
+  @patch('langate.network.views.SETTINGS')
+  def test_get_games(self, mock_settings):
+    mock_settings.__getitem__.side_effect = self.settings.__getitem__
+
+    response = self.client.get(self.url)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.assertIsInstance(response.data, dict)
+    self.assertEqual(response.data, self.settings["games"])
+
+  @patch('langate.network.views.save_settings')
+  def test_patch_games_valid(self, mock_save_settings):
+    mock_save_settings.side_effect = lambda x: None
+
+    valid_data = {"Game1": [102], "Game2": [103, 101]}
+
+    response = self.client.patch(self.url, data=json.dumps(valid_data), content_type='application/json')
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertEqual(response.data, valid_data)
+
+  def test_patch_games_invalid(self):
+    invalid_data = [
+      {"name": "Game1"},
+      {"value": "game2"}
+    ]
+    response = self.client.patch(self.url, data=json.dumps(invalid_data), content_type='application/json')
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    self.assertIn("error", response.data)
+
+  @patch('langate.network.views.save_settings')
+  def test_patch_games_not_authenticated(self, mock_save_settings):
+    self.client.force_authenticate(user=None)
+    response = self.client.patch(self.url, data=json.dumps({}), content_type='application/json')
+    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

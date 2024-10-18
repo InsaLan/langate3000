@@ -15,8 +15,13 @@ from os import getenv, path
 from pathlib import Path
 from sys import argv
 import json
+import logging
 
 from django.utils.translation import gettext_lazy as _
+from langate.network.utils import validate_marks, validate_games
+
+logger = logging.getLogger(__name__)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -217,7 +222,35 @@ CSRF_COOKIE_DOMAIN = '.' + getenv("WEBSITE_HOST", "localhost")
 
 # Session cookie settings
 SESSION_COOKIE_AGE = int(getenv("SESSION_COOKIE_AGE", "1209600"))
+SETTINGS = {}
 
-# Netcontrol settings
-NETCONTROL_MARK = json.loads(getenv("NETCONTROL_MARK", "[100, 2]"))
+# Network settings
+if not path.exists("assets/misc/settings.json"):
+    logger.error("No settings.json found, defaulting to [100]")
+    SETTINGS = {
+      "marks": [{"name": "default", "value": 100, "priority":1}],
+      "games": {}
+    }
+else:
+    file = open("assets/misc/settings.json", "r")
+    with file as f:
+        data = json.load(f)
+        SETTINGS = data
+
+    if "marks" not in SETTINGS:
+        logger.error("No marks found in settings.json, defaulting to [100]")
+        SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
+
+    if not validate_marks(SETTINGS["marks"]):
+        logger.error("Invalid marks found in settings.json, defaulting to [100]")
+        SETTINGS["marks"] = [{"name": "default", "value": 100, "priority":1}]
+
+    if "games" not in SETTINGS:
+        logger.error("No games found in settings.json, defaulting to {}")
+        SETTINGS["games"] = {}
+
+    if not validate_games(SETTINGS["games"]):
+        logger.error("Invalid games found in settings.json, defaulting to {}")
+        SETTINGS["games"] = {}
+
 NETCONTROL_SOCKET_FILE = getenv("NETCONTROL_SOCKET_FILE", "/var/run/langate3000-netcontrol.sock")

@@ -1,6 +1,7 @@
 # Ignore DB
 *.sqlite3
 assets/misc/whitelist.txt
+assets/misc/settings.json
 
 # Pycache
 __pycache__/

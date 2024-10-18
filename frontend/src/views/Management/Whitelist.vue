@@ -35,6 +35,11 @@ const {
             key: 'name',
             ordering: false,
           },
+          {
+            name: 'Mark',
+            key: 'mark',
+            ordering: true,
+          },
         ]"
         :pagination="true"
         :search="true"
@@ -56,6 +61,12 @@ const {
                   name: 'MAC',
                   key: 'mac',
                   type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'Mark',
+                  key: 'mark',
+                  type: 'number',
                   required: true,
                 },
               ],
@@ -100,6 +111,12 @@ const {
                 name: 'MAC',
                 key: 'mac',
                 type: 'text',
+                required: true,
+              },
+              {
+                name: 'Mark',
+                key: 'mark',
+                type: 'number',
                 required: true,
               },
             ],

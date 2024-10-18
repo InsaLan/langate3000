@@ -14,6 +14,7 @@ export interface Props {
     name: string;
     key: string;
     ordering: boolean;
+    function?: (data: unknown) => string;
   }[];
   url?: string;
   data?: { [key: string]: string }[];
@@ -53,7 +54,14 @@ export interface Props {
         type: string;
         choices?: { key: string; value: string }[];
         required?: boolean;
-      }[];
+      }[] | ((data:unknown) => {
+        name: string;
+        key: string;
+        value: string;
+        type: string;
+        choices?: { key: string; value: string }[];
+        required?: boolean;
+      }[]);
     };
     function: (
       (object: { [key: string]: string }) => Promise<string | void>
@@ -89,8 +97,13 @@ const paginatedData = computed(() => {
   return tabledata.objects.slice(start, end);
 });
 
-const getProperty = (object: { [key: string]: string }, key: string) => {
-  if (object[key]) return object[key];
+const getProperty = (
+  object: { [key: string]: string },
+  key: string,
+  fct?: (data: unknown) => string,
+) => {
+  if (fct) return fct(object);
+  if (object[key] !== undefined) return object[key];
   return '';
 };
 
@@ -98,11 +111,21 @@ const fetchData = async (page_number: number) => {
   tabledata.loading = true;
   if (!props.data && props.url && props.pagination) {
     if (tabledata.order === '') {
-      tabledata.order = props.properties[0].key;
+      if (props.properties[0].function) {
+        tabledata.order = props.properties[0].function(dataSet.value[0]);
+      } else {
+        tabledata.order = props.properties[0].key;
+      }
     }
 
     let start = (page_number - 1) * tabledata.pageSize;
-    let url = `${props.url}?page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
+    let { url } = props;
+    if (url.includes('?')) {
+      url += '&';
+    } else {
+      url += '?';
+    }
+    url += `page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     if (page_number !== -1) {
       for (let i = 0; i < start; i += 1) {
         if (!tabledata.objects[i]) tabledata.objects.push({});
@@ -132,7 +155,11 @@ const fetchData = async (page_number: number) => {
       });
   } else if (props.data || (props.url && !props.pagination)) {
     if (tabledata.order === '') {
-      tabledata.order = props.properties[0].key;
+      if (props.properties[0].function) {
+        tabledata.order = props.properties[0].function(dataSet.value[0]);
+      } else {
+        tabledata.order = props.properties[0].key;
+      }
     }
 
     // Set dataset, allow ordering and searching
@@ -143,6 +170,9 @@ const fetchData = async (page_number: number) => {
     // Fuzzy search on all properties
     if (searchValue.value) {
       tabledata.objects = tabledata.objects.filter((object) => props.properties.some((property) => {
+        if (property.function) {
+          return property.function(object).toLowerCase().includes(searchValue.value.toLowerCase());
+        }
         if (object[property.key].toString().toLowerCase().includes(searchValue.value.toLowerCase())) {
           return true;
         }
@@ -260,7 +290,14 @@ const openFormModal = (
         type: string;
         choices?: { key: string; value: string }[];
         required?: boolean;
-      }[];
+      }[] | ((data:unknown) => {
+        name: string;
+        key: string;
+        value: string;
+        type: string;
+        choices?: { key: string; value: string }[];
+        required?: boolean;
+      }[]);
     };
     function: (
       (object: { [key: string]: string }) => Promise<string | void>
@@ -273,14 +310,20 @@ const openFormModal = (
   object: { [key: string]: string },
 ) => {
   if (action.modal) {
-    modal.fields = action.modal.fields.map((field) => ({
-      name: field.name,
-      key: field.key,
-      value: object[field.key],
-      choices: field.choices,
-      type: field.type,
-      required: field.required,
-    }));
+    // if modal.fields is a function, call it with the object
+    if (typeof action.modal.fields === 'function') {
+      modal.fields = action.modal.fields(object[action.key]);
+    } else {
+      modal.fields = action.modal.fields.map((field) => ({
+        name: field.name,
+        key: field.key,
+        value: object[field.key],
+        choices: field.choices,
+        type: field.type,
+        required: field.required,
+      }));
+    }
+
     modal.function = async () => {
       const data: { [key: string]: string } = {};
 
@@ -619,13 +662,13 @@ const openFormModalCreateMultiple = (
                 class="animate-spin"
               />
             </div>
-            <tr v-for="object in paginatedData" :key="object.id">
+            <tr v-for="(object, index) in paginatedData" :key="object.id">
               <td
                 v-for="property in props.properties"
                 :key="property.key"
                 class="border-2 border-zinc-800 pl-2"
               >
-                {{ getProperty(object, property.key) }}
+                {{ getProperty(object, property.key, property.function) }}
               </td>
               <td
                 v-if="props.actions"
@@ -644,7 +687,11 @@ const openFormModalCreateMultiple = (
                       class="text-white"
                     />
                     <div
-                      class="pointer-events-none absolute right-[-40px] top-0 z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      :class="{
+                        'bottom-8': index === paginatedData.length - 1,
+                        'top-0': index !== paginatedData.length - 1,
+                      }"
                     >
                       {{ action.hint }}
                     </div>

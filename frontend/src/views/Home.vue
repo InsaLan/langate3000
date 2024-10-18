@@ -60,8 +60,8 @@ const { user } = storeToRefs(userStore);
             ordering: false,
           },
           {
-            name: 'Réseau',
-            key: 'area',
+            name: 'Adresse',
+            key: 'mac',
             ordering: false,
           },
         ]"
@@ -78,11 +78,6 @@ const { user } = storeToRefs(userStore);
                 {
                   name: 'Nom',
                   key: 'name',
-                  type: 'text',
-                },
-                {
-                  name: 'Zone',
-                  key: 'area',
                   type: 'text',
                 },
               ],

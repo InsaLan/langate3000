@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
+import type { Device } from '@/models/device';
 import type { User } from '@/models/user';
 import { UserRole } from '@/models/user';
+import { useDeviceStore } from '@/stores/devices.store';
 import { useUserStore } from '@/stores/user.store';
 
 const {
   create_user, reset_password, delete_user, edit_user,
 } = useUserStore();
+
+const {
+  change_userdevice_marks,
+} = useDeviceStore();
 
 </script>
 
@@ -37,7 +43,13 @@ const {
             ordering: false,
           },
           {
-            name: 'Nombre d\'appareils',
+            name: 'Nombre d\'appareils connectés',
+            key: 'device_nb',
+            ordering: true,
+            function: (user: unknown) => (user as User).devices.length.toString(),
+          },
+          {
+            name: 'Nombre max d\'appareils',
             key: 'max_device_nb',
             ordering: true,
           },
@@ -194,6 +206,27 @@ const {
             function: async (device, fields) => {
               const password = await reset_password((device as unknown as User).id);
               return 'Le mot de passe a bien été réinitialisé, le nouveau mot de passe est : ' + password;
+            },
+          },
+          {
+            hint: 'Modifier les marks',
+            icon: 'location-dot',
+            key: 'devices',
+            modal: {
+              title: 'Modifier les marks',
+              fields: (devices: unknown) => {
+                return (devices as Device[]).map((device: any) => ({
+                  name: 'Mark de ' + device.name + (' (' + device.ip + ')'),
+                  key: device.id,
+                  type: 'number',
+                  value: device.mark,
+                  required: true,
+                  device,
+                }));
+              },
+            },
+            function: async (user, fields) => {
+              await change_userdevice_marks(fields);
             },
           },
           {
