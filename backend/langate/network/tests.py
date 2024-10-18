@@ -58,17 +58,17 @@ class TestDeviceManager(TestCase):
           password="password"
         )
 
-    def test_create_base_device_valid(self):
+    @patch('langate.network.models.netcontrol.connect_user', return_value = None)
+    @patch('langate.network.models.netcontrol.disconnect_user', return_value = None)
+    def test_create_base_device_valid(self, mock_connect_user, mock_disconnect_user):
         """
         Test the creation of a base device with valid parameters
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = None
-            device = DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice")
-            self.assertIsNotNone(device)
-            self.assertEqual(device.mac, "00:11:22:33:44:55")
-            self.assertEqual(device.name, "TestDevice")
-            self.assertFalse(device.whitelisted)
+        device = DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice")
+        self.assertIsNotNone(device)
+        self.assertEqual(device.mac, "00:11:22:33:44:55")
+        self.assertEqual(device.name, "TestDevice")
+        self.assertFalse(device.whitelisted)
 
     def test_create_device_invalid_mac(self):
         """
@@ -77,28 +77,28 @@ class TestDeviceManager(TestCase):
         with self.assertRaises(ValidationError):
             DeviceManager.create_device(mac="invalid_mac", name="TestDevice")
 
-    def test_create_device_no_name(self):
+    @patch('langate.network.models.generate_dev_name', return_value="GeneratedName")
+    @patch('langate.network.models.netcontrol.connect_user', return_value = None)
+    @patch('langate.network.models.netcontrol.disconnect_user', return_value = None)
+    def test_create_device_no_name(self, mock_gen_name, mock_connect_user, mock_disconnect_user):
         """
         Test the creation of a device with no name
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query, \
-             patch('langate.network.models.generate_dev_name', return_value="GeneratedName") as mock_gen_name:
-            mock_query.return_value = None
-            device = DeviceManager.create_device(mac="00:11:22:33:44:55", name=None)
-            mock_gen_name.assert_called_once()
-            self.assertEqual(device.name, "GeneratedName")
+        device = DeviceManager.create_device(mac="00:11:22:33:44:55", name=None)
+        mock_gen_name.assert_called_once()
+        self.assertEqual(device.name, "GeneratedName")
 
+    @patch('langate.network.models.netcontrol.connect_user', return_value = None)
+    @patch('langate.network.models.netcontrol.disconnect_user', return_value = None)
     def test_create_whitelist_device_valid(self):
         """
         Test the creation of a whitelisted device with valid parameters
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = None
-            device = DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice", whitelisted=True)
-            self.assertIsNotNone(device)
-            self.assertEqual(device.mac, "00:11:22:33:44:55")
-            self.assertEqual(device.name, "TestDevice")
-            self.assertTrue(device.whitelisted)
+        device = DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice", whitelisted=True)
+        self.assertIsNotNone(device)
+        self.assertEqual(device.mac, "00:11:22:33:44:55")
+        self.assertEqual(device.name, "TestDevice")
+        self.assertTrue(device.whitelisted)
 
     def test_create_whitelist_device_invalid_mac(self):
         """
@@ -107,78 +107,62 @@ class TestDeviceManager(TestCase):
         with self.assertRaises(ValidationError):
             DeviceManager.create_device(mac="invalid_mac", name="TestDevice", whitelisted=True)
 
-    def test_create_whitelist_device_no_name(self):
+    @patch('langate.network.models.generate_dev_name', return_value="GeneratedName")
+    @patch('langate.network.models.netcontrol.connect_user', return_value = None)
+    @patch('langate.network.models.netcontrol.disconnect_user', return_value = None)
+    def test_create_whitelist_device_no_name(self, mock_gen_name , mock_connect_user, mock_disconnect_user):
         """
         Test the creation of a whitelisted device with no name
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query, \
-             patch('langate.network.models.generate_dev_name', return_value="GeneratedName") as mock_gen_name:
-            mock_query.return_value = None
-            device = DeviceManager.create_device(mac="00:11:22:33:44:55", name=None, whitelisted=True)
-            mock_gen_name.assert_called_once()
-            self.assertEqual(device.name, "GeneratedName")
+        device = DeviceManager.create_device(mac="00:11:22:33:44:55", name=None, whitelisted=True)
+        mock_gen_name.assert_called_once()
+        self.assertEqual(device.name, "GeneratedName")
 
-    def test_create_user_device_valid(self):
+    @patch('langate.network.models.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    def test_create_user_device_valid(self, mock_get_mac):
         """
         Test the creation of a user device with valid parameters
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:55",
-            }
-            device = DeviceManager.create_user_device(
-              user=self.user, ip="123.123.123.123", name="TestDevice"
-            )
-            self.assertIsNotNone(device)
-            self.assertEqual(device.mac, "00:11:22:33:44:55")
-            self.assertEqual(device.name, "TestDevice")
-            self.assertFalse(device.whitelisted)
-            self.assertEqual(device.user, self.user)
-            self.assertEqual(device.ip, "123.123.123.123")
+        device = DeviceManager.create_user_device(
+          user=self.user, ip="123.123.123.123", name="TestDevice"
+        )
+        self.assertIsNotNone(device)
+        self.assertEqual(device.mac, "00:11:22:33:44:55")
+        self.assertEqual(device.name, "TestDevice")
+        self.assertFalse(device.whitelisted)
+        self.assertEqual(device.user, self.user)
+        self.assertEqual(device.ip, "123.123.123.123")
 
-    def test_create_user_device_invalid_ip(self):
+    @patch('langate.network.models.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    def test_create_user_device_invalid_ip(self, mock_get_mac):
         """
         Test the creation of a user device with an invalid MAC address
         """
         with self.assertRaises(ValidationError):
-            with patch('langate.network.models.netcontrol.query') as mock_query:
-                mock_query.return_value = {
-                  "success": True,
-                  "mac": "00:11:22:33:44:55",
-                }
-                DeviceManager.create_user_device(
-                  user=self.user, ip="123.123.123.823", name="TestDevice"
-                )
+            DeviceManager.create_user_device(
+              user=self.user, ip="123.123.123.823", name="TestDevice"
+            )
 
-    def test_create_user_device_no_name(self):
+    @patch('langate.network.models.generate_dev_name', return_value="GeneratedName")
+    @patch('langate.network.models.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    def test_create_user_device_no_name(self, mock_gen_name, mock_get_mac):
         """
         Test the creation of a user device with no name
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query, \
-             patch('langate.network.models.generate_dev_name', return_value="GeneratedName") as mock_gen_name:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:55",
-            }
-            device = DeviceManager.create_user_device(
-              user=self.user, ip="123.123.123.123", name=None
-            )
-            mock_gen_name.assert_called_once()
-            self.assertEqual(device.name, "GeneratedName")
+        device = DeviceManager.create_user_device(
+          user=self.user, ip="123.123.123.123", name=None
+        )
+        mock_gen_name.assert_called_once()
+        self.assertEqual(device.name, "GeneratedName")
 
-    def test_create_device_duplicate_mac(self):
+    @patch('langate.network.models.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    def test_create_device_duplicate_mac(self, mock_get_mac):
         """
         Test the creation of a device with a duplicate MAC address
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:55",
-            }
-            with self.assertRaises(ValidationError):
-                DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice")
-                DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice2")
+        with self.assertRaises(ValidationError):
+            DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice")
+            DeviceManager.create_device(mac="00:11:22:33:44:55", name="TestDevice2")
 
 class TestNetworkAPI(TestCase):
     """
@@ -286,11 +270,8 @@ class TestNetworkAPI(TestCase):
         """
         self.client.force_authenticate(user=self.user)
 
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": self.device.mac,
-            }
+        with patch('langate.network.models.netcontrol.get_mac') as mock_get_mac:
+            mock_get_mac.return_value = self.device.mac
             response = self.client.delete(reverse('device-detail', args=[self.user_device.pk]))
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -333,11 +314,8 @@ class TestNetworkAPI(TestCase):
           'mac': '00:11:22:33:44:57',
           'name': 'new_name'
         }
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": new_data['mac'],
-            }
+        with patch('langate.network.models.netcontrol.get_mac') as mock_get_mac:
+            mock_get_mac.return_value = new_data['mac']
             response = self.client.patch(reverse('device-detail', args=[self.device.pk]), new_data)
             self.device.refresh_from_db()
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -510,11 +488,8 @@ class TestNetworkAPI(TestCase):
           'mac': '00:11:22:33:44:57',
           'name': 'new_name'
         }
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": new_data['mac'],
-            }
+        with patch('langate.network.models.netcontrol.get_mac') as mock_get_mac:
+            mock_get_mac.return_value = new_data['mac']
             response = self.client.post(reverse('device-list'), new_data)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -533,11 +508,8 @@ class TestNetworkAPI(TestCase):
           'user': self.user.id,
         }
 
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:57",
-            }
+        with patch('langate.network.models.netcontrol.get_mac') as mock_get_mac:
+            mock_get_mac.return_value = "00:11:22:33:44:57"
             response = self.client.post(reverse('device-list'), new_data)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
