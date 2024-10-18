@@ -5,6 +5,9 @@ import {
   ref,
 } from 'vue';
 import FormModal from '@/components/FormModal.vue';
+import { useNotificationStore } from '@/stores/notification.stores';
+
+const { addNotification } = useNotificationStore();
 
 const searchValue = ref('');
 const dataSet = ref([]) as Ref<{ [key: string]: string }[]>;
@@ -22,7 +25,7 @@ export interface Props {
     multiple?: (
       (fields: {
         [key: string]: string;
-      }[]) => Promise<string | void>
+      }[]) => Promise<string | boolean | void>
     );
     modal: {
       title: string;
@@ -37,7 +40,7 @@ export interface Props {
     function: (
       (fields: {
         [key: string]: string;
-      }) => Promise<string | void>
+      }) => Promise<string | boolean | void>
     );
   };
   pagination: boolean;
@@ -64,14 +67,14 @@ export interface Props {
       }[]);
     };
     function: (
-      (object: { [key: string]: string }) => Promise<string | void>
+      (object: { [key: string]: string }) => Promise<string | boolean | void>
     ) | (
       (
         object: { [key: string]: string },
         fields: {
           [key: string]: string;
         }
-      ) => Promise<string | void>
+      ) => Promise<string | boolean | void>
     );
   }[];
 }
@@ -125,14 +128,14 @@ const fetchData = async (page_number: number) => {
     } else {
       url += '?';
     }
-    url += `page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     if (page_number !== -1) {
       for (let i = 0; i < start; i += 1) {
         if (!tabledata.objects[i]) tabledata.objects.push({});
       }
+      url += `page=${page_number}&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     } else {
       start = 0;
-      url = `${props.url}?page=1&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
+      url += `page=1&page_size=${tabledata.pageSize}&order=${tabledata.order}&filter=${searchValue.value}`;
     }
 
     axios.get<{
@@ -151,7 +154,10 @@ const fetchData = async (page_number: number) => {
         tabledata.loading = false;
       })
       .catch((error) => {
-        console.error(error);
+        addNotification(
+          `Erreur lors de la récupération des données: ${error}`,
+          'error',
+        );
       });
   } else if (props.data || (props.url && !props.pagination)) {
     if (tabledata.order === '') {
@@ -192,8 +198,10 @@ const fetchData = async (page_number: number) => {
     tabledata.total = tabledata.objects.length;
     tabledata.loading = false;
   } else {
-    // TODO : display error message with a component
-    console.error('No data or url provided');
+    addNotification(
+      'Erreur lors de l\'initialisation de la table',
+      'error',
+    );
   }
 };
 
@@ -300,11 +308,11 @@ const openFormModal = (
       }[]);
     };
     function: (
-      (object: { [key: string]: string }) => Promise<string | void>
+      (object: { [key: string]: string }) => Promise<string | boolean | void>
     ) | (
       (object: { [key: string]: string }, fields: {
         [key: string]: string;
-      }) => Promise<string | void>
+      }) => Promise<string | boolean | void>
     );
   },
   object: { [key: string]: string },
@@ -333,7 +341,8 @@ const openFormModal = (
         }
       });
       const confirm = await action.function(object, data);
-      if (confirm) {
+      // if the function returns a string, open a confirmation modal
+      if (typeof confirm === 'string') {
         confirm_modal.title = 'Confirmation';
         confirm_modal.fields = [
           {
@@ -345,9 +354,11 @@ const openFormModal = (
         ];
         confirm_modal.open = true;
       }
-
-      await fetchData(-1);
-      modal.open = false;
+      // if the function returns a boolean, fetch the data
+      if (confirm !== false) {
+        await fetchData(-1);
+        modal.open = false;
+      }
     };
     modal.title = action.modal.title;
     modal.open = true;
@@ -375,7 +386,7 @@ const openFormModalCreate = (
     function: (
       (fields: {
         [key: string]: string;
-      }) => Promise<string | void>
+      }) => Promise<string | boolean | void>
     );
   },
 ) => {
@@ -395,9 +406,33 @@ const openFormModalCreate = (
         data[field.key] = field.value;
       }
     });
-    await create.function(data);
-    await fetchData(-1);
-    modal.open = false;
+    let confirm = await create.function(data);
+    // if the function returns a string, open a confirmation modal
+    if (typeof confirm === 'string') {
+      confirm_modal.title = 'Confirmation';
+      confirm_modal.fields = [
+        {
+          name: confirm,
+          key: 'confirmation',
+          value: '',
+          type: 'hidden',
+        },
+      ];
+      confirm_modal.function = async () => {
+        confirm = await create.function(data);
+        if (confirm !== false) {
+          await fetchData(-1);
+          modal.open = false;
+        }
+        confirm_modal.open = false;
+      };
+      confirm_modal.open = true;
+    }
+    // if the function returns a boolean, fetch the data
+    if (confirm !== false) {
+      await fetchData(-1);
+      modal.open = false;
+    }
   };
   modal.title = create.modal.title;
   modal.open = true;
@@ -419,7 +454,7 @@ const openFormModalCreateMultiple = (
     multiple?: (
       (fields: {
         [key: string]: string;
-      }[]) => Promise<string | void>);
+      }[]) => Promise<string | boolean | void>);
   },
 ) => {
   // create the name of the unique field from the properties
@@ -438,8 +473,10 @@ const openFormModalCreateMultiple = (
     if (
       !modal.fields[0].value.includes('|')
     ) {
-      // TODO : display error message with a component
-      console.error('The format is not correct');
+      addNotification(
+        'Le format n\'est pas correct',
+        'error',
+      );
       return;
     }
 
@@ -453,8 +490,10 @@ const openFormModalCreateMultiple = (
     modal.fields[0].value.split('\n').forEach((line) => {
       const values = line.split('|');
       if (values.length !== create.modal.fields.length) {
-        // TODO : display error message with a component
-        console.error('The format is not correct');
+        addNotification(
+          'Le format n\'est pas correct',
+          'error',
+        );
         return;
       }
       const field = create.modal.fields.map((f, index) => ({
@@ -581,7 +620,7 @@ const openFormModalCreateMultiple = (
           </div>
         </div>
       </div>
-      <div class="flex flex-row justify-between overflow-x-auto overflow-y-hidden md:overflow-x-hidden">
+      <div class="flex flex-row justify-between overflow-x-auto overflow-y-hidden md:overflow-x-scroll">
         <table
           class="w-full rounded-lg border border-black bg-table text-gray-300"
         >
