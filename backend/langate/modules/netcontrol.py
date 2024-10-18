@@ -15,7 +15,7 @@ class RequestError(Exception):
         self.message = message
         super().__init__(self.message)
 
-class NetControl:
+class Netcontrol:
     """
     Class which interacts with the netcontrol API.
     """
@@ -60,7 +60,7 @@ class NetControl:
                 response = requests.put(f"http://{self.HOST_IP}:6784/{endpoint}{data}")
             
             # Check for errors in the response
-            if "error" in response.json().keys():
+            if response.json()["error"]:
                 raise RequestError(response.json()["error"])
             return response.json()
         
