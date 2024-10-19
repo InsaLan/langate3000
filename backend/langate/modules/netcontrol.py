@@ -67,8 +67,10 @@ class Netcontrol:
         # Handle exceptions
         except requests.exceptions.ConnectionError:
             self.logger.info("Could not connect to the netcontrol API.")
+            return {"error": "Could not connect to the netcontrol API."}
         except RequestError as e:
             self.logger.info(e.message)
+            return response.json()
 
     def check_api(self):
         """
