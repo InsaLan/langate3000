@@ -63,6 +63,8 @@ class Nft:
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
         self._execute_nft_cmd("add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-mac2mark reject")
         
+        self.logger.info("Gate nftables set up")
+        
     def remove_portail(self):
         """Removes netcontrol-related chains and maps from insalan table
         """
@@ -70,6 +72,8 @@ class Nft:
         self._execute_nft_cmd("delete chain insalan netcontrol-nat")
         self._execute_nft_cmd("delete chain insalan netcontrol-forward")
         self._execute_nft_cmd("delete map insalan netcontrol-mac2mark")
+        
+        self.logger.info("Gate nftables removed")
 
     def set_mark(self, mac: str, mark: int):
         """Changes mark of the given MAC address
@@ -80,23 +84,26 @@ class Nft:
         """
         
         if not self._ruleset_has(mac):
-            return {"error": "Device was no previously connected"}
+            self.logger.error(f"Tried to change mark of device {mac} which was not previously connected")
+            return {"error": "Device was not previously connected"}
         
         self.delete_user(mac)
         return self.connect_user(mac, mark)
 
-    def connect_user(self, mac: str = "", mark: int = 0, name: str = ""):
+    def connect_user(self, mac: str = "", mark: int = 101, name: str = ""):
         """Connects given device with given mark
         
         Args:
             mac (str): MAC address
         """
         if mark < 101 :
+            self.logger.error(f"Tried to connect device {mac} (name: {name}) with incorrect mark {mark}")
             return {"error": "Incorrect mark"}
         
         mac = mac.lower()
         self._execute_nft_cmd("add element insalan netcontrol-mac2mark { "+mac+" : "+mark+" }")
         
+        self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
         return {"success": "yeah"}
 
     def delete_user(self, mac: str) -> None:
@@ -106,8 +113,13 @@ class Nft:
             mac (str): MAC address
         """
         mac = mac.lower()
-        self._execute_nft_cmd("delete element insalan netcontrol-mac2mark { "+mac+" : * }")
+        try:
+            self._execute_nft_cmd("delete element insalan netcontrol-mac2mark { "+mac+" : * }")
+        except NftablesException:
+            self.logger.error(f"Tried to delete device {mac} which was not previously connected")
+            return {"error": "Device was not previously connected"}
         
+        self.logger.info(f"Device {mac} disconnected")
         return {"success": "yeah"}
 
 class NftablesException(Exception):
