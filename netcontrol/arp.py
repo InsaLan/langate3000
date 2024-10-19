@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import logging
 
 class Arp:
@@ -22,7 +23,7 @@ class Arp:
                     mac = line[41:].split(" ")[0] # 41 is the position of the MAC address in the line
                     self.logger.info("Found MAC %s for IP %s", mac, ip)
                     return { "mac" : mac}
-            return {"error": "MAC not found"}
+            raise HTTPException(status_code=404, detail="MAC not found")
     
     def get_ip(self, mac: str):
         """
@@ -39,4 +40,4 @@ class Arp:
                     ip = line.split(" ")[0] # Extracting IP address
                     self.logger.info("Found IP %s for MAC %s", ip, mac)
                     return { "ip" : ip}
-            return {"error": "IP not found"}
+            raise HTTPException(status_code=404, detail="IP not found")
