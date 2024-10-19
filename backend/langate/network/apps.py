@@ -54,11 +54,11 @@ class NetworkConfig(AppConfig):
                 else:
                     connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
                 if connect_res["error"]:
-                    logger.info("[PortalConfig] Could not connect device %s", dev.mac)
+                    logger.info("[PortalConfig] %s", connect_res["error"])
 
                 mark_res = netcontrol.set_mark(dev.mac, dev.mark)
                 if mark_res["error"]:
-                    logger.info("[PortalConfig] Could not set mark for device %s", dev.name)
+                    logger.info("[PortalConfig] %s", connect_res["error"])
 
             logger.info(_("[PortalConfig] Add default whitelist devices to the ipset"))
             if os.path.exists("assets/misc/whitelist.txt"):
