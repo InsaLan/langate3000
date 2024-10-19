@@ -92,7 +92,7 @@ class Nft:
             self._execute_nft_cmd("add element insalan netcontrol-mac2mark { "+mac+" : "+mark+" }")
         except NftablesException:
             self.logger.error("Tried to add device {mac} (name: {name}), unexpected nftables error occurred")
-            raise HTTPException(status_code=404, detail="Unexpected nftables error occurred")
+            raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
         
         self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
         return {"success": "yeah"}
