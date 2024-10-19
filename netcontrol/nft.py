@@ -34,15 +34,6 @@ class Nft:
         if rc != 0 or (error is not None and error != ""):
             raise NftablesException(rc, error)
         return json.loads(output)["nftables"]
-    
-    def connect_user(mac: str = "", mark: int = 0, name: str = ""):
-        return {"error": "Not implemented"}
-    
-    def delete_user(mac: str):
-        return {"error": "Not implemented"}
-
-    def set_mark(mac: str, mark: int):
-        return {"error": "Not implemented"}
 
 class NftablesException(Exception):
     pass
