@@ -2,6 +2,7 @@
 Network module. This module is responsible for the device and user connexion management.
 """
 
+import requests
 import sys, logging
 import os
 
@@ -49,16 +50,18 @@ class NetworkConfig(AppConfig):
 
             for dev in Device.objects.all():
                 userdevice = UserDevice.objects.filter(mac=dev.mac).first()
-                if userdevice is not None:
-                    connect_res = netcontrol.connect_user(userdevice.mac, userdevice.mark, userdevice.user.username)
-                else:
-                    connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
-                if connect_res["error"]:
-                    logger.info("[PortalConfig] %s", connect_res["error"])
+                try:
+                    if userdevice is not None:
+                        connect_res = netcontrol.connect_user(userdevice.mac, userdevice.mark, userdevice.user.username)
+                    else:
+                        connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
+                except requests.HTTPError as e:
+                    logger.info("[PortalConfig] {e}")
 
-                mark_res = netcontrol.set_mark(dev.mac, dev.mark)
-                if mark_res["error"]:
-                    logger.info("[PortalConfig] %s", connect_res["error"])
+                try:
+                    mark_res = netcontrol.set_mark(dev.mac, dev.mark)
+                except requests.HTTPError as e:
+                    logger.info("[PortalConfig] {e}")
 
             logger.info(_("[PortalConfig] Add default whitelist devices to the ipset"))
             if os.path.exists("assets/misc/whitelist.txt"):
@@ -75,13 +78,14 @@ class NetworkConfig(AppConfig):
                             else:
                                 dev.whitelisted = True
                                 dev.save()
+                                try:
+                                    connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
+                                except requests.HTTPError as e:
+                                    logger.info("[PortalConfig] {e}")
 
-                                connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
-                                if connect_res["error"]:
-                                    logger.info("[PortalConfig] Could not connect device %s", dev.mac)
-
-                                mark_res = netcontrol.set_mark(dev.mac, mark)
-                                if mark_res["error"]:
-                                    logger.info("[PortalConfig] Could not set mark for device %s", dev.name)
+                                try:
+                                    mark_res = netcontrol.set_mark(dev.mac, mark)
+                                except requests.HTTPError as e:
+                                    logger.info("[PortalConfig] {e}")
                         else:
                             logger.error("[PortalConfig] Invalid line in whitelist.txt: %s", line)
