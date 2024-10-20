@@ -29,14 +29,14 @@ app = FastAPI(lifespan=lifespan)
 def root():
     return "netcontrol is running"
     
-@app.post("/connect_user/")
+@app.post("/connect_user")
 def connect_user(mac: str, mark: int, name: str):
     return nft.connect_user(mac, mark, name)
 
-@app.delete("/disconnect_user/{mac}")
+@app.delete("/disconnect_user")
 def delete_user(mac: str):
     return nft.delete_user(mac)
 
-@app.put("/set_mark/")
+@app.put("/set_mark")
 def set_mark(mac: str, mark: int):
     return nft.set_mark(mac, mark)

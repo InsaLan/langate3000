@@ -32,7 +32,10 @@ class Nft:
         rc, output, error = self.nft.cmd(cmd)
         if rc != 0 or (error is not None and error != ""):
             raise NftablesException(rc, error)
-        return json.loads(output)["nftables"]
+        if output == "":
+            return {}
+        else:
+            return json.loads(output)["nftables"]
     
     def setup_portail(self):
         """Sets up the necessary nftables rules that block network access to unauthenticated devices, and marks packets based on the map
@@ -54,6 +57,10 @@ class Nft:
         # Block other traffic from users that are not authenticated
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
         self._execute_nft_cmd("add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-auth reject")
+        #doesn't work either
+        #self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; policy drop; }")
+        #self._execute_nft_cmd("add rule insalan netcontrol-forward ip daddr 172.16.1.1 accept")
+        #self._execute_nft_cmd("add rule insalan netcontrol-forward ether saddr @netcontrol-auth accept")
         
         self.logger.info("Gate nftables set up")
         
@@ -77,7 +84,8 @@ class Nft:
         """
         
         self.delete_user(mac)
-        return self.connect_user(mac, mark)
+        self.connect_user(mac, mark)
+        return "Mark changed"
 
     def connect_user(self, mac: str, mark: int, name: str):
         """Connects given device with given mark
@@ -91,14 +99,14 @@ class Nft:
         
         mac = mac.lower()
         try:
-            self._execute_nft_cmd("add element insalan netcontrol-mac2mark { "+mac+" : "+mark+" }")
+            self._execute_nft_cmd("add element insalan netcontrol-mac2mark { "+mac+" : "+str(mark)+" }")
             self._execute_nft_cmd("add element insalan netcontrol-auth { "+mac+" }")
         except NftablesException:
             self.logger.error("Tried to add device {mac} (name: {name}), unexpected nftables error occurred")
             raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
         
         self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
-        return {"success": "yeah"}
+        return "User connected"
 
     def delete_user(self, mac: str) -> None:
         """Disconnects given device
@@ -109,14 +117,14 @@ class Nft:
         
         mac = mac.lower()
         try:
-            self._execute_nft_cmd("delete element insalan netcontrol-mac2mark { "+mac+" : * }")
+            self._execute_nft_cmd("delete element insalan netcontrol-mac2mark { "+mac+" }")
             self._execute_nft_cmd("delete element insalan netcontrol-auth { "+mac+" }")
         except NftablesException:
             self.logger.error(f"Tried to delete device {mac} which was not previously connected")
             raise HTTPException(status_code=404, detail="Device was not previously connected")
         
         self.logger.info(f"Device {mac} disconnected")
-        return {"success": "yeah"}
+        return "User removed"
 
 class NftablesException(Exception):
     pass
