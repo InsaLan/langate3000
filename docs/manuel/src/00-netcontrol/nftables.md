@@ -41,6 +41,10 @@ nft add table ip insalan
 ```
 La table qu'on utilise.
 ```bash
+nft add set insalan netcontrol-auth { type ether_addr; }
+```
+On a un set pour les adresses MAC authentifiées. C'est un workaround car dans la dernière version de nftables, on peut voir si une clé est présente dans la partie match d'une règle. Cependant, cette version n'est pas encore disponible dans le repo de Debian 12, qu'on utilise sur la tête.
+```bash
 nft add map insalan netcontrol-mac2mark { type ether_addr : mark; }
 ```
 La map qui va associer une addresse mac à une mark. On rajoutera une entrée dedans par appareil authentifié.
@@ -52,11 +56,11 @@ Ensuite, voyons les trois règles qui définissent le comportement de netcontrol
 ```bash
 nft add chain insalan netcontrol-filter { type filter hook prerouting priority 0; }
 
-nft add rule insalan netcontrol-filter ip daddr != 172.16.1.0/24 ether saddr @netcontrol-mac2mark meta mark set ether saddr map @netcontrol-mac2mark
+nft add rule insalan netcontrol-filter ip daddr != 172.16.1.0/24 ether saddr @netcontrol-auth meta mark set ether saddr map @netcontrol-mac2mark
 ```
 Cette règle s'applique au paquets qui :
 - `ip daddr != 172.16.1.0/24` : ne sont pas destiné à une IP locale;
-- `ether saddr @netcontrol-mac2mark` : ont leur addresse MAC dans la map.
+- `ether saddr @netcontrol-auth` : ont leur addresse MAC dans le set.
 
 Et elle :
 - `meta mark set ether saddr map @netcontrol-mac2mark` : définit la mark du paquet comme celle qui correspond à sa MAC dans la map.
@@ -70,12 +74,12 @@ Et elle :
 ```bash
 nft add chain insalan netcontrol-nat { type nat hook prerouting priority 0; }
 
-add rule insalan netcontrol-nat ip daddr != 172.16.1.0/24 ether saddr != @netcontrol-mac2mark tcp dport 80 redirect to :80
+add rule insalan netcontrol-nat ip daddr != 172.16.1.0/24 ether saddr != @netcontrol-auth tcp dport 80 redirect to :80
 ```
 
 Cette règle s'applique aux paquets qui :
 - `ip daddr != 172.16.1.0/24` : ne sont pas destiné à une IP locale;
-- `ether saddr != @netcontrol-mac2mark` : n'ont **pas** leur addresse MAC dans la map;
+- `ether saddr != @netcontrol-auth` : n'ont **pas** leur addresse MAC dans le set;
 - `tcp dport 80` : ont pour destination le port 80 (c'est celui qui correspond au protocole HTTP).
 
 Et elle :
@@ -88,12 +92,12 @@ Cela permet de rediriger toutes les connections web vers la langate, pour que le
 ```bash
 nft add chain insalan netcontrol-forward { type filter hook forward priority 0; }
 
-nft add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-mac2mark reject
+nft add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-auth reject
 ```
 
 Cette règle s'applique aux paquets qui :
 - `ip daddr != 172.16.1.1` : ne sont pas destinée à la tête de réseau;
-- `ether saddr != @netcontrol-mac2mark` : n'ont pas leur addresse MAC dans la map.
+- `ether saddr != @netcontrol-auth` : n'ont pas leur addresse MAC dans le set.
 
 Et elle :
 - `reject` : les rejette.

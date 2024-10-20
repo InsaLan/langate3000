@@ -38,30 +38,32 @@ class Nft:
         """Sets up the necessary nftables rules that block network access to unauthenticated devices, and marks packets based on the map
         """
         
-        # Set up table and map
+        # Set up table, set and map
         self._execute_nft_cmd("add table ip insalan")
+        self._execute_nft_cmd("add set insalan netcontrol-auth { type ether_addr; }")
         self._execute_nft_cmd("add map insalan netcontrol-mac2mark { type ether_addr : mark; }")
         
         # Marks packets from authenticated users using the map
         self._execute_nft_cmd("add chain insalan netcontrol-filter { type filter hook prerouting priority 0; }")
-        self._execute_nft_cmd("add rule insalan netcontrol-filter ip daddr != 172.16.1.0/24 ether saddr @netcontrol-mac2mark meta mark set ether saddr map @netcontrol-mac2mark")
+        self._execute_nft_cmd("add rule insalan netcontrol-filter ip daddr != 172.16.1.0/24 ether saddr @netcontrol-auth meta mark set ether saddr map @netcontrol-mac2mark")
         
         # Allow traffic to port 80 from unauthenticated devices and redirect it to the network head, to allow access to the langate webpage
         self._execute_nft_cmd("add chain insalan netcontrol-nat { type nat hook prerouting priority 0; }")
-        self._execute_nft_cmd("add rule insalan netcontrol-nat ip daddr != 172.16.1.0/24 ether saddr != @netcontrol-mac2mark tcp dport 80 redirect to :80")
+        self._execute_nft_cmd("add rule insalan netcontrol-nat ip daddr != 172.16.1.0/24 ether saddr != @netcontrol-auth tcp dport 80 redirect to :80")
         
         # Block other traffic from users that are not authenticated
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
-        self._execute_nft_cmd("add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-mac2mark reject")
+        self._execute_nft_cmd("add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-auth reject")
         
         self.logger.info("Gate nftables set up")
         
     def remove_portail(self):
-        """Removes netcontrol-related chains and maps from insalan table
+        """Removes netcontrol-related chains, sets and maps from insalan table
         """
         self._execute_nft_cmd("delete chain insalan netcontrol-filter")
         self._execute_nft_cmd("delete chain insalan netcontrol-nat")
         self._execute_nft_cmd("delete chain insalan netcontrol-forward")
+        self._execute_nft_cmd("delete set insalan netcontrol-auth")
         self._execute_nft_cmd("delete map insalan netcontrol-mac2mark")
         
         self.logger.info("Gate nftables removed")
@@ -90,6 +92,7 @@ class Nft:
         mac = mac.lower()
         try:
             self._execute_nft_cmd("add element insalan netcontrol-mac2mark { "+mac+" : "+mark+" }")
+            self._execute_nft_cmd("add element insalan netcontrol-auth { "+mac+" }")
         except NftablesException:
             self.logger.error("Tried to add device {mac} (name: {name}), unexpected nftables error occurred")
             raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
@@ -107,6 +110,7 @@ class Nft:
         mac = mac.lower()
         try:
             self._execute_nft_cmd("delete element insalan netcontrol-mac2mark { "+mac+" : * }")
+            self._execute_nft_cmd("delete element insalan netcontrol-auth { "+mac+" }")
         except NftablesException:
             self.logger.error(f"Tried to delete device {mac} which was not previously connected")
             raise HTTPException(status_code=404, detail="Device was not previously connected")
