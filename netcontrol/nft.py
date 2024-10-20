@@ -33,7 +33,10 @@ class Nft:
         rc, output, error = self.nft.cmd("list ruleset")
         if rc != 0 or (error is not None and error != ""):
             raise NftablesException(rc, error)
-        return json.loads(output)["nftables"]
+        if output == "":
+            return {}
+        else:
+            return json.loads(output)["nftables"]
 
 class NftablesException(Exception):
     pass
