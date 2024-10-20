@@ -2,7 +2,7 @@ import requests
 import subprocess
 import logging
 
-GET_REQUESTS = ["get_mac", "get_ip"]
+GET_REQUESTS = ["get_mac", "get_ip", '']
 POST_REQUESTS = ["connect_user"]
 DELETE_REQUESTS = ["disconnect_user"]
 PUT_REQUESTS = ["set_mark"]
@@ -11,24 +11,15 @@ class Netcontrol:
     """
     Class which interacts with the netcontrol API.
     """
-    def __init__(self):
-        """
-        Initialize HOST_IP to the docker's default route, set up REQUEST_URL and check the connection with the netcontrol API.
-        """
-        self.HOST_IP = subprocess.run(["/sbin/ip", "route"], capture_output=True).stdout.decode("utf-8").split()[2]
-        self.REQUEST_URL = f"http://{self.HOST_IP}:6784/"
-
-        self.logger = logging.getLogger(__name__)
-
-        self.check_api()
-
     def request(self, endpoint='', args={}):
         """
         Make a given request to the netcontrol API.
         """
+        response = None
+
         # Construct the data to be sent in the request
         if len(args) == 1:
-            data = '/'+args[0]
+            data = '/' + next(iter(args.items()))[1]
         elif len(args) > 1:
             data = '?' + "&".join([f"{key}={value}" for key, value in args.items()])
         else:
@@ -36,24 +27,23 @@ class Netcontrol:
 
         # Make the request
         try:
-            try:
-                # Check the type of request
-                if endpoint in GET_REQUESTS:
-                    response = requests.get(self.REQUEST_URL + endpoint + data)
-                elif endpoint in POST_REQUESTS:
-                    response = requests.post(self.REQUEST_URL + endpoint + data)
-                elif endpoint in DELETE_REQUESTS:
-                    response = requests.delete(self.REQUEST_URL + endpoint + data)
-                elif endpoint in PUT_REQUESTS:
-                    response = requests.put(self.REQUEST_URL + endpoint + data)
-                
-                response.raise_for_status()
-                return response.json()
+            # Check the type of request
+            if endpoint in GET_REQUESTS:
+                response = requests.get(self.REQUEST_URL + endpoint + data)
+            elif endpoint in POST_REQUESTS:
+                response = requests.post(self.REQUEST_URL + endpoint + data)
+            elif endpoint in DELETE_REQUESTS:
+                response = requests.delete(self.REQUEST_URL + endpoint + data)
+            elif endpoint in PUT_REQUESTS:
+                response = requests.put(self.REQUEST_URL + endpoint + data)
             
-            except requests.exceptions.ConnectionError:
-                raise requests.HTTPError("Could not connect to the netcontrol API.")
-        except requests.HTTPError as e:
-            self.logger.info(e) # Handle HTTP exception (TODO)
+            response.raise_for_status()
+            return response.json()
+        
+        except requests.exceptions.ConnectionError:
+            raise requests.HTTPError("Could not connect to the netcontrol API.")
+        except requests.exceptions.Timeout:
+            raise requests.HTTPError("The request to the netcontrol API timed out.")
 
     def check_api(self):
         """
@@ -97,3 +87,13 @@ class Netcontrol:
         self.logger.info(f"Setting mark of user with MAC address {mac} to {mark}...")
         return self.request("set_mark", {"mac": mac, "mark": mark})
     
+    def __init__(self):
+        """
+        Initialize HOST_IP to the docker's default route, set up REQUEST_URL and check the connection with the netcontrol API.
+        """
+        self.HOST_IP = subprocess.run(["/sbin/ip", "route"], capture_output=True).stdout.decode("utf-8").split()[2]
+        self.REQUEST_URL = f"http://{self.HOST_IP}:6784/"
+
+        self.logger = logging.getLogger(__name__)
+
+        #self.check_api()
