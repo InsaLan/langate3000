@@ -5,6 +5,7 @@ from .variables import Variables
 from fastapi import HTTPException
 
 variables = Variables()
+import re
 
 class Nft:
     """
@@ -19,7 +20,7 @@ class Nft:
         data = self._execute_nft_cmd("list ruleset")
         metainfo = data[0]["metainfo"]
         self.logger.info(f"Found running nftables version {metainfo['version']} with {len(data)} ruleset entries.")
-    
+
     def _execute_nft_cmd(self, cmd: str) -> dict:
         """
         Executes an nft command, handles the exception properly and returns an object
@@ -46,26 +47,26 @@ class Nft:
         """
         Sets up the necessary nftables rules that block network access to unauthenticated devices, and marks packets based on the map
         """
-        
+
         # Set up table, set and map
         self._execute_nft_cmd("add table ip insalan")
         self._execute_nft_cmd("add set insalan netcontrol-auth { type ether_addr; }")
         self._execute_nft_cmd("add map insalan netcontrol-mac2mark { type ether_addr : mark; }")
-        
+
         # Marks packets from authenticated users using the map
         self._execute_nft_cmd("add chain insalan netcontrol-filter { type filter hook prerouting priority 0; }")
         self._execute_nft_cmd("add rule insalan netcontrol-filter ip daddr != 172.16.1.0/24 ether saddr @netcontrol-auth meta mark set ether saddr map @netcontrol-mac2mark")
-        
+
         # Allow traffic to port 80 from unauthenticated devices and redirect it to the network head, to allow access to the langate webpage
         self._execute_nft_cmd("add chain insalan netcontrol-nat { type nat hook prerouting priority 0; }")
         self._execute_nft_cmd("add rule insalan netcontrol-nat ip daddr != 172.16.1.0/24 ether saddr != @netcontrol-auth tcp dport 80 redirect to :80")
-        
+
         # Block other traffic from users that are not authenticated
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
         self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ip saddr {variables.ip_range()} ether saddr != @netcontrol-auth reject")
 
         self.logger.info("Gate nftables set up")
-        
+
     def remove_portail(self):
         """
         Removes netcontrol-related chains, sets and maps from insalan table
@@ -75,29 +76,29 @@ class Nft:
         self._execute_nft_cmd("delete chain insalan netcontrol-forward")
         self._execute_nft_cmd("delete set insalan netcontrol-auth")
         self._execute_nft_cmd("delete map insalan netcontrol-mac2mark")
-        
+
         self.logger.info("Gate nftables removed")
 
     def set_mark(self, mac: str, mark: int):
         """
         Changes mark of the given MAC address
-        
+
         Args:
             mac (str): MAC address
             mark (int): mark to set
         """
-        
+
         self.delete_user(mac)
         self.connect_user(mac, mark, "previously_connected_device")
 
     def connect_user(self, mac: str, mark: int, name: str):
         """
         Connects given device with given mark
-        
+
         Args:
             mac (str): MAC address
         """
-       
+
         mac = mac.lower()
         try:
             self._execute_nft_cmd(f"add element insalan netcontrol-mac2mark {{ {mac} : {str(mark)} }}")
@@ -105,17 +106,17 @@ class Nft:
         except NftablesException:
             self.logger.error(f"Tried to add device {mac} (name: {name}), unexpected nftables error occurred")
             raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
-        
+
         self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
 
     def delete_user(self, mac: str) -> None:
         """
         Disconnects given device
-        
+
         Args:
             mac (str): MAC address
         """
-        
+
         mac = mac.lower()
         try:
             self._execute_nft_cmd(f"delete element insalan netcontrol-mac2mark {{ {mac} }}")
@@ -123,8 +124,62 @@ class Nft:
         except NftablesException:
             self.logger.error(f"Tried to delete device {mac} which was not previously connected")
             raise HTTPException(status_code=404, detail="Device was not previously connected")
-        
+
         self.logger.info(f"Device {mac} disconnected")
+
+    def _add_vpn(self, mark: int, vpn: str) -> None:
+        """Adds a VPN to the nftables rule
+
+        Args:
+            mark (int): mark value
+            vpn (str): VPN routing table name
+        """
+        try:
+            self._execute_nft_cmd(f"add rule insalan netcontrol-forward fwmark {mark} lookup {vpn}")
+        except NftablesException as e:
+            self.logger.error(f"Failed to add VPN {vpn} with mark {mark}: {e}")
+
+    def _remove_vpn(self, mark: int, vpn: str) -> None:
+        """Removes a VPN from the nftables rule
+
+        Args:
+            mark (int): mark value
+            vpn (str): VPN routing table name
+        """
+        try:
+            self._execute_nft_cmd(f"delete rule insalan netcontrol-forward fwmark {mark} lookup {vpn}")
+        except NftablesException as e:
+            self.logger.error(f"Failed to remove VPN {vpn} with mark {mark}: {e}")
+
+    def _parse_etc_hosts(self) -> tuple:
+        """Parses /etc/hosts and return all vpn entries
+
+        Returns:
+            tuple: n-uple of VPN entries
+        """
+        with open("/etc/hosts", "r") as f:
+            lines = f.readlines()
+        vpns = []
+        for line in lines:
+          if match := re.match(r".+(vpn\d+).+", line):
+                vpns.append(match.group())
+        return tuple(vpns)
+
+    def initialize_vpn(self) -> None:
+        """Initializes the VPN routing tables
+        """
+        vpns = self._parse_etc_hosts()
+        for i, vpn in enumerate(vpns):
+            self._add_vpn(100+i, vpn)
+        self.logger.info(f"Initialized {len(vpns)} VPN routing tables.")
+
+    def remove_vpn(self) -> None:
+        """Removes the VPN routing tables
+        """
+        vpns = self._parse_etc_hosts()
+        for i, vpn in enumerate(vpns):
+            self._remove_vpn(100+i, vpn)
+        self.logger.info(f"Removed {len(vpns)} VPN routing tables.")
 
 class NftablesException(Exception):
     pass
