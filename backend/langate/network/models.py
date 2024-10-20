@@ -1,3 +1,4 @@
+import requests
 import random, logging
 import re
 
@@ -64,15 +65,25 @@ class DeviceManager(models.Manager):
         # Validate the MAC address
         validate_mac(mac)
 
-        netcontrol.connect_user(mac, mark, name)
-        logger.info("Connected device %s (the mac %s has been connected)", name, mac)
+        try:
+            netcontrol.connect_user(mac, mark, name)
+            logger.info("Connected device %s (the mac %s has been connected)", name, mac)
+        except requests.HTTPError as e:
+            raise ValidationError(
+              _("Could not connect user.")
+            ) from e
 
         try:
             device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted, mark=mark)
             device.save()
             return device
         except Exception as e:
-            netcontrol.disconnect_user(mac)
+            try:
+                netcontrol.disconnect_user(mac)
+            except requests.HTTPError as e:
+                raise ValidationError(
+                  _("Could not disconnect user.")
+                ) from e
             raise ValidationError(
               _("There was an error creating the device. Please try again.")
             ) from e
@@ -82,8 +93,13 @@ class DeviceManager(models.Manager):
         """
         Delete a device with the given mac address
         """
-        netcontrol.disconnect_user(mac)
-        logger.info("Disconnected device %s from the internet.", mac)
+        try:
+            netcontrol.disconnect_user(mac)
+            logger.info("Disconnected device %s from the internet.", mac)
+        except requests.HTTPError as e:
+            raise ValidationError(
+              _("Could not disconnect user.")
+            ) from e
 
         device = Device.objects.get(mac=mac)
         device.delete()
@@ -97,28 +113,42 @@ class DeviceManager(models.Manager):
         if not name:
             name = generate_dev_name()
 
-        r = netcontrol.get_mac(ip)
-        mac = r["mac"]
+        try:
+            mac = netcontrol.get_mac(ip)
+        except requests.HTTPError as e:
+            raise ValidationError(
+              _("Could not get MAC address.")
+            ) from e
 
         # Validate the MAC address
         validate_mac(mac)
 
         mark = get_mark(user)
-        netcontrol.connect_user(mac, mark, user.username)
 
-        logger.info(
-            "Connected device %s (owned by %s) at %s to the internet.",
-            mac,
-            user.username,
-            ip
-        )
+        try:
+            netcontrol.connect_user(mac, mark, user.username)
+            logger.info(
+                "Connected device %s (owned by %s) at %s to the internet.",
+                mac,
+                user.username,
+                ip
+            )
+        except requests.HTTPError as e:
+            raise ValidationError(
+              _("Could not connect user.")
+            ) from e
 
         try:
             device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, mark=mark)
             device.save()
             return device
         except Exception as e:
-            netcontrol.disconnect_user(mac)
+            try:
+                netcontrol.disconnect_user(mac)
+            except requests.HTTPError as e:
+                raise ValidationError(
+                  _("Could not disconnect user.")
+                ) from e
             raise ValidationError(
               _("There was an error creating the device. Please try again.")
             ) from e
@@ -141,16 +171,26 @@ class DeviceManager(models.Manager):
         if mac and mac != device.mac:
             validate_mac(mac)
             # Disconnect the old MAC
-            netcontrol.disconnect_user(device.mac)
-            # Connect the new MAC
-            netcontrol.connect_user(mac, device.mark, device.name)
-            device.mac = mac
+            try:
+                netcontrol.disconnect_user(device.mac)
+                # Connect the new MAC
+                netcontrol.connect_user(mac, device.mark, device.name)
+                device.mac = mac
+            except requests.HTTPError as e:
+                raise ValidationError(
+                    _("Could not connect user")
+                ) from e
         if mark and mark != device.mark:
             # Check if the mark is valid
             if mark not in [m["value"] for m in SETTINGS["marks"]]:
                 raise ValidationError(_("Invalid mark"))
             device.mark = mark
-            netcontrol.set_mark(device.mac, mark)
+            try:
+                netcontrol.set_mark(device.mac, mark)
+            except requests.HTTPError as e:
+                raise ValidationError(
+                    _("Could not set mark")
+                ) from e
 
         try:
             device.save()
