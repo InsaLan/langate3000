@@ -1,7 +1,6 @@
 import requests
 import subprocess
 import logging
-from fastapi import HTTPException
 
 GET_REQUESTS = ["get_mac", "get_ip"]
 POST_REQUESTS = ["connect_user"]
@@ -21,17 +20,7 @@ class Netcontrol:
 
         self.logger = logging.getLogger(__name__)
 
-        # Check the connection with the netcontrol API
-        try:
-            try:
-                self.logger.info("Checking connection with the netcontrol API...")
-                if requests.get(self.REQUEST_URL) != "netcontrol is running":
-                    raise HTTPException(status_code=404, detail="Netcontrol is not running.")
-                
-            except requests.exceptions.ConnectionError:
-                raise HTTPException(status_code=408, detail="Could not connect to the netcontrol API.")
-        except HTTPException as e:
-            self.logger.info(e.detail)
+        self.check_api()
 
     def request(self, endpoint='', args={}):
         """
@@ -62,9 +51,9 @@ class Netcontrol:
                 return response.json()
             
             except requests.exceptions.ConnectionError:
-                raise HTTPException(status_code=408, detail="Could not connect to the netcontrol API.")
-        except HTTPException as e:
-            self.logger.info(e.detail) # Handle HTTP exception (TODO)
+                raise requests.HTTPError("Could not connect to the netcontrol API.")
+        except requests.HTTPError as e:
+            self.logger.info(e) # Handle HTTP exception (TODO)
 
     def check_api(self):
         """
