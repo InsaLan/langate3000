@@ -92,11 +92,12 @@ Cela permet de rediriger toutes les connections web vers la langate, pour que le
 ```bash
 nft add chain insalan netcontrol-forward { type filter hook forward priority 0; }
 
-nft add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ether saddr != @netcontrol-auth reject
+nft add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ip saddr {variables.ip_range()} ether saddr != @netcontrol-auth reject
 ```
 
 Cette règle s'applique aux paquets qui :
 - `ip daddr != 172.16.1.1` : ne sont pas destinée à la tête de réseau;
+- `ip saddr {variables.ip_range()}` : viennent de l'intérieur du réseau (ip_range est 172.16.0.0/12, soit toutes les addresses assignées par la tête);
 - `ether saddr != @netcontrol-auth` : n'ont pas leur addresse MAC dans le set.
 
 Et elle :
