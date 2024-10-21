@@ -108,6 +108,8 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    volumes:
+      - ${VARIABLES_PATH}:/variables.json
     network_mode: "host"
 
 networks:
