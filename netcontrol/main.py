@@ -17,10 +17,10 @@ app = FastAPI()
 def root():
     return "netcontrol is running"
 
-@app.get("/get_mac/{ip_address}")
+@app.get("/get_mac")
 def get_mac(ip: str):
     return arp.get_mac(ip)
 
-@app.get("/get_ip/{mac_address}")
+@app.get("/get_ip")
 def get_ip(mac: str):
     return arp.get_ip(mac)
