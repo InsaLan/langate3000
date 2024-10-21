@@ -17,25 +17,17 @@ class Netcontrol:
         """
         response = None
 
-        # Construct the data to be sent in the request
-        if len(args) == 1:
-            data = '/' + next(iter(args.items()))[1]
-        elif len(args) > 1:
-            data = '?' + "&".join([f"{key}={value}" for key, value in args.items()])
-        else:
-            data = ''
-
         # Make the request
         try:
             # Check the type of request
             if endpoint in GET_REQUESTS:
-                response = requests.get(self.REQUEST_URL + endpoint + data)
+                response = requests.get(self.REQUEST_URL + endpoint, params=args)
             elif endpoint in POST_REQUESTS:
-                response = requests.post(self.REQUEST_URL + endpoint + data)
+                response = requests.post(self.REQUEST_URL + endpoint, params=args)
             elif endpoint in DELETE_REQUESTS:
-                response = requests.delete(self.REQUEST_URL + endpoint + data)
+                response = requests.delete(self.REQUEST_URL + endpoint, params=args)
             elif endpoint in PUT_REQUESTS:
-                response = requests.put(self.REQUEST_URL + endpoint + data)
+                response = requests.put(self.REQUEST_URL + endpoint, params=args)
             
             response.raise_for_status()
             return response.json()
