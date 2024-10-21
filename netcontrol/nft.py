@@ -84,7 +84,7 @@ class Nft:
         """
         
         self.delete_user(mac)
-        self.connect_user(mac, mark)
+        self.connect_user(mac, mark, "previously_connected_device")
         return "Mark changed"
 
     def connect_user(self, mac: str, mark: int, name: str):
@@ -93,10 +93,7 @@ class Nft:
         Args:
             mac (str): MAC address
         """
-        
-        if name == None:
-            name = "previously_connected_device"
-        
+       
         mac = mac.lower()
         try:
             self._execute_nft_cmd("add element insalan netcontrol-mac2mark { "+mac+" : "+str(mark)+" }")
