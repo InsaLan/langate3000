@@ -110,7 +110,9 @@ class UserEndToEndTestCase(TestCase):
             }
         )
 
-    def test_login_account(self):
+    @patch('langate.settings.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    @patch('langate.settings.netcontrol.connect_user', return_value = None)
+    def test_login_account(self, mock_connect_user, mock_get_mac):
         """
         Test that when everything is ok, an user is able to login
         """
@@ -123,20 +125,15 @@ class UserEndToEndTestCase(TestCase):
 
         def send_valid_data(data):
             # Add HTTP_X_FORWARDED_FOR to simulate a request from a client
-            with patch('langate.network.models.netcontrol.query') as mock_query:
-                mock_query.return_value = {
-                  "success": True,
-                  "mac": "00:11:22:33:44:55",
-                }
-                request = self.client.post(
-                  "/user/login/",
-                  data,
-                  format="json",
-                  HTTP_X_FORWARDED_FOR="127.0.0.1"
-                )
+            request = self.client.post(
+              "/user/login/",
+              data,
+              format="json",
+              HTTP_X_FORWARDED_FOR="127.0.0.1"
+            )
 
-                self.assertEqual(request.status_code, 200)
-                self.assertTrue("sessionid" in self.client.cookies)
+            self.assertEqual(request.status_code, 200)
+            self.assertTrue("sessionid" in self.client.cookies)
 
         send_valid_data(
             {
@@ -171,43 +168,33 @@ class UserAPITestCase(TestCase):
         self.admin.role = Role.ADMIN
         self.admin.save()
 
-    def test_get_user(self):
+    @patch('langate.settings.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    @patch('langate.settings.netcontrol.connect_user', return_value = None)
+    def test_get_user(self, mock_connect_user, mock_get_mac):
         """
         Test that the user can get his own information
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:55",
-            }
-            self.client.force_authenticate(user=User.objects.get(username="randomplayer"))
-            request = self.client.get("/user/me/", HTTP_X_FORWARDED_FOR="127.0.0.1")
+        self.client.force_authenticate(user=User.objects.get(username="randomplayer"))
+        request = self.client.get("/user/me/", HTTP_X_FORWARDED_FOR="127.0.0.1")
 
-            self.assertEqual(request.status_code, 200)
-            self.assertEqual(request.data["username"], "randomplayer")
+        self.assertEqual(request.status_code, 200)
+        self.assertEqual(request.data["username"], "randomplayer")
 
-    def test_get_user_not_logged_in(self):
+    @patch('langate.settings.netcontrol.get_mac', return_value="00:11:22:33:44:55")
+    def test_get_user_not_logged_in(self, mock_get_mac):
         """
         Test that the user can't get his own information if he's not logged in
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:55",
-            }
-            request = self.client.get("/user/me/")
+        request = self.client.get("/user/me/")
 
-            self.assertEqual(request.status_code, 403)
+        self.assertEqual(request.status_code, 403)
 
     def test_get_user_not_found(self):
         """
         Test that the user can't get his own information if he's not logged in
         """
-        with patch('langate.network.models.netcontrol.query') as mock_query:
-            mock_query.return_value = {
-              "success": True,
-              "mac": "00:11:22:33:44:55",
-            }
+        with patch('langate.settings.netcontrol.get_mac') as mock_get_mac:
+            mock_get_mac.return_value = "00:11:22:33:44:55"
             self.client.force_authenticate(user=User.objects.get(username="randomplayer"))
             request = self.client.get("/user/unknown/")
 
