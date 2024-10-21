@@ -14,7 +14,7 @@ class Nft:
         data = self._execute_nft_cmd("list ruleset")
         metainfo = data[0]["metainfo"]
         self.logger.info(f"Found running nftables version {metainfo['version']} with {len(data)} ruleset entries.")
-    
+
     def _execute_nft_cmd(self, cmd: str) -> dict:
         """Executes an nft command, handles the exception properly and returns an object
 
