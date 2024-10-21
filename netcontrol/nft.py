@@ -7,7 +7,8 @@ from fastapi import HTTPException
 variables = Variables()
 
 class Nft:
-    """Class which interacts with the nftables backend
+    """
+    Class which interacts with the nftables backend
     """
     def __init__(self, logger: logging.Logger):
         self.logger = logger
@@ -20,7 +21,8 @@ class Nft:
         self.logger.info(f"Found running nftables version {metainfo['version']} with {len(data)} ruleset entries.")
     
     def _execute_nft_cmd(self, cmd: str) -> dict:
-        """Executes an nft command, handles the exception properly and returns an object
+        """
+        Executes an nft command, handles the exception properly and returns an object
 
         Args:
             cmd (str): string representation of the command
@@ -39,9 +41,10 @@ class Nft:
             return {}
         else:
             return json.loads(output)["nftables"]
-    
+
     def setup_portail(self):
-        """Sets up the necessary nftables rules that block network access to unauthenticated devices, and marks packets based on the map
+        """
+        Sets up the necessary nftables rules that block network access to unauthenticated devices, and marks packets based on the map
         """
         
         # Set up table, set and map
@@ -64,7 +67,8 @@ class Nft:
         self.logger.info("Gate nftables set up")
         
     def remove_portail(self):
-        """Removes netcontrol-related chains, sets and maps from insalan table
+        """
+        Removes netcontrol-related chains, sets and maps from insalan table
         """
         self._execute_nft_cmd("delete chain insalan netcontrol-filter")
         self._execute_nft_cmd("delete chain insalan netcontrol-nat")
@@ -75,7 +79,8 @@ class Nft:
         self.logger.info("Gate nftables removed")
 
     def set_mark(self, mac: str, mark: int):
-        """Changes mark of the given MAC address
+        """
+        Changes mark of the given MAC address
         
         Args:
             mac (str): MAC address
@@ -86,7 +91,8 @@ class Nft:
         self.connect_user(mac, mark, "previously_connected_device")
 
     def connect_user(self, mac: str, mark: int, name: str):
-        """Connects given device with given mark
+        """
+        Connects given device with given mark
         
         Args:
             mac (str): MAC address
@@ -103,7 +109,8 @@ class Nft:
         self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
 
     def delete_user(self, mac: str) -> None:
-        """Disconnects given device
+        """
+        Disconnects given device
         
         Args:
             mac (str): MAC address
