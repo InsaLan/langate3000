@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 import logging
 from .nft import Nft
 from .arp import Arp
@@ -11,11 +12,37 @@ nft = Nft(logger)
 arp = Arp(logger)
 nft.check_nftables()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Function that "wraps" around the FastAPI app's lifespan :
+    The part before the yield is executed before the app starts;
+    The part after the yield is executed after the app stops.
+    """
+    
+    nft.setup_portail()
+    
+    yield
+    
+    nft.remove_portail()
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 def root():
     return "netcontrol is running"
+ 
+@app.post("/connect_user")
+def connect_user(mac: str, mark: int, name: str):
+    return nft.connect_user(mac, mark, name)
+
+@app.delete("/disconnect_user")
+def delete_user(mac: str):
+    return nft.delete_user(mac)
+
+@app.put("/set_mark")
+def set_mark(mac: str, mark: int):
+    return nft.set_mark(mac, mark)
 
 @app.get("/get_mac")
 def get_mac(ip: str):
