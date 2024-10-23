@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import logging
 from .nft import Nft
 from .arp import Arp
+from .vpnrules import VpnRules
 
 logger = logging.getLogger('uvicorn.error')
 # for some reason, default loggers are not working with FastAPI
@@ -19,11 +20,13 @@ async def lifespan(app: FastAPI):
     The part before the yield is executed before the app starts;
     The part after the yield is executed after the app stops.
     """
-    
+
     nft.setup_portail()
-    
+    VpnRules(logger)
+
     yield
-    
+
+    VpnRules(logger, "del")
     nft.remove_portail()
 
 app = FastAPI(lifespan=lifespan)
@@ -31,7 +34,7 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 def root():
     return "netcontrol is running"
- 
+
 @app.post("/connect_user")
 def connect_user(mac: str, mark: int, name: str):
     return nft.connect_user(mac, mark, name)

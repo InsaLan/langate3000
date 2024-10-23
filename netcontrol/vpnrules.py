@@ -9,15 +9,15 @@ class VpnRules:
       logger (logging.Logger): logger instance
       command (str): command to execute (add or del), add by default
     """
-    def __init__(self, logger: logging.Logger, command="add": str):
+    def __init__(self, logger: logging.Logger, command: str="add") -> None:
         self.logger = logger
         self.command = command
         if command not in ["add", "del"]:
             raise ValueError("Invalid command")
-        self.vpns = VpnRules.get_vpns()
+        self.vpns = self.get_vpns()
         self.modify_rules()
 
-
+    @staticmethod
     def get_vpns() -> list:
         """Get the list of vpns from /etc/hosts
 
