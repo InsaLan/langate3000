@@ -27,7 +27,7 @@ class VpnRules:
         vpns = []
         with open("/etc/hosts", "r") as f:
             for line in f:
-              if match := re.match(r"(vpn\d+)$", line):
+              if match := re.search(r"(vpn\d+)$", line):
                     vpns.append(match.group())
         return vpns
 
