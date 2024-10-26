@@ -12,4 +12,4 @@ RUN pip install -r /nctl/requirements.txt
 
 COPY . /nctl
 
-CMD ["python3", "fastapi_init.py"]
+CMD ["./fastapi_init.sh"]
