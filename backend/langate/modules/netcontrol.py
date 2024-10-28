@@ -1,2 +1,2 @@
-def query(opts={}):
+def query(name: str, opts={}):
     return("not implemented")
