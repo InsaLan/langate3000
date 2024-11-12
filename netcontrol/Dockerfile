@@ -12,4 +12,4 @@ RUN pip install -r /nctl/requirements.txt
 
 COPY . /nctl
 
-CMD ["./fastapi_init.sh"]
+CMD ["fastapi", "run", "main.py", "--port", "6784"]
