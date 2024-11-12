@@ -60,7 +60,8 @@ class Nft:
         # Block external requests to the netcontrol module
         ips = subprocess.run('ip addr | grep -o "[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*/[0-9]*" | grep -o "[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*"', shell=True, capture_output=True).stdout.decode("utf-8").split("\n")[:-1]
         docker0_ip = subprocess.run("ip addr show docker0 | awk '/inet / {print $2}' | cut -d'/' -f1", shell=True, capture_output=True).stdout.decode("utf-8").strip()
-        self._execute_nft_cmd(f"add rule insalan netcontrol-filter ip daddr == {docker0_ip} tcp dport == 6784 ip saddr {{ {','.join(ips)} }} drop")
+        self._execute_nft_cmd(f"add rule insalan netcontrol-filter ip daddr == {{ {docker0_ip},172.16.1.1 }} tcp dport == 6784 ip saddr != {{ {','.join(ips)} }} drop")
+        self.logger.info(f"Gave to {','.join(ips)} access to the netcontrol API ({docker0_ip})")
         
         # Allow traffic to port 80 from unauthenticated devices and redirect it to the network head, to allow access to the langate webpage
         self._execute_nft_cmd("add chain insalan netcontrol-nat { type nat hook prerouting priority 0; }")
