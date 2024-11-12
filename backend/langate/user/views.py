@@ -1,4 +1,6 @@
 """User module API Endpoints"""
+import requests
+
 from functools import reduce
 from operator import or_
 
@@ -26,7 +28,7 @@ from langate.user.serializers import (
 )
 
 from .models import User, Role
-from langate.modules import netcontrol
+from langate.settings import netcontrol
 
 from langate.network.models import UserDevice, Device, DeviceManager
 from langate.network.serializers import UserDeviceSerializer
@@ -102,38 +104,42 @@ class UserMe(generics.RetrieveAPIView):
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
 
         if not user_devices.filter(ip=client_ip).exists():
-          # If the user is still logged in but the device is not registered on the network,
-          # we register it.
-          r = netcontrol.query("get_mac", { "ip": client_ip })
-          client_mac = r["mac"]
-          try:
-              # The following should never raise a MultipleObjectsReturned exception
-              # because it would mean that there are more than one devices
-              # already registered with the same MAC.
+            # If the user is still logged in but the device is not registered on the network,
+            # we register it.
+            try:
+                client_mac = netcontrol.get_mac(client_ip)
+            except requests.HTTPError as e:
+                raise ValidationError(
+                    _("Could not get MAC address")
+                ) from e
+            try:
+                # The following should never raise a MultipleObjectsReturned exception
+                # because it would mean that there are more than one devices
+                # already registered with the same MAC.
 
-              device = UserDevice.objects.get(mac=client_mac)
-              # If the device MAC is already registered on the network but with a different IP,
-              # This could happen if the DHCP has changed the IP of the client.
+                device = UserDevice.objects.get(mac=client_mac)
+                # If the device MAC is already registered on the network but with a different IP,
+                # This could happen if the DHCP has changed the IP of the client.
 
-              # * If the registered device is owned by another user, we delete the old device and we register the new one.
-              if device.user != request.user:
-                  if user_devices.count() >= request.user.max_device_nb:
-                      user["too_many_devices"] = True
-                      return Response(user, status=status.HTTP_200_OK)
-                  DeviceManager.delete_user_device(device)
+                # * If the registered device is owned by another user, we delete the old device and we register the new one.
+                if device.user != request.user:
+                    if user_devices.count() >= request.user.max_device_nb:
+                        user["too_many_devices"] = True
+                        return Response(user, status=status.HTTP_200_OK)
+                    DeviceManager.delete_user_device(device)
 
-                  DeviceManager.create_user_device(request.user, client_ip)
-              # * If the registered device is owned by the requesting user, we change the IP of the registered device.
-              else:
-                  device.ip = client_ip
-                  device.save()
+                    DeviceManager.create_user_device(request.user, client_ip)
+                # * If the registered device is owned by the requesting user, we change the IP of the registered device.
+                else:
+                    device.ip = client_ip
+                    device.save()
 
-          except UserDevice.DoesNotExist:
-              # If the device is not registered on the network, we register it.
-              if user_devices.count() >= request.user.max_device_nb:
-                  user["too_many_devices"] = True
-                  return Response(user, status=status.HTTP_200_OK)
-              DeviceManager.create_user_device(request.user, client_ip)
+            except UserDevice.DoesNotExist:
+                # If the device is not registered on the network, we register it.
+                if user_devices.count() >= request.user.max_device_nb:
+                    user["too_many_devices"] = True
+                    return Response(user, status=status.HTTP_200_OK)
+                DeviceManager.create_user_device(request.user, client_ip)
 
         user_devices = UserDevice.objects.filter(user=request.user)
 
@@ -228,8 +234,12 @@ class UserLogin(APIView):
 
             # If this device is not registered on the network, we register it.
             if not user_devices.filter(ip=client_ip).exists():
-                r = netcontrol.query("get_mac", { "ip": client_ip })
-                client_mac = r["mac"]
+                try:
+                    client_mac = netcontrol.get_mac(client_ip)
+                except requests.HTTPError as e:
+                    raise ValidationError(
+                        _("Could not get MAC address")
+                    ) from e
                 try:
                     # The following should never raise a MultipleObjectsReturned exception
                     # because it would mean that there are more than one devices
