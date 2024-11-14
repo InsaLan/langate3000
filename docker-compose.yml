@@ -3,7 +3,6 @@ services:
   backend:
     build: ./backend
     image: langate/backend
-    restart: unless-stopped
     environment:
       WEBSITE_HOST: ${WEBSITE_HOST}
       HTTP_PROTOCOL: ${PROTOCOL}
@@ -34,7 +33,6 @@ services:
 
   db:
     image: postgres
-    restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_SUPERUSER}
       POSTGRES_PASSWORD: ${DB_SUPERPASS}
@@ -71,7 +69,6 @@ services:
 
   nginx:
     image: nginx
-    restart: unless-stopped
     environment:
       - NGINX_HOST=${WEBSITE_HOST}
       - NGINX_PORT=80
@@ -93,7 +90,6 @@ services:
 
   netcontrol:
     build: ./netcontrol
-    image: langate/netcontrol
     restart: unless-stopped
     cap_add:
       - NET_ADMIN

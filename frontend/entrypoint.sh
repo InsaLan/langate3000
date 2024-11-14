@@ -1,3 +1,3 @@
 #!/bin/sh
 npm ci
-npm run build
+exec npm run build
