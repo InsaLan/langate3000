@@ -5,7 +5,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
     image: langate/backend-beta
-    restart: unless-stopped
     environment:
       WEBSITE_HOST: beta.${WEBSITE_HOST}
       HTTP_PROTOCOL: ${PROTOCOL}
@@ -37,7 +36,6 @@ services:
 
   db:
     image: postgres
-    restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_SUPERUSER}
       POSTGRES_PASSWORD: ${DB_SUPERPASS}
@@ -64,7 +62,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     image: langate/frontend-beta
-    restart: unless-stopped
     environment:
       - VITE_API_URL=${PROTOCOL}://api.beta.${WEBSITE_HOST}
       - NODE_ENV=${FRONTEND_NODE_ENV}
@@ -82,7 +79,6 @@ services:
       context: ./nginx
       dockerfile: Dockerfile.dev
     image: langate/nginx-beta
-    restart: unless-stopped
     environment:
       - NGINX_HOST=beta.${WEBSITE_HOST}
       - NGINX_PORT=80
@@ -106,7 +102,6 @@ services:
       context: ./netcontrol
       dockerfile: Dockerfile.dev
     image: langate/netcontrol
-    restart: unless-stopped
     cap_add:
       - NET_ADMIN
     volumes:

@@ -62,7 +62,7 @@ class Nft:
         
         # Block other traffic from users that are not authenticated
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
-        self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ip saddr {variables.ip_range()} ether saddr != @netcontrol-auth reject")
+        self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != {{ 172.16.1.1,172.30.0.0/16 }} ip saddr {variables.ip_range()} ip saddr != {{ 172.16.1.1,172.30.0.0/16 }} ether saddr != @netcontrol-auth reject")
 
         self.logger.info("Gate nftables set up")
         
