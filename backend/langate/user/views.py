@@ -288,7 +288,7 @@ class UserLogout(APIView):
     """
 
     permission_classes = [permissions.AllowAny]
-    authentication_classes = []
+    authentication_classes = [SessionAuthentication]
 
     def post(self, request):
         """
