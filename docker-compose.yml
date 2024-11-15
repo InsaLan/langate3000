@@ -21,6 +21,7 @@ services:
       DEV: 0
     volumes:
       - ./volumes/prod/backend:/app/v1
+      - ./backend:/app
     expose:
       - 8000
     networks:
