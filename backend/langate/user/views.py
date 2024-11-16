@@ -125,6 +125,14 @@ class UserMe(generics.RetrieveAPIView):
                 if device.user != request.user:
                     if user_devices.count() >= request.user.max_device_nb:
                         user["too_many_devices"] = True
+                        
+                        user_devices = UserDevice.objects.filter(user=request.user)
+
+                        # Add UserDevices that belong to the user
+                        user["devices"] = UserDeviceSerializer(
+                            user_devices, many=True
+                        ).data
+                        
                         return Response(user, status=status.HTTP_200_OK)
                     DeviceManager.delete_user_device(device)
 
@@ -138,6 +146,14 @@ class UserMe(generics.RetrieveAPIView):
                 # If the device is not registered on the network, we register it.
                 if user_devices.count() >= request.user.max_device_nb:
                     user["too_many_devices"] = True
+                    
+                    user_devices = UserDevice.objects.filter(user=request.user)
+
+                    # Add UserDevices that belong to the user
+                    user["devices"] = UserDeviceSerializer(
+                        user_devices, many=True
+                    ).data
+                    
                     return Response(user, status=status.HTTP_200_OK)
                 DeviceManager.create_user_device(request.user, client_ip)
 
@@ -253,6 +269,14 @@ class UserLogin(APIView):
                     if device.user != request.user:
                         if user_devices.count() >= request.user.max_device_nb:
                             user["too_many_devices"] = True
+                            
+                            user_devices = UserDevice.objects.filter(user=request.user)
+
+                            # Add UserDevices that belong to the user
+                            user["devices"] = UserDeviceSerializer(
+                                user_devices, many=True
+                            ).data
+                            
                             return Response(user, status=status.HTTP_200_OK)
                         DeviceManager.delete_user_device(device)
 
@@ -266,6 +290,14 @@ class UserLogin(APIView):
                     # If the device is not registered on the network, we register it.
                     if user_devices.count() >= request.user.max_device_nb:
                         user["too_many_devices"] = True
+                        
+                        user_devices = UserDevice.objects.filter(user=request.user)
+
+                        # Add UserDevices that belong to the user
+                        user["devices"] = UserDeviceSerializer(
+                            user_devices, many=True
+                        ).data
+                        
                         return Response(user, status=status.HTTP_200_OK)
                     DeviceManager.create_user_device(request.user, client_ip)
 
