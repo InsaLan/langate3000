@@ -33,6 +33,7 @@ export interface Props {
         name: string;
         key: string;
         type: string;
+        value?: string;
         choices?: { key: string; value: string }[];
         required?: boolean;
       }[];
@@ -379,6 +380,7 @@ const openFormModalCreate = (
         name: string;
         key: string;
         type: string;
+        value?: string;
         choices?: { key: string; value: string }[];
         required?: boolean;
       }[];
@@ -393,7 +395,7 @@ const openFormModalCreate = (
   modal.fields = create.modal.fields.map((field) => ({
     name: field.name,
     key: field.key,
-    value: '',
+    value: field.value || '',
     type: field.type,
     choices: field.choices,
     required: field.required,
