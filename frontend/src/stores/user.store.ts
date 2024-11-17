@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import type { User } from '@/models/user';
 
 import { useNotificationStore } from './notification.stores';
+import { wordList } from '@/utils/wordList';
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<User>({} as User);
@@ -15,8 +16,10 @@ export const useUserStore = defineStore('user', () => {
   const { addNotification } = useNotificationStore();
 
   function create_temp_password(): string {
-    // create a 10 character long password with random characters
-    const password = Math.random().toString(36).slice(2, 6) + Math.random().toString(36).slice(2, 6);
+    // Create a password using two random words
+    const random1 = Math.floor(Math.random() * wordList.length);
+    const random2 = Math.floor(Math.random() * wordList.length);
+    const password = `${wordList[random1]}-${wordList[random2]}`;
     return password;
   }
 

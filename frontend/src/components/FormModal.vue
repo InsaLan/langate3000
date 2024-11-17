@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/user.store';
+import { ref } from 'vue';
 
 const { create_temp_password } = useUserStore();
 
@@ -20,6 +21,8 @@ export interface Props {
 
 const props = defineProps<Props>();
 defineEmits(['update:open']);
+
+const showPassword = ref<{[key: string]: boolean}>({});
 
 </script>
 
@@ -83,11 +86,27 @@ defineEmits(['update:open']);
             <input
               :id="field.key"
               v-model="field.value"
-              :type="field.type === 'password' ? 'text' : field.type"
+              :type="field.type === 'password' ? (showPassword[field.key] ? 'text' : 'password') : field.type"
               class="w-full rounded-md border border-black bg-theme-nav p-2 text-white"
-              :autocomplete="field.type === 'password' ? 'new-password' : 'off'"
+              autocomplete="off"
               :required="field.required"
             />
+            <!-- Button to hide / show the password -->
+            <button
+              v-if="field.type === 'password'"
+              class="absolute right-8 top-2 text-white"
+              type="button"
+              @click="showPassword[field.key] = !showPassword[field.key]"
+            >
+              <fa-awesome-icon
+                v-if="!showPassword[field.key]"
+                icon="eye"
+              />
+              <fa-awesome-icon
+                v-else
+                icon="eye-slash"
+              />
+            </button>
             <!-- Button to regenerate a password -->
             <button
               v-if="field.type === 'password'"
