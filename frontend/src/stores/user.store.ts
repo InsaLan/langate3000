@@ -3,9 +3,9 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { User } from '@/models/user';
+import { wordList } from '@/utils/wordList';
 
 import { useNotificationStore } from './notification.stores';
-import { wordList } from '@/utils/wordList';
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<User>({} as User);
