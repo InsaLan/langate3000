@@ -57,7 +57,7 @@ const { addNotification } = useNotificationStore();
             ordering: true,
           },
           {
-            name: 'Tournois',
+            name: 'Tournoi',
             key: 'tournaments',
             ordering: false,
           },
@@ -104,6 +104,7 @@ const { addNotification } = useNotificationStore();
                     value: 'Admin',
                   },
                 ],
+                value: UserRole.Player,
               },
               {
                 name: 'Mot de passe',
@@ -112,7 +113,7 @@ const { addNotification } = useNotificationStore();
                 required: true,
               },
               {
-                name: 'Tournois',
+                name: 'Tournoi',
                 key: 'tournaments',
                 type: 'text',
                 required: false,
@@ -177,7 +178,7 @@ const { addNotification } = useNotificationStore();
                   ],
                 },
                 {
-                  name: 'Tournois',
+                  name: 'Tournoi',
                   key: 'tournaments',
                   type: 'text',
                 },
