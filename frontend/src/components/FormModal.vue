@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user.store';
 import { ref } from 'vue';
+import { useUserStore } from '@/stores/user.store';
 
 const { create_temp_password } = useUserStore();
 
@@ -22,7 +22,7 @@ export interface Props {
 const props = defineProps<Props>();
 defineEmits(['update:open']);
 
-const showPassword = ref<{[key: string]: boolean}>({});
+const showPassword = ref<{ [key: string]: boolean }>({});
 
 </script>
 
