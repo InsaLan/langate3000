@@ -2,16 +2,12 @@
 
 Netcontrol est le composant de la langate qui interface le backend avec la tête de réseau.
 
-Il permet à la langate de pouvoir effectuer des opérations de plus bas niveau grace à un niveau de privilège plus élevé sur la tête : pour cela, il tourne dans un conteneur ayant la capabilité `NET_ADMIN` et dans le network host.
+Il permet à la langate de pouvoir effectuer des opérations de plus bas niveau grace à un niveau de privilège plus élevé sur la tête : pour cela, il tourne dans un conteneur ayant la capabilité `NET_ADMIN` et dans le network `host`.
 
-Le backend communique via des requêtes HTTP à l'API REST ([FastAPI](https://fastapi.tiangolo.com/)) du module netcontrol de la langate. L'adresse utilisée pour les requêtes est la route par défaut du docker du backend, sur laquelle est bind l'API.
+Netcontrol reçoit les requêtes du backend par une [API REST](api.md).
 
-Pour effectuer ces requêtes, le backend dispose d'une classe Netcontrol, dans `langate/modules/netcontrol.py`, instanciée dans `langate/settings.py`. C'est cette instance qu'on utilise pour faire les requêtes, en l'important là où il y en a besoin. La classe Netcontrol possède une méthode par requête possible, avec les arguments spécifiques à chacune d'entre elles.
+## La nouvelle version
 
-## Faire les requêtes manuellement
+Auparavant, netcontrol était un service systemd, donc pas conteneurisé. Cette nouvelle version est complètement intégrée dans le Docker Compose de la langate.
 
-On peut utiliser `curl` pour simuler les requêtes au netcontrol depuis la tête de réseau en faisant attention au type de la requête (`GET`, `POST`, `DELETE` ou `PUT`).
-Les requêtes se font ainsi : `curl -X {Type} http://{IP}:6784/{Arguments}` où :
-- `{Type}` est le type de la requête,
-- `{IP}` l'ip sur l'interface `docker0`,
-- `{Arguments}` les arguments sous la forme `endpoint?arg1=..&arg2=..&arg3=...` ou `endpoint` s'il n'y a pas d'argument.
+Netcontrol 2000 utilisait un `ipset` pour faire savoir à la tête quels appareils étaient connectés et quelle [mark](marks.md) leur donner. Des règles `iptables` étaient ensuite ajoutées par [`portail.sh`](https://github.com/InsaLan/scripts-reseau/blob/ifupdown-iptables/portail.sh) La nouvelle version utilise une Map [nftables](nftables.md).
