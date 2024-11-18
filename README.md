@@ -55,15 +55,26 @@ docker compose -f docker-compose.yml up
 docker compose -f docker-compose.yml down
 ```
 
-The dev frontend is available at `WEBSITE_HOST` and its API at `api.WEBSITE_HOST`.
+The frontend is available at `WEBSITE_HOST` and its API at `api.WEBSITE_HOST`.
 
-## Cleanup
+## Cleanup DB
+
+Between two events, the database needs to be cleaned. This will remove all users and devices.
+```sh
+rm -rf volumes
+```
+The only persistent elements (marks and whitelisted devices) are stored in `backend/assets/misc`.
+
+## Cleanup containers
 
 Docker can take a lot of disk space with all the images.
 You have a few options to clean it up:
 
 - To remove all the containers and images:
-  
-	`docker compose -f docker-compose.yml down --rmi all && docker compose -f docker-compose-beta.yml down --rmi all`
+```sh
+docker compose -f docker-compose.yml down --rmi all && docker compose -f docker-compose-beta.yml down --rmi all
+```
 - To remove all the custom images (the ones we build and not the ones we pull from docker hub):
-	`docker compose -f docker-compose.yml down --rmi local && docker compose -f docker-compose-beta.yml down --rmi local`
+```sh
+docker compose -f docker-compose.yml down --rmi local && docker compose -f docker-compose-beta.yml down --rmi local
+```
