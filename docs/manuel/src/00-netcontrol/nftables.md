@@ -2,7 +2,9 @@
 
 Suite à la mise à jour de la tête de réseau de `iptables` vers `nftables` pour la XIX, netcontrol a été réécrit pour utiliser cet utilitaire.
 
-`nftables` est un utilitaire de gestion des règles réseau qui sert notamment à créer des pare-feux, du NAT, des redirections de ports...
+De plus, les règles sont directement intégrées au module, là où avant elles étaient mises en place par un script séparé, [`portail.sh`](https://github.com/InsaLan/scripts-reseau/blob/ifupdown-iptables/portail.sh).
+
+`nftables` est un utilitaire de gestion des règles réseau qui sert notamment à créer des pare-feu, du NAT, des redirections de ports...
 
 Pour une page de doc complète et claire, voir [ici](https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes).
 
@@ -14,7 +16,7 @@ La fonctionnalité correspondante sur `nftables` est les [Maps](https://wiki.nft
 
 ## Utiliser nftables à l'intérieur d'un Docker
 
-Netcontrol 2000 n'utilisait pas Docker, c'était un service systemd. Pour la langate3000, on utilise Docker.
+Netcontrol 2000 n'utilisait pas Docker, c'était un service systemd. Pour la langate 3000, on utilise Docker.
 
 Les containers Docker sont par définition isolés de la machine sur laquelle ils tournent. C'est donc compliqué de pouvoir gérer des `nftables` sur la tête de réseau depuis l'intérieur d'un container.
 
@@ -43,7 +45,7 @@ La table qu'on utilise.
 ```bash
 nft add set insalan netcontrol-auth { type ether_addr; }
 ```
-On a un set pour les adresses MAC authentifiées. C'est un workaround car dans la dernière version de nftables, on peut voir si une clé est présente dans la partie match d'une règle. Cependant, cette version n'est pas encore disponible dans le repo de Debian 12, qu'on utilise sur la tête.
+On a un set pour les adresses MAC authentifiées. C'est un workaround car dans la dernière version de nftables, on peut voir directement si une clé est présente dans la partie match d'une règle. Cependant, cette version n'est pas encore disponible dans le repo de Debian 12, qu'on utilise sur la tête.
 ```bash
 nft add map insalan netcontrol-mac2mark { type ether_addr : mark; }
 ```
@@ -69,6 +71,22 @@ Et elle :
 
 `ether saddr map @netcontrol-mac2mark` signifie que la mark est récupérée depuis l'entrée dans la map correspondant à `ether saddr`, ou la MAC de la source.
 
+### Blocage des requêtes HTTP extérieures sur netcontrol
+
+```bash
+nft add rule insalan netcontrol-filter ip daddr { {docker0_ip},172.16.1.1 } tcp dport 6784 ip saddr != { {','.join(ips)} } drop
+```
+
+Cette règle s'applique aux paquets qui :
+- `ip daddr { {docker0_ip},172.16.1.1 }` : ont pour destination l'IP de netcontrol;
+- `tcp dport 6784` : ont pour destination le port de Netcontrol;
+- `ip saddr != { {','.join(ips)} }` : ne viennent d'aucune des adresses IP de la tête.
+
+Et elle :
+- `drop` : les bloque tout simplement.
+
+Cette règle empêche d'autres utilisateurs du réseau d'envoyer des requêtes à netcontrol, tout en nous laissant la possibilité d'en envoyer nous même via un terminal de la tête.
+
 ### Accès à la langate
 
 ```bash
@@ -92,12 +110,13 @@ Cela permet de rediriger toutes les connections web vers la langate, pour que le
 ```bash
 nft add chain insalan netcontrol-forward { type filter hook forward priority 0; }
 
-nft add rule insalan netcontrol-forward ip daddr != 172.16.1.1 ip saddr {variables.ip_range()} ether saddr != @netcontrol-auth reject
+nft add rule insalan netcontrol-forward ip daddr != { 172.16.1.1,{docker_subnet} } ip saddr {variables.ip_range()} ip saddr != { 172.16.1.1,{docker_subnet} } ether saddr != @netcontrol-auth reject
 ```
 
 Cette règle s'applique aux paquets qui :
-- `ip daddr != 172.16.1.1` : ne sont pas destinée à la tête de réseau;
+- `ip daddr != { 172.16.1.1,{docker_subnet} }` : ne sont pas destinés à la tête de réseau, netcontrol ou au backend;
 - `ip saddr {variables.ip_range()}` : viennent de l'intérieur du réseau (ip_range est 172.16.0.0/12, soit toutes les addresses assignées par la tête);
+- `ip saddr != { 172.16.1.1,{docker_subnet} }` : ne viennent pas de la tête, de netcontrol ou du backend;
 - `ether saddr != @netcontrol-auth` : n'ont pas leur addresse MAC dans le set.
 
 Et elle :

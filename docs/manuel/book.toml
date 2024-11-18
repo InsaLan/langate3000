@@ -1,6 +1,6 @@
 [book]
-authors = ["Hector \"pixup1\" Vernet"]
+authors = ["Hector \"pixup1\" Vernet", "Amance \"Ecnama\" Graindorge", "Youenn \"SktAsul\" Le Jeune"]
 language = "fr"
 multilingual = false
 src = "src"
-title = "Manuel de la Langate3000"
+title = "Manuel de la Langate 3000"
