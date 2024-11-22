@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-  faArrowLeft, faArrowsAlt,
-  faArrowsRotate, faBolt, faChevronDown, faChevronUp,
+  faArrowLeft, faArrowsAlt, faArrowsRotate, faArrowsSplitUpAndLeft,
+  faBolt, faChevronDown, faChevronUp,
   faCircle, faCircleCheck, faCirclePlus, faClock,
   faCrown, faDownload, faEye, faEyeSlash,
   faFile, faHammer, faKey, faLocationDot,
@@ -34,6 +34,7 @@ library.add(
   faCircle,
   faClock,
   faEye,
+  faArrowsSplitUpAndLeft,
   faEyeSlash,
   faChevronDown,
   faChevronUp,

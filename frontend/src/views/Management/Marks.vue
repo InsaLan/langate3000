@@ -334,8 +334,9 @@ const submitGame = async () => {
                         @click="openSpreadModal(mark.value)"
                       >
                         <fa-awesome-icon
-                          icon="arrows-alt"
+                          icon="arrows-split-up-and-left"
                           size="lg"
+                          class="-scale-x-100"
                         />
                         <div
                           class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
