@@ -112,7 +112,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
               v-if="field.type === 'password'"
               class="absolute right-2 top-2 text-white"
               type="button"
-              @click="field.value = create_temp_password()"
+              @click="field.value = create_temp_password(); showPassword[field.key] = true"
             >
               <fa-awesome-icon
                 icon="redo"

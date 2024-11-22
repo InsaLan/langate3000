@@ -34,12 +34,12 @@ const items = [
     connected: false,
     admin: true,
   },
-  {
+  /*{
     url: ['/helpdesk/user'] as string[],
     text: 'Demande d\'assistance',
     connected: true,
     admin: false,
-  },
+  },*/
 ] as const;
 
 const userStore = useUserStore();
