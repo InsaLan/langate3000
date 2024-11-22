@@ -15,7 +15,7 @@ const FAQ = {
       visible: ref(false),
     },
   ],
-  'Réseau': [
+  Réseau: [
     {
       question: 'Mon ordinateur ne se connecte pas au réseau ou indique que la connexion est limitée',
       answer: '- Revérifiez que votre câble réseau est bien branché.\n- Vérifiez que le cable connectant votre switch au reste du réseau n\'a pas été débranché (il doit être sur le dernier port du switch).\n- Vérifiez que vous n\'utilisez pas de VPN.\n- Vérifiez que le pilote de votre carte réseau est bien installé.\n- Si votre problème n\'est pas résolu, n\'hésitez pas à contacter un membre du staff qui vous aidera.',
@@ -25,7 +25,7 @@ const FAQ = {
       question: 'J\'ai accès à certains sites/jeux mais pas à d\'autres.',
       answer: 'Il s\'agit d\'un problème connu, pour certains services il est résolvable. Contactez un membre du staff.',
       visible: ref(false),
-    }
+    },
   ],
 };
 
