@@ -25,7 +25,7 @@ def generate_dev_name():
     except FileNotFoundError:
         return "MISSINGNO"
 
-def get_mark(user=None):
+def get_mark(user=None, excluded_marks=[]):
     """
         Get a mark from the settings based on random probability
     """
@@ -40,14 +40,14 @@ def get_mark(user=None):
                 existing_marks = [
                   mark
                   for mark in SETTINGS["games"][user.tournament]
-                  if mark in [x["value"] for x in SETTINGS["marks"]]
+                  if mark in [x["value"] for x in SETTINGS["marks"]] and mark not in excluded_marks
                 ]
 
                 mark_proba = [
                   mark_data["priority"]
                   for mark in existing_marks
                   for mark_data in SETTINGS["marks"]
-                  if mark_data["value"] == mark
+                  if mark_data["value"] == mark and mark_data["value"] not in excluded_marks
                 ]
 
                 # Chose a random mark from the user's tournament based on the probability
@@ -55,8 +55,8 @@ def get_mark(user=None):
 
     # Get a random mark from the settings based on the probability
     return random.choices(
-      [mark["value"] for mark in SETTINGS["marks"]],
-      weights=[mark["priority"] for mark in SETTINGS["marks"]]
+      [mark["value"] for mark in SETTINGS["marks"] if mark["value"] not in excluded_marks],
+      weights=[mark["priority"] for mark in SETTINGS["marks"] if mark["value"] not in excluded_marks]
     )[0]
 
 def validate_marks(marks):

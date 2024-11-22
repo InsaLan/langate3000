@@ -11,7 +11,7 @@ const { addNotification } = useNotificationStore();
 const deviceStore = useDeviceStore();
 
 const {
-  fetch_marks, patch_marks, move_marks, fetch_game_marks, change_game_marks,
+  fetch_marks, patch_marks, move_marks, spread_marks, fetch_game_marks, change_game_marks,
 } = deviceStore;
 const { marks, gameMarks } = storeToRefs(deviceStore);
 
@@ -50,24 +50,46 @@ const reset = async () => {
   edit.value = false;
 };
 
+// -- Move and Spread Modals --
+
+const currentMark = ref(0);
+
 // -- Move Modal --
 
-const move = ref(false);
-const currentMark = ref(0);
+const showMoveModal = ref(false);
 const chosenMark = ref(0);
 
-const openModal = (selectedMark: number) => {
+const openMoveModal = (selectedMark: number) => {
   currentMark.value = selectedMark;
   // set the chosen mark to the first mark in the list
   chosenMark.value = marks.value[0].value;
-  move.value = true;
+  showMoveModal.value = true;
 };
 
 const validateMove = async () => {
   if (await move_marks(currentMark.value, chosenMark.value)) {
     addNotification('Les appareils ont bien été déplacés', 'info');
     // close the modal
-    move.value = false;
+    showMoveModal.value = false;
+
+    // reload the marks to update the number of devices
+    await fetch_marks();
+  }
+};
+
+// -- Spread Modal --
+const showSpreadModal = ref(false);
+
+const openSpreadModal = (selectedMark: number) => {
+  currentMark.value = selectedMark;
+  showSpreadModal.value = true;
+};
+
+const validateSpread = async () => {
+  if (await spread_marks(currentMark.value)) {
+    addNotification('Les appareils ont bien été déplacés', 'info');
+    // close the modal
+    showSpreadModal.value = false;
 
     // reload the marks to update the number of devices
     await fetch_marks();
@@ -290,7 +312,7 @@ const submitGame = async () => {
                       <button
                         class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
                         type="button"
-                        @click="openModal(mark.value)"
+                        @click="openMoveModal(mark.value)"
                       >
                         <fa-awesome-icon
                           icon="arrows-alt"
@@ -304,6 +326,25 @@ const submitGame = async () => {
                           }"
                         >
                           Déplacer les appareils avec cette mark
+                        </div>
+                      </button>
+                      <button
+                        class="group rounded bg-blue-500 p-1 hover:bg-blue-600"
+                        type="button"
+                        @click="openSpreadModal(mark.value)"
+                      >
+                        <fa-awesome-icon
+                          icon="arrows-alt"
+                          size="lg"
+                        />
+                        <div
+                          class="pointer-events-none absolute right-[-40px] z-20 mr-10 mt-10 w-32 rounded bg-gray-800 p-2 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                          :class="{
+                            'bottom-8': index === (edit ? marksCopy.length - 1 : marks.length - 1),
+                            'top-0': index !== (edit ? marksCopy.length - 1 : marks.length - 1),
+                          }"
+                        >
+                          Dispatcher les appareils avec cette mark sur les autres
                         </div>
                       </button>
                     </div>
@@ -364,7 +405,7 @@ const submitGame = async () => {
 
   <!-- Mark move Modal -->
   <div
-    v-if="move"
+    v-if="showMoveModal"
     class="fixed inset-0 flex items-center justify-center bg-black/50"
   >
     <div
@@ -423,7 +464,60 @@ const submitGame = async () => {
           <button
             class="rounded-md bg-theme-nav px-4 py-2 text-white"
             type="button"
-            @click="move = false"
+            @click="showMoveModal = false"
+          >
+            Annuler
+          </button>
+          <button
+            class="rounded-md bg-blue-700 px-4 py-2 text-white"
+            type="submit"
+          >
+            Valider
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mark spread Modal -->
+  <div
+    v-if="showSpreadModal"
+    class="fixed inset-0 flex items-center justify-center bg-black/50"
+  >
+    <div
+      class="w-1/2 rounded-lg bg-zinc-800 p-4"
+    >
+      <h2
+        class="text-center text-2xl font-bold text-white"
+      >
+        Déplacer les appareils
+      </h2>
+      <form
+        class="mt-4 flex flex-col gap-4"
+        @submit.prevent="validateSpread"
+      >
+        <div
+          class="flex flex-row items-center gap-2"
+        >
+          <div>
+            Déplacer les appareils avec la mark
+          </div>
+          <div
+            class="rounded-md bg-theme-nav p-1 font-bold text-white"
+          >
+            {{ currentMark }}
+          </div>
+          <div>
+            sur les autres marks (selon leur priorité)
+          </div>
+        </div>
+        <div
+          class="flex justify-end gap-4"
+        >
+          <button
+            class="rounded-md bg-theme-nav px-4 py-2 text-white"
+            type="button"
+            @click="showSpreadModal = false"
           >
             Annuler
           </button>

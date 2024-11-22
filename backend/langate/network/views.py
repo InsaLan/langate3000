@@ -17,7 +17,7 @@ from drf_yasg import openapi
 from langate.settings import SETTINGS
 from langate.user.models import Role
 from langate.network.models import Device, UserDevice, DeviceManager
-from langate.network.utils import validate_marks, validate_games, save_settings
+from langate.network.utils import validate_marks, validate_games, save_settings, get_mark
 
 from langate.network.serializers import DeviceSerializer, UserDeviceSerializer, FullDeviceSerializer
 
@@ -348,6 +348,33 @@ class MarkMove(APIView):
 
         devices = Device.objects.filter(mark=old, whitelisted=False)
         for device in devices:
+            DeviceManager.edit_device(device, device.mac, device.name, new)
+
+        return Response(status=status.HTTP_200_OK)
+
+class MarkSpread(APIView):
+    """
+    API endpoint that allows all devices on a mark to be moved to another mark.
+    """
+
+    permission_classes = [StaffPermission]
+
+    def post(self, request, old):
+        """
+        Move all devices on a mark to another mark
+        """
+        # Check that the old and new marks are valid
+        marks = [m["value"] for m in SETTINGS["marks"]]
+
+        if old not in marks:
+            return Response({"error": _("Invalid origin mark")}, status=status.HTTP_400_BAD_REQUEST)
+
+        if sum([mark["priority"] for mark in SETTINGS["marks"] if mark["value"] != old]) == 0:
+            return Response({"error": _("No mark to spread to")}, status=status.HTTP_400_BAD_REQUEST)
+
+        devices = Device.objects.filter(mark=old, whitelisted=False)
+        for device in devices:
+            new = get_mark(excluded_marks=[old])
             DeviceManager.edit_device(device, device.mac, device.name, new)
 
         return Response(status=status.HTTP_200_OK)
