@@ -203,7 +203,7 @@ const { addNotification } = useNotificationStore();
                 {
                   name: 'Nouveau mot de passe',
                   key: 'password',
-                  type: 'text',
+                  type: 'password',
                 },
               ],
             },
