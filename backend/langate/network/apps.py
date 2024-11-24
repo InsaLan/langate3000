@@ -52,14 +52,14 @@ class NetworkConfig(AppConfig):
                 userdevice = UserDevice.objects.filter(mac=dev.mac).first()
                 try:
                     if userdevice is not None:
-                        connect_res = netcontrol.connect_user(userdevice.mac, userdevice.mark, userdevice.user.username)
+                        connect_res = netcontrol.connect_user(userdevice.mac, userdevice.mark, userdevice.bypass, userdevice.user.username)
                     else:
-                        connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
+                        connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
                 except requests.HTTPError as e:
                     logger.info("[PortalConfig] {e}")
 
                 try:
-                    mark_res = netcontrol.set_mark(dev.mac, dev.mark)
+                    mark_res = netcontrol.set_mark(dev.mac, dev.mark, dev.bypass)
                 except requests.HTTPError as e:
                     logger.info("[PortalConfig] {e}")
 
@@ -74,17 +74,18 @@ class NetworkConfig(AppConfig):
                             mark = line[2] if len(line) == 3 else SETTINGS["marks"][0]["value"]
                             dev = Device.objects.filter(mac=mac).first()
                             if dev is None:
-                                dev = DeviceManager.create_device(mac, name, True, mark)
+                                dev = DeviceManager.create_device(mac, name, True, True, mark)
                             else:
                                 dev.whitelisted = True
+                                dev.bypass = True
                                 dev.save()
                                 try:
-                                    connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.name)
+                                    connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
                                 except requests.HTTPError as e:
                                     logger.info("[PortalConfig] {e}")
 
                                 try:
-                                    mark_res = netcontrol.set_mark(dev.mac, mark)
+                                    mark_res = netcontrol.set_mark(dev.mac, mark, dev.bypass)
                                 except requests.HTTPError as e:
                                     logger.info("[PortalConfig] {e}")
                         else:

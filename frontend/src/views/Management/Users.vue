@@ -121,6 +121,12 @@ const {
                 type: 'text',
                 required: false,
               },
+              {
+                name: 'Bypass',
+                key: 'bypass',
+                type: 'checkbox',
+                required: false,
+              },
             ],
           },
           function: async (data) => {
@@ -185,6 +191,12 @@ const {
                   name: 'Equipe',
                   key: 'team',
                   type: 'text',
+                },
+                {
+                  name: 'Bypass',
+                  key: 'bypass',
+                  type: 'checkbox',
+                  required: false,
                 },
               ],
             },

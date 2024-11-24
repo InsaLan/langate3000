@@ -85,7 +85,7 @@ class Nft:
         
         self.logger.info("Gate nftables removed")
 
-    def set_mark(self, mac: str, mark: int) -> None:
+    def set_mark(self, mac: str, mark: int, bypass: bool) -> None:
         """
         Changes mark of the given MAC address
         
@@ -95,16 +95,19 @@ class Nft:
         """
         
         self.delete_user(mac)
-        self.connect_user(mac, mark, "previously_connected_device")
+        self.connect_user(mac, mark, bypass, "previously_connected_device")
 
-    def connect_user(self, mac: str, mark: int, name: str) -> None:
+    def connect_user(self, mac: str, mark: int, bypass: bool, name: str) -> None:
         """
         Connects given device with given mark
         
         Args:
             mac (str): MAC address
         """
-       
+        
+        if bypass:
+            mark += 1024
+        
         mac = mac.lower()
         try:
             self._execute_nft_cmd(f"add element insalan netcontrol-mac2mark {{ {mac} : {str(mark)} }}")
