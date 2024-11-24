@@ -63,6 +63,11 @@ const {
             key: 'team',
             ordering: false,
           },
+          {
+            name: 'Accès aux sites bloqués',
+            key: 'bypass',
+            ordering: false,
+          },
         ]"
         :create="{
           modal: {
@@ -122,7 +127,7 @@ const {
                 required: false,
               },
               {
-                name: 'Bypass',
+                name: 'Donner accès aux sites bloqués',
                 key: 'bypass',
                 type: 'checkbox',
                 required: false,
@@ -193,7 +198,7 @@ const {
                   type: 'text',
                 },
                 {
-                  name: 'Bypass',
+                  name: 'Donner accès aux sites bloqués',
                   key: 'bypass',
                   type: 'checkbox',
                   required: false,

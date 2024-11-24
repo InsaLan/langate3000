@@ -50,6 +50,11 @@ const queryParams = window.location.search;
             key: 'user',
             ordering: false,
           },
+          {
+            name: 'Accès aux sites bloqués',
+            key: 'bypass',
+            ordering: false,
+          },
         ]"
         :pagination="true"
         :search="true"
