@@ -201,7 +201,8 @@ class TestNetworkAPI(TestCase):
         self.device = Device.objects.create(
           mac="00:11:22:33:44:56",
           name="TestDeviceWhitelist",
-          whitelisted=True
+          whitelisted=True,
+          bypass=True,
         )
 
     def test_get_user_device_success(self):
@@ -219,6 +220,7 @@ class TestNetworkAPI(TestCase):
           'mac': '00:11:22:33:44:55',
           'whitelisted': False,
           'mark': 100,
+          'bypass': False,
           'ip': '123.123.123.123',
           'user': 'testuser',
         }
@@ -240,6 +242,7 @@ class TestNetworkAPI(TestCase):
           'mac': '00:11:22:33:44:56',
           'whitelisted': True,
           'mark': 100,
+          'bypass': True,
           'ip': None,
           'user': None,
         }
@@ -405,6 +408,7 @@ class TestNetworkAPI(TestCase):
               'mac': '00:11:22:33:44:55',
               'whitelisted': False,
               'mark': 100,
+              'bypass': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
             },
@@ -414,6 +418,7 @@ class TestNetworkAPI(TestCase):
               'mac': '00:11:22:33:44:56',
               'whitelisted': True,
               'mark': 100,
+              'bypass': True,
               'ip': None,
               'user': None,
             }
@@ -468,6 +473,7 @@ class TestNetworkAPI(TestCase):
               'name': 'TestDevice',
               'mac': '00:11:22:33:44:55',
               'whitelisted': False,
+              'bypass': False,
               'ip': '123.123.123.123',
               'user': 'testuser',
               'mark': SETTINGS['marks'][0]['value']
