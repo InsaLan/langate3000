@@ -591,8 +591,9 @@ class TestMarkAPI(TestCase):
             self.assertEqual(response.data[i]["devices"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=False).count())
             self.assertEqual(response.data[i]["whitelisted"], Device.objects.filter(mark=self.settings["marks"][i]["value"], whitelisted=True).count())
 
+    @patch('langate.settings.netcontrol.set_mark', return_value=None)
     @patch('langate.network.views.save_settings')
-    def test_patch_marks(self, mock_save_settings):
+    def test_patch_marks(self, mock_save_settings, mock_set_mark):
         mock_save_settings.side_effect = lambda x: None
 
         new_marks = [
@@ -603,7 +604,7 @@ class TestMarkAPI(TestCase):
 
         from langate.settings import SETTINGS as ORIGINAL_SETTINGS
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(ORIGINAL_SETTINGS["marks"]), 2)
         self.assertEqual(ORIGINAL_SETTINGS["marks"][0]["value"], 102)
         self.assertEqual(ORIGINAL_SETTINGS["marks"][1]["value"], 103)

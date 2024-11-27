@@ -329,6 +329,7 @@ class MarkList(APIView):
         removed_marks = [m for m in old_marks if m not in new_marks]
 
         SETTINGS["marks"] = marks
+        save_settings(SETTINGS)
 
         if removed_marks:
             for mark in removed_marks:
@@ -336,8 +337,6 @@ class MarkList(APIView):
                 for device in devices:
                     new = get_mark(excluded_marks=[mark])
                     DeviceManager.edit_device(device, device.mac, device.name, new)
-
-        save_settings(SETTINGS)
 
         return Response(SETTINGS["marks"], status=status.HTTP_200_OK)
 
