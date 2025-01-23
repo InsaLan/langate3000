@@ -194,6 +194,27 @@ export const useDeviceStore = defineStore('device', () => {
     }
   }
 
+  async function spread_marks(oldMark: number): Promise<boolean> {
+    await get_csrf();
+
+    try {
+      await axios.post(`/network/mark/${oldMark}/spread/`, {}, {
+        headers: {
+          'X-CSRFToken': csrf.value,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      return true;
+    } catch (err) {
+      addNotification(
+        (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while spreading the marks',
+        'error',
+      );
+      return false;
+    }
+  }
+
   async function fetch_game_marks(): Promise<boolean> {
     try {
       const response = await axios.get<GameMark>('/network/games/', { withCredentials: true });
@@ -287,6 +308,7 @@ export const useDeviceStore = defineStore('device', () => {
     fetch_marks,
     patch_marks,
     move_marks,
+    spread_marks,
     fetch_game_marks,
     change_game_marks,
     edit_own_device,

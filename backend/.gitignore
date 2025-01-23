@@ -17,6 +17,7 @@ lib64
 share
 pyvenv.cfg
 env
+.venv/
 
 langate/static/partners
 
