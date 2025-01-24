@@ -1,10 +1,14 @@
 import requests
 import logging
 
+import prometheus_client as prometheus
+
 GET_REQUESTS = ["get_mac", "get_ip", '']
 POST_REQUESTS = ["connect_user"]
 DELETE_REQUESTS = ["disconnect_user"]
 PUT_REQUESTS = ["set_mark"]
+
+connected_devices_gauge = prometheus.Gauge("connected_devices", "Amount of connected devices")
 
 class Netcontrol:
     """
@@ -63,13 +67,18 @@ class Netcontrol:
         """
         self.logger.info(f"Connecting user with MAC address {mac} ({name})...")
         self.request("connect_user", {"mac": mac, "mark": mark, "bypass": bypass, "name": name})
+        connected_devices_gauge.inc()
 
     def disconnect_user(self, mac: str) -> None:
         """
         Disconnect the user with the given MAC address.
         """
         self.logger.info(f"Disconnecting user with MAC address {mac}...")
-        self.request("disconnect_user", {"mac": mac})
+        try:
+            self.request("disconnect_user", {"mac": mac})
+            connected_devices_gauge.dec()
+        except:
+            raise
 
     def set_mark(self, mac: str, mark: int, bypass: bool) -> None:
         """
