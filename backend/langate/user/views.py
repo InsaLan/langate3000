@@ -46,7 +46,6 @@ def get_csrf(request):
     """
     return JsonResponse({"csrf": _("CSRF cookie set")})
 
-
 # Filter, can only acces this view when user.role == 'admin' or 'staff'
 class StaffPermission(permissions.BasePermission):
     """
@@ -336,7 +335,6 @@ class UserLogout(APIView):
         if user_devices.filter(ip=client_ip).exists():
             # When the user decides to disconnect from the portal from a device,
             # we delete the device from the database.
-
             device = user_devices.get(ip=client_ip)
             DeviceManager.delete_user_device(device)
 

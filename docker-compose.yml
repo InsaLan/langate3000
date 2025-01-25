@@ -60,7 +60,7 @@ services:
     image: langate/frontend
     environment:
       - VITE_API_URL=${PROTOCOL}://api.${WEBSITE_HOST}
-      - NODE_ENV=${FRONTEND_NODE_ENV}
+#      - NODE_ENV=${FRONTEND_NODE_ENV}
       - VITE_WEBSITE_HOST=${WEBSITE_HOST}
       - VITE_SESSION_COOKIE_AGE=${SESSION_COOKIE_AGE}
     volumes:

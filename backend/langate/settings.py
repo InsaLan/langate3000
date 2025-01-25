@@ -69,11 +69,14 @@ ALLOWED_HOSTS = [
     "api." + WEBSITE_HOST,
     WEBSITE_HOST,
     "dev." + WEBSITE_HOST,
+    "127.0.0.1"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
      PROTOCOL + "://api." + getenv("WEBSITE_HOST", "localhost") + OUTSIDE_PORT,
+     PROTOCOL + "://api." + getenv("WEBSITE_HOST", "localhost"),
      PROTOCOL + "://" + getenv("WEBSITE_HOST", "localhost") + OUTSIDE_PORT,
+     PROTOCOL + "://" + getenv("WEBSITE_HOST", "localhost"),
 ]
 
 # Application definition

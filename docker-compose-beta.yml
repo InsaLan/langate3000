@@ -64,7 +64,7 @@ services:
     image: langate/frontend-beta
     environment:
       - VITE_API_URL=${PROTOCOL}://api.beta.${WEBSITE_HOST}
-      - NODE_ENV=${FRONTEND_NODE_ENV}
+#      - NODE_ENV=${FRONTEND_NODE_ENV}
       - VITE_WEBSITE_HOST=beta.${WEBSITE_HOST}
       - VITE_SESSION_COOKIE_AGE=${SESSION_COOKIE_AGE}
     volumes:
