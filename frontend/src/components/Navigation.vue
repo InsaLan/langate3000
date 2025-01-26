@@ -94,8 +94,10 @@ const burger_menu = ref(false);
           <img alt="Logo InsaLan" class="size-[40px]" src="@/assets/images/logo_retro.png"/>
         </router-link>
         <div
-          class="mx-5 flex flex-1 flex-col items-center justify-center"
+          class="mx-4 my-2 flex cursor-pointer flex-col justify-center text-center font-bold text-gray-400 hover:text-white"
           :class="{ hidden: !isConnected }"
+          @click="logout_user"
+          @keydown.enter="logout_user"
         >
           Déconnexion
         </div>
