@@ -144,8 +144,10 @@ class MockedNft(Nft):
         self.logger = logger
     
     def check_nftables(self) -> None:
-        self.logger.info("Mocked Nftables OK")
-        return
+        self.logger.info("Mocked nftables OK")
     
     def _execute_nft_cmd(self, cmd: str) -> dict:
         return {}
+    
+    def setup_portail(self) -> None:
+        self.logger.info("Gate nftables set up")
