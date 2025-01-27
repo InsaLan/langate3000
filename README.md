@@ -32,27 +32,25 @@ You can also pass the `-d` argument to "detach" the container from the terminal,
 docker compose -f docker-compose-beta.yml down
 ```
 
-The website is available at the value of `WEBSITE_HOST` which should be `gate.insalan.fr` or `gate.localhost` depending on where it's running. Its API backend is available at `api.WEBSITE_HOST`.
-
 The "beta" environment is available at `beta.WEBSITE_HOST` and it's own API at `api.beta.WEBSITE_HOST`.
 
 There is hotreload for the front (with vite), back (with django runserver), and nginx (thanks to a custom script)
 
 ## Running the prod environment
 
-- Put 0 in the .env file for the `DEV` variable.
+- Put 0 in the .env file for the `DEV` and `MOCK_NETCONTROL` variables.
 
 - Build the images:
 ```sh
-docker compose -f docker-compose build
+docker compose build
 ```
 - Run the following command :
 ```sh
-docker compose -f docker-compose.yml up
+docker compose up
 ```
 - To stop the prod environment :
 ```sh
-docker compose -f docker-compose.yml down
+docker compose down
 ```
 
 The frontend is available at `WEBSITE_HOST` and its API at `api.WEBSITE_HOST`.
