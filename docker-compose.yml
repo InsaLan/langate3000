@@ -26,6 +26,8 @@ services:
       - 8000
     networks:
       - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     links:
       - db
     depends_on:
@@ -92,6 +94,8 @@ services:
   netcontrol:
     build: ./netcontrol
     restart: unless-stopped
+    environment:
+      - MOCK_NETWORK=${MOCK_NETWORK}
     cap_add:
       - NET_ADMIN
     volumes:

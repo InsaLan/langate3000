@@ -135,3 +135,16 @@ class Nft:
 
 class NftablesException(Exception):
     pass
+
+class MockedNft(Nft):
+    """
+    Class which mocks the Nft class without actually executing nft commands
+    """
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+    
+    def check_nftables(self):
+        return
+    
+    def _execute_nft_cmd(self, cmd: str) -> dict:
+        return {}
