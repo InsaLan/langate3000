@@ -17,7 +17,8 @@ if mock:
 else:
     nft = Nft(logger)
     arp = Arp(logger)
-    logger.info("Checking that nftables is working...")
+
+logger.info("Checking that nftables is working...")
 nft.check_nftables()
 
 @asynccontextmanager
