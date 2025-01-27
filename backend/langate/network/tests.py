@@ -218,6 +218,7 @@ class TestNetworkAPI(TestCase):
           'name': 'TestDevice',
           'mac': '00:11:22:33:44:55',
           'whitelisted': False,
+          'mark': 100,
           'ip': '123.123.123.123',
           'user': 'testuser',
         }
@@ -238,6 +239,7 @@ class TestNetworkAPI(TestCase):
           'name': 'TestDeviceWhitelist',
           'mac': '00:11:22:33:44:56',
           'whitelisted': True,
+          'mark': 100,
           'ip': None,
           'user': None,
         }
@@ -402,6 +404,7 @@ class TestNetworkAPI(TestCase):
               'name': 'TestDevice',
               'mac': '00:11:22:33:44:55',
               'whitelisted': False,
+              'mark': 100,
               'ip': '123.123.123.123',
               'user': 'testuser',
             },
@@ -410,6 +413,7 @@ class TestNetworkAPI(TestCase):
               'name': 'TestDeviceWhitelist',
               'mac': '00:11:22:33:44:56',
               'whitelisted': True,
+              'mark': 100,
               'ip': None,
               'user': None,
             }
