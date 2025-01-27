@@ -22,7 +22,7 @@ class Arp:
                 if line.startswith(ip + " "):
                     mac = line[41:].split(" ")[0] # 41 is the position of the MAC address in the line
                     self.logger.info("Found MAC %s for IP %s", mac, ip)
-                    return { "mac" : mac}
+                    return { "mac" : mac }
             raise HTTPException(status_code=404, detail="MAC not found")
     
     def get_ip(self, mac: str):
@@ -39,5 +39,24 @@ class Arp:
                 if line[41:].split(" ")[0] == mac:
                     ip = line.split(" ")[0] # Extracting IP address
                     self.logger.info("Found IP %s for MAC %s", ip, mac)
-                    return { "ip" : ip}
+                    return { "ip" : ip }
             raise HTTPException(status_code=404, detail="IP not found")
+
+class MockedArp(Arp):
+    """
+    Class which *doesn't* interact with the ARP table
+    """
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+    
+    def get_mac(self, ip: str):
+        self.logger.info("Querying MAC for IP %s", ip)
+        mac = "00:00:00:00:00:00"
+        self.logger.info("Found MAC %s for IP %s", mac, ip)
+        return { "mac" : mac }
+    
+    def get_ip(self, mac: str):
+        self.logger.info("Querying IP for MAC %s", mac)
+        ip = "127.0.0.1"
+        self.logger.info("Found IP %s for MAC %s", ip, mac)
+        return { "ip" : "127.0.0.1" }

@@ -83,7 +83,7 @@ class Netcontrol:
         """
         Initialize HOST_IP to the docker's default route, set up REQUEST_URL and check the connection with the netcontrol API.
         """
-        self.HOST_IP = subprocess.run(["/sbin/ip", "route"], capture_output=True).stdout.decode("utf-8").split()[2]
+        self.HOST_IP = "host.docker.internal"
         self.REQUEST_URL = f"http://{self.HOST_IP}:6784/"
 
         self.logger = logging.getLogger(__name__)

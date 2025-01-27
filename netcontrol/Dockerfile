@@ -1,4 +1,4 @@
-	FROM python:3.12-alpine3.19
+FROM python:3.12-alpine3.19
 
 WORKDIR /nctl
 
@@ -12,4 +12,4 @@ RUN pip install -r /nctl/requirements.txt
 
 COPY . /nctl
 
-CMD ["fastapi", "run", "main.py", "--port", "6784"]
+CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "6784"]
