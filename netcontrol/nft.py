@@ -11,12 +11,12 @@ class Nft:
     """
     Class which interacts with the nftables backend
     """
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger) -> None:
         self.logger = logger
         self.nft = nftables.Nftables()
         self.nft.set_json_output(True)
 
-    def check_nftables(self):
+    def check_nftables(self) -> None:
         data = self._execute_nft_cmd("list ruleset")
         metainfo = data[0]["metainfo"]
         self.logger.info(f"Found running nftables version {metainfo['version']} with {len(data)} ruleset entries.")
@@ -43,7 +43,7 @@ class Nft:
         else:
             return json.loads(output)["nftables"]
 
-    def setup_portail(self):
+    def setup_portail(self) -> None:
         """
         Sets up the necessary nftables rules that block network access to unauthenticated devices, and marks packets based on the map
         """
@@ -73,7 +73,7 @@ class Nft:
 
         self.logger.info("Gate nftables set up")
         
-    def remove_portail(self):
+    def remove_portail(self) -> None:
         """
         Removes netcontrol-related chains, sets and maps from insalan table
         """
@@ -85,7 +85,7 @@ class Nft:
         
         self.logger.info("Gate nftables removed")
 
-    def set_mark(self, mac: str, mark: int):
+    def set_mark(self, mac: str, mark: int) -> None:
         """
         Changes mark of the given MAC address
         
@@ -97,7 +97,7 @@ class Nft:
         self.delete_user(mac)
         self.connect_user(mac, mark, "previously_connected_device")
 
-    def connect_user(self, mac: str, mark: int, name: str):
+    def connect_user(self, mac: str, mark: int, name: str) -> None:
         """
         Connects given device with given mark
         
@@ -140,10 +140,11 @@ class MockedNft(Nft):
     """
     Class which mocks the Nft class without actually executing nft commands
     """
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger) -> None:
         self.logger = logger
     
-    def check_nftables(self):
+    def check_nftables(self) -> None:
+        self.logger.info("Mocked Nftables OK")
         return
     
     def _execute_nft_cmd(self, cmd: str) -> dict:
