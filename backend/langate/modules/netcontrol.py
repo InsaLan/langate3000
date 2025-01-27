@@ -1,5 +1,4 @@
 import requests
-import subprocess
 import logging
 
 GET_REQUESTS = ["get_mac", "get_ip", '']
