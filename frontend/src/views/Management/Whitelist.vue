@@ -3,13 +3,10 @@ import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
 import { useDeviceStore } from '@/stores/devices.store';
-import { useNotificationStore } from '@/stores/notification.stores';
 
 const {
   createDevice, createDevicesFromList, deleteDevice, editDevice,
 } = useDeviceStore();
-
-const { addNotification } = useNotificationStore();
 
 </script>
 
@@ -75,11 +72,9 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, data) => {
-              const success = await editDevice((device as unknown as Device).id, data as unknown as Device)
-              if (success) {
-                addNotification('L\'appareil a bien été modifié', 'info');
+              if (await editDevice((device as unknown as Device).id, data as unknown as Device)) {
+                return 'L\'appareil a été modifié';
               }
-              return success;
             },
           },
           {
@@ -97,21 +92,17 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, fields) => {
-              const success = await deleteDevice((device as unknown as Device).id);
-              if (success) {
-                addNotification('L\'appareil a bien été supprimé', 'info');
+              if (await deleteDevice((device as unknown as Device).id)) {
+                return 'L\'appareil a été supprimé';
               }
-              return success;
             },
           },
         ]"
         :create="{
           multiple: async (data) => {
-            const success = await createDevicesFromList(data as unknown as Device[]);
-            if (success) {
-              addNotification('Les appareils ont bien été ajoutés', 'info');
+            if (await createDevicesFromList(data as unknown as Device[])) {
+              return 'Les appareils ont été ajoutés';
             }
-            return success;
           },
           modal: {
             title: 'Ajouter un appareil à la whitelist',
@@ -137,11 +128,9 @@ const { addNotification } = useNotificationStore();
             ],
           },
           function: async (data) => {
-            const success = await createDevice(data as unknown as Device);
-            if (success) {
-              addNotification('L\'appareil a bien été ajouté', 'info');
+            if (await createDevice(data as unknown as Device)) {
+              return 'L\'appareil a été ajouté';
             }
-            return success;
           },
         }"
       />

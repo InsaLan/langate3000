@@ -3,11 +3,8 @@ import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
 import { useDeviceStore } from '@/stores/devices.store';
-import { useNotificationStore } from '@/stores/notification.stores';
 
 const { deleteDevice, editDevice } = useDeviceStore();
-
-const { addNotification } = useNotificationStore();
 
 const queryParams = window.location.search;
 
@@ -72,11 +69,13 @@ const queryParams = window.location.search;
               ],
             },
             function: async (device, fields) => {
-              return await deleteDevice((device as unknown as Device).id);
+              if (await deleteDevice((device as unknown as Device).id)) {
+                return 'L\'appareil a été supprimé';
+              }
             },
           },
           {
-            hint: 'Modifier la mark',
+            hint: 'Modifier l\'appareil',
             icon: 'pencil',
             key: 'update',
             modal: {
@@ -95,11 +94,9 @@ const queryParams = window.location.search;
               ],
             },
             function: async (device, fields) => {
-              const success = await editDevice((device as unknown as Device).id, fields as unknown as Device)
-              if (success) {
-                addNotification('L\'appareil a bien été modifiée', 'info');
+              if (await editDevice((device as unknown as Device).id, fields as unknown as Device)) {
+                return 'L\'appareil a été modifié';
               }
-              return success;
             },
           },
         ]"

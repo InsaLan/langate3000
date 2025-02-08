@@ -5,7 +5,6 @@ import type { Device } from '@/models/device';
 import type { User } from '@/models/user';
 import { UserRole } from '@/models/user';
 import { useDeviceStore } from '@/stores/devices.store';
-import { useNotificationStore } from '@/stores/notification.stores';
 import { useUserStore } from '@/stores/user.store';
 
 const {
@@ -15,8 +14,6 @@ const {
 const {
   change_userdevice_marks,
 } = useDeviceStore();
-
-const { addNotification } = useNotificationStore();
 
 </script>
 
@@ -69,7 +66,7 @@ const { addNotification } = useNotificationStore();
         ]"
         :create="{
           modal: {
-            title: 'Ajouter un utilisateur',
+            title: 'Ajouter un⋅e utilisateur⋅rice',
             fields: [
               {
                 name: 'Pseudo',
@@ -85,7 +82,7 @@ const { addNotification } = useNotificationStore();
                 choices: [
                   {
                     key: UserRole.Player,
-                    value: 'Joueur',
+                    value: 'Joueur·euse',
                   },
                   {
                     key: UserRole.Manager,
@@ -127,18 +124,20 @@ const { addNotification } = useNotificationStore();
             ],
           },
           function: async (data) => {
-            return await create_user(data as unknown as User);
+            if (await create_user(data as unknown as User)) {
+              return 'L\'utilisateur⋅rice a été créé⋅e';
+            }
           },
         }"
         :pagination="true"
         :search="true"
         :actions="[
           {
-            hint: 'Modifier l\'utilisateur',
+            hint: 'Modifier l\'utilisateur⋅rice',
             icon: 'pencil',
             key: 'update',
             modal: {
-              title: 'Modifier l\'utilisateur',
+              title: 'Modifier l\'utilisateur⋅rice',
               fields: [
                 {
                   name: 'Pseudo',
@@ -157,7 +156,7 @@ const { addNotification } = useNotificationStore();
                   choices: [
                     {
                       key: UserRole.Player,
-                      value: 'Joueur',
+                      value: 'Joueur·euse',
                     },
                     {
                       key: UserRole.Manager,
@@ -190,7 +189,9 @@ const { addNotification } = useNotificationStore();
               ],
             },
             function: async (device, fields) => {
-              return await edit_user((device as unknown as User).id, fields as unknown as User);
+              if (await edit_user((device as unknown as User).id, fields as unknown as User)) {
+                return 'L\'utilisateur⋅rice a été modifié⋅e';
+              }
             },
           },
           {
@@ -209,7 +210,7 @@ const { addNotification } = useNotificationStore();
             },
             function: async (device, fields) => {
               if (await reset_password((device as unknown as User).id, fields.password)) {
-                return 'Le mot de passe a bien été changé';
+                return 'Le mot de passe a été changé';
               }
             },
           },
@@ -232,27 +233,28 @@ const { addNotification } = useNotificationStore();
             },
             function: async (user, fields) => {
               if (await change_userdevice_marks(fields)) {
-                addNotification('Les marks ont bien été modifiés', 'info');
+                return 'Les marks ont été modifiées';
               }
             },
           },
           {
-            hint: 'Supprimer l\'utilisateur',
+            hint: 'Supprimer l\'utilisateur⋅rice',
             icon: 'trash-can',
             key: 'delete',
             modal: {
-              title: 'Supprimer l\'utilisateur',
+              title: 'Supprimer l\'utilisateur⋅rice',
               fields: [
                 {
-                  name: 'Voulez-vous vraiment supprimer cet utilisateur ?',
+                  name: 'Voulez-vous vraiment supprimer cet⋅te utilisateur⋅rice ?',
                   key: 'confirm',
                   type: 'hidden',
                 },
               ],
             },
             function: async (device, fields) => {
-              await delete_user((device as unknown as User).id);
-              return 'l\'utilisateur a été supprimé';
+              if (await delete_user((device as unknown as User).id)) {
+                return 'L\'utilisateur⋅rice a été supprimé⋅e';
+              }
             },
           },
         ]"

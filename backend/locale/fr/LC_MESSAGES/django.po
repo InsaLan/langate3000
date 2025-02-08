@@ -1,0 +1,275 @@
+# French translation of The langate 3000.
+# Copyright (C) 2025 Insalan
+# This file is distributed under the same license as the The langate 3000 package.
+# Insalan <contact@insalan.fr>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-08 18:59+0100\n"
+"PO-Revision-Date: 2024-05-04 20:25+0200\n"
+"Last-Translator: Insalan <contact@insalan.fr>\n"
+"Language-Team: Insalan <ccontact@insalan.fr>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: langate/network/apps.py:21
+#, fuzzy
+#| msgid "User module"
+msgid "Network module"
+msgstr "Module réseau"
+
+#: langate/network/apps.py:49
+msgid "[PortalConfig] Adding previously connected devices to the ipset"
+msgstr "[PortalConfig] Ajout des appareil connectés précédemment à netcontrol."
+
+#: langate/network/apps.py:66
+msgid "[PortalConfig] Add default whitelist devices to the ipset"
+msgstr "[PortalConfig] Ajout des appareils whitelisté par défaut à netcontrol."
+
+#: langate/network/models.py:25
+msgid "Invalid MAC address"
+msgstr "Adresse MAC invalide"
+
+#: langate/network/models.py:73 langate/network/models.py:138
+msgid "Could not connect user."
+msgstr "Impossible de connecter l'utilisateur⋅rice."
+
+#: langate/network/models.py:85 langate/network/models.py:101
+#: langate/network/models.py:150
+msgid "Could not disconnect user."
+msgstr "Impossible de déconnecter l'utilisateur⋅rice"
+
+#: langate/network/models.py:88 langate/network/models.py:153
+msgid "There was an error creating the device. Please try again."
+msgstr "Une erreur a eu lieu lors de la création de l'appareil. Veuillez réessayer."
+
+#: langate/network/models.py:120
+msgid "Could not get MAC address."
+msgstr "Impossible d'obtenir l'adresse MAC."
+
+#: langate/network/models.py:181
+msgid "Could not connect user"
+msgstr "Impossible de connecter l'utilisateur⋅rice"
+
+#: langate/network/models.py:186 langate/network/views.py:315
+#, fuzzy
+#| msgid "Invalid data format"
+msgid "Invalid mark"
+msgstr "Mark invalide"
+
+#: langate/network/models.py:192
+msgid "Could not set mark"
+msgstr "Impossible de définir la mark"
+
+#: langate/network/models.py:198
+msgid "The data provided is invalid"
+msgstr "Les données fournies sont invalides"
+
+#: langate/network/serializers.py:89 langate/user/views.py:509
+#: langate/user/views.py:524
+msgid "User not found"
+msgstr "Utilisateur⋅rice introuvable"
+
+#: langate/network/serializers.py:91 langate/network/serializers.py:104
+#: langate/network/serializers.py:106
+msgid "You must provide UserId and IP or MAC and Name"
+msgstr "Vous devez fournir UserId et IP ou MAC et Nom"
+
+#: langate/network/serializers.py:100 langate/network/serializers.py:117
+msgid "An error occurred while creating the device"
+msgstr "Une erreur a eu lieu lors de la création de l'appareil"
+
+#: langate/network/views.py:207 langate/network/views.py:224
+#: langate/network/views.py:249 langate/network/views.py:431
+#: langate/network/views.py:448 langate/network/views.py:455
+#: langate/network/views.py:479
+msgid "Device not found"
+msgstr "Appareil introuvable"
+
+#: langate/network/views.py:312
+msgid "No data provided"
+msgstr "Aucune donnée fournie"
+
+#: langate/network/views.py:358 langate/network/views.py:384
+#, fuzzy
+#| msgid "Invalid data format"
+msgid "Invalid origin mark"
+msgstr "Mark d'origine invalide"
+
+#: langate/network/views.py:361
+#, fuzzy
+#| msgid "Invalid data format"
+msgid "Invalid destination mark"
+msgstr "Mark de destination invalide"
+
+#: langate/network/views.py:387
+msgid "No mark to spread to"
+msgstr "Aucune mark vers laquelle dispatcher"
+
+#: langate/network/views.py:413
+#, fuzzy
+#| msgid "Invalid data format"
+msgid "Invalid game"
+msgstr "Jeu invalide"
+
+#: langate/network/views.py:430 langate/network/views.py:443
+msgid "You are not allowed to delete this device"
+msgstr "Vous n'êtes pas autorisé⋅e à supprimer cet appareil"
+
+#: langate/network/views.py:453
+msgid "Bad request"
+msgstr "Mauvaise requête"
+
+#: langate/network/views.py:454 langate/network/views.py:467
+msgid "You are not allowed to edit this device"
+msgstr "Vous n'êtes pas autorisé⋅e à modifier cet appareil"
+
+#: langate/settings.py:183
+msgid "English"
+msgstr "Anglais"
+
+#: langate/settings.py:184
+msgid "French"
+msgstr "Français"
+
+#: langate/user/apps.py:13
+msgid "User module"
+msgstr "Gestionnaire d'utilisateur⋅rices"
+
+#: langate/user/models.py:28
+msgid "A username is required"
+msgstr "Un nom d'utilisateur⋅rice est requis"
+
+#: langate/user/models.py:30
+msgid "A password is required"
+msgstr "Un mot de passe est requis"
+
+#: langate/user/models.py:45
+msgid "Superusers must have a password."
+msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe."
+
+#: langate/user/models.py:58
+msgid "Player"
+msgstr "Joueur·euse"
+
+#: langate/user/models.py:59
+msgid "Manager"
+msgstr "Manager"
+
+#: langate/user/models.py:60
+msgid "Guest"
+msgstr "Invité"
+
+#: langate/user/models.py:61
+msgid "Staff"
+msgstr "Staff"
+
+#: langate/user/models.py:62
+msgid "Admin"
+msgstr "Admin"
+
+#: langate/user/models.py:101
+msgid "User"
+msgstr "Utilisateur⋅rice"
+
+#: langate/user/models.py:102
+msgid "Users"
+msgstr "Utilisateur⋅rices"
+
+#: langate/user/serializers.py:39
+#, fuzzy
+#| msgid "A username is required"
+msgid "Username is required"
+msgstr "Un nom d'utilisateur⋅rice est requis"
+
+#: langate/user/serializers.py:41
+#, fuzzy
+#| msgid "A password is required"
+msgid "Password is required"
+msgstr "Un mot de passe est requis"
+
+#: langate/user/serializers.py:66
+msgid "User account is disabled"
+msgstr "Le compte utilisateur⋅rice est désactivé"
+
+#: langate/user/tests.py:103 langate/user/views.py:219
+#: langate/user/views.py:236
+msgid "Bad Username or password"
+msgstr "Nom d'utilisateur⋅rice ou mot de passe incorrect"
+
+#: langate/user/tests.py:401 langate/user/tests.py:413
+#, fuzzy
+#| msgid "A password is required"
+msgid "This field is required."
+msgstr "Ce champ est requis."
+
+#: langate/user/tests.py:447 langate/user/tests.py:532
+msgid "\"badrole\" is not a valid choice."
+msgstr "\"badrole\" n'est pas un choix valide."
+
+#: langate/user/tests.py:522
+msgid "This field may not be blank."
+msgstr "Ce champ est requis."
+
+#: langate/user/tests.py:542 langate/user/views.py:80
+#, fuzzy
+#| msgid "Passwords do not match"
+msgid "Password cannot be changed"
+msgstr "Le mot de passe ne peut pas être changé"
+
+#: langate/user/views.py:47
+msgid "CSRF cookie set"
+msgstr "Cookie CSRF défini"
+
+#: langate/user/views.py:112 langate/user/views.py:256
+msgid "Could not get MAC address"
+msgstr "Impossible de récupérer l'adresse MAC"
+
+#: langate/user/views.py:182
+msgid "Username"
+msgstr "Nom d'utilisateur⋅rice"
+
+#: langate/user/views.py:186
+msgid "Password"
+msgstr "Mot de passe"
+
+#: langate/user/views.py:196
+msgid "User logged in"
+msgstr "Utilisateur⋅rice connecté⋅e"
+
+#: langate/user/views.py:207 langate/user/views.py:311
+#: langate/user/views.py:434 langate/user/views.py:497
+#: langate/user/views.py:532
+msgid "Invalid data format"
+msgstr "Format de données invalide"
+
+#: langate/user/views.py:386
+msgid "Filter the users"
+msgstr "Filtrer les utilisateur⋅rices"
+
+#: langate/user/views.py:392
+msgid "Order the users"
+msgstr "Ordonner les utilisateur⋅rices"
+
+#: langate/user/views.py:423
+#, fuzzy
+#| msgid "Username"
+msgid "User created"
+msgstr "Utilisateur⋅rice créé⋅e"
+
+#: langate/user/views.py:476
+#, fuzzy
+#| msgid "Password"
+msgid "New password"
+msgstr "Nouveau mot de passe"
+
+#: langate/user/views.py:486
+#, fuzzy
+#| msgid "Password"
+msgid "Password changed"
+msgstr "Mot de passe changé"

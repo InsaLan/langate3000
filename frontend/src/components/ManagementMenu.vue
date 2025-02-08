@@ -14,7 +14,7 @@ const props = defineProps<Props>();
       class="rounded-lg p-2 text-blue-500"
       :class="{ 'bg-gray-600 text-white': props.type === 'users' }"
     >
-      Utilisateurs
+      Utilisateur⋅rices
     </router-link>
     <router-link
       to="/management/marks"

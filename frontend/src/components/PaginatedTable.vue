@@ -344,16 +344,7 @@ const openFormModal = (
       const confirm = await action.function(object, data);
       // if the function returns a string, open a confirmation modal
       if (typeof confirm === 'string') {
-        confirm_modal.title = 'Confirmation';
-        confirm_modal.fields = [
-          {
-            name: confirm,
-            key: 'confirmation',
-            value: '',
-            type: 'hidden',
-          },
-        ];
-        confirm_modal.open = true;
+        addNotification(confirm, 'info');
       }
       // if the function returns a boolean, fetch the data
       if (confirm !== false) {
@@ -408,27 +399,28 @@ const openFormModalCreate = (
         data[field.key] = field.value;
       }
     });
-    let confirm = await create.function(data);
+    const confirm = await create.function(data);
     // if the function returns a string, open a confirmation modal
     if (typeof confirm === 'string') {
-      confirm_modal.title = 'Confirmation';
-      confirm_modal.fields = [
-        {
-          name: confirm,
-          key: 'confirmation',
-          value: '',
-          type: 'hidden',
-        },
-      ];
-      confirm_modal.function = async () => {
-        confirm = await create.function(data);
-        if (confirm !== false) {
-          await fetchData(-1);
-          modal.open = false;
-        }
-        confirm_modal.open = false;
-      };
-      confirm_modal.open = true;
+      // confirm_modal.title = 'Confirmation';
+      // confirm_modal.fields = [
+      //   {
+      //     name: confirm,
+      //     key: 'confirmation',
+      //     value: '',
+      //     type: 'hidden',
+      //   },
+      // ];
+      // confirm_modal.function = async () => {
+      //   confirm = await create.function(data);
+      //   if (confirm !== false) {
+      //     await fetchData(-1);
+      //     modal.open = false;
+      //   }
+      //   confirm_modal.open = false;
+      // };
+      // confirm_modal.open = true;
+      addNotification(confirm, 'info');
     }
     // if the function returns a boolean, fetch the data
     if (confirm !== false) {

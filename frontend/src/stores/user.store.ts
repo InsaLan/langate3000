@@ -131,6 +131,11 @@ export const useUserStore = defineStore('user', () => {
         },
         withCredentials: true,
       });
+      if (id === user.value.id) {
+        isConnected.value = false;
+        await router.push('/login');
+        user.value = {} as User;
+      }
       return true;
     } catch (err) {
       addNotification(
