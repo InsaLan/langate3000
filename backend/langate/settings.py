@@ -173,17 +173,17 @@ AUTH_USER_MODEL = "user.User"
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 TIME_ZONE = "Europe/Paris"
-
-LANGUAGE_CODE = 'en'
-LOCALE_PATH='locale'
-USE_I18N = True
 USE_TZ = True
+
+USE_I18N = True
+LANGUAGE_CODE = 'en'
 
 LANGUAGES = [
     ("en", _("English")),
     ("fr", _("French")),
 ]
 
+LOCALE_PATH='locale'
 LOCALE_PATHS = [path.join(BASE_DIR, 'locale')]
 
 # Static files (CSS, JavaScript, Images)

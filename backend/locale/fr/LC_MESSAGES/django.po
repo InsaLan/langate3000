@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-10 15:47+0100\n"
+"POT-Creation-Date: 2025-02-10 16:27+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -211,17 +211,20 @@ msgid "Bad username or password"
 msgstr "Nom d'utilisateur⋅rice ou mot de passe incorrect"
 
 #: langate/user/tests.py:401 langate/user/tests.py:413
-#: langate/user/tests.py:522
 #, fuzzy
 #| msgid "A password is required"
-msgid "This field is required"
-msgstr "Ce champ est requis"
+msgid "This field is required."
+msgstr "Ce champ est requis."
 
 #: langate/user/tests.py:447 langate/user/tests.py:532
 #, fuzzy
 #| msgid "\"badrole\" is not a valid choice."
-msgid "\"badrole\" is not a valid choice"
-msgstr "\"badrole\" n'est pas un choix valide"
+msgid "\"badrole\" is not a valid choice."
+msgstr "\"badrole\" n'est pas un choix valide."
+
+#: langate/user/tests.py:522
+msgid "This field may not be blank."
+msgstr "Ce champ est requis."
 
 #: langate/user/tests.py:542 langate/user/views.py:80
 #, fuzzy

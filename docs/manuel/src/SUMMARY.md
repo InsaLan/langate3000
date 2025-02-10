@@ -9,6 +9,7 @@
 
 - [Backend](01-backend/README.md)
   - [Classe netcontrol](01-backend/netcontrol.md)
+  - [Traductions](01-backend/traductions.md)
   - [URLs](01-backend/urls.md)
   - [Modèles](01-backend/modeles.md)
   - [Vues](01-backend/vues.md)
