@@ -88,7 +88,7 @@ class FullDeviceSerializer(serializers.Serializer):
             except User.DoesNotExist as e:
                 raise serializers.ValidationError(_("User not found")) from e
             if not 'ip' in validated_data:
-                raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
+                raise serializers.ValidationError(_("IP not provided"))
 
             try:
                 return DeviceManager.create_user_device(user, **validated_data)
@@ -101,9 +101,9 @@ class FullDeviceSerializer(serializers.Serializer):
 
         # Otherwise, create a Device object
         if not 'mac' in validated_data:
-            raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
+            raise serializers.ValidationError(_("MAC adress not provided"))
         if not 'name' in validated_data:
-            raise serializers.ValidationError(_("You must provide UserId and IP or MAC and Name"))
+            raise serializers.ValidationError(_("Name not provided"))
         # A device object created from here has to be whitelisted
         validated_data['whitelisted'] = True
 

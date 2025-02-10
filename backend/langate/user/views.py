@@ -216,7 +216,7 @@ class UserLogin(APIView):
                         type=openapi.TYPE_ARRAY,
                         items=openapi.Schema(
                             type=openapi.TYPE_STRING,
-                            description=_("Bad Username or password")
+                            description=_("Bad username or password")
                         )
                     )
                 }
@@ -233,7 +233,7 @@ class UserLogin(APIView):
             user = serializer.check_validity(data)
             if user is None:
                 return Response(
-                    {"error": [_("Bad Username or password")]},
+                    {"error": [_("Bad username or password")]},
                     status=status.HTTP_404_NOT_FOUND,
                 )
             login(request, user)

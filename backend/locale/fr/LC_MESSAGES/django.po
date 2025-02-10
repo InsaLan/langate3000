@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-08 18:59+0100\n"
+"POT-Creation-Date: 2025-02-10 15:47+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -24,37 +24,42 @@ msgid "Network module"
 msgstr "Module réseau"
 
 #: langate/network/apps.py:49
-msgid "[PortalConfig] Adding previously connected devices to the ipset"
-msgstr "[PortalConfig] Ajout des appareil connectés précédemment à netcontrol."
+#, fuzzy
+#| msgid "[PortalConfig] Adding previously connected devices to the ipset"
+msgid "[PortalConfig] Adding previously connected devices to netcontrol"
+msgstr "[PortalConfig] Ajout des appareil connectés précédemment à netcontrol"
 
 #: langate/network/apps.py:66
-msgid "[PortalConfig] Add default whitelist devices to the ipset"
-msgstr "[PortalConfig] Ajout des appareils whitelisté par défaut à netcontrol."
+#, fuzzy
+#| msgid "[PortalConfig] Add default whitelist devices to the ipset"
+msgid "[PortalConfig] Adding default whitelist devices to netcontrol"
+msgstr "[PortalConfig] Ajout des appareils whitelisté par défaut à netcontrol"
 
 #: langate/network/models.py:25
 msgid "Invalid MAC address"
 msgstr "Adresse MAC invalide"
 
 #: langate/network/models.py:73 langate/network/models.py:138
-msgid "Could not connect user."
-msgstr "Impossible de connecter l'utilisateur⋅rice."
-
-#: langate/network/models.py:85 langate/network/models.py:101
-#: langate/network/models.py:150
-msgid "Could not disconnect user."
-msgstr "Impossible de déconnecter l'utilisateur⋅rice"
-
-#: langate/network/models.py:88 langate/network/models.py:153
-msgid "There was an error creating the device. Please try again."
-msgstr "Une erreur a eu lieu lors de la création de l'appareil. Veuillez réessayer."
-
-#: langate/network/models.py:120
-msgid "Could not get MAC address."
-msgstr "Impossible d'obtenir l'adresse MAC."
-
 #: langate/network/models.py:181
 msgid "Could not connect user"
 msgstr "Impossible de connecter l'utilisateur⋅rice"
+
+#: langate/network/models.py:85 langate/network/models.py:101
+#: langate/network/models.py:150
+#, fuzzy
+#| msgid "Could not disconnect user."
+msgid "Could not disconnect user"
+msgstr "Impossible de déconnecter l'utilisateur⋅rice"
+
+#: langate/network/models.py:88 langate/network/models.py:153
+#: langate/network/serializers.py:100 langate/network/serializers.py:117
+msgid "An error occurred while creating the device"
+msgstr "Une erreur a eu lieu lors de la création de l'appareil"
+
+#: langate/network/models.py:120 langate/user/views.py:112
+#: langate/user/views.py:256
+msgid "Could not get MAC address"
+msgstr "Impossible de récupérer l'adresse MAC"
 
 #: langate/network/models.py:186 langate/network/views.py:315
 #, fuzzy
@@ -75,14 +80,23 @@ msgstr "Les données fournies sont invalides"
 msgid "User not found"
 msgstr "Utilisateur⋅rice introuvable"
 
-#: langate/network/serializers.py:91 langate/network/serializers.py:104
-#: langate/network/serializers.py:106
-msgid "You must provide UserId and IP or MAC and Name"
-msgstr "Vous devez fournir UserId et IP ou MAC et Nom"
+#: langate/network/serializers.py:91
+#, fuzzy
+#| msgid "No data provided"
+msgid "IP not provided"
+msgstr "Adresse IP non fournie"
 
-#: langate/network/serializers.py:100 langate/network/serializers.py:117
-msgid "An error occurred while creating the device"
-msgstr "Une erreur a eu lieu lors de la création de l'appareil"
+#: langate/network/serializers.py:104
+#, fuzzy
+#| msgid "No data provided"
+msgid "MAC adress not provided"
+msgstr "Adresse MAC non fournie"
+
+#: langate/network/serializers.py:106
+#, fuzzy
+#| msgid "No data provided"
+msgid "Name not provided"
+msgstr "Nom non fourni"
 
 #: langate/network/views.py:207 langate/network/views.py:224
 #: langate/network/views.py:249 langate/network/views.py:431
@@ -141,17 +155,19 @@ msgstr "Français"
 msgid "User module"
 msgstr "Gestionnaire d'utilisateur⋅rices"
 
-#: langate/user/models.py:28
+#: langate/user/models.py:28 langate/user/serializers.py:39
 msgid "A username is required"
 msgstr "Un nom d'utilisateur⋅rice est requis"
 
-#: langate/user/models.py:30
+#: langate/user/models.py:30 langate/user/serializers.py:41
 msgid "A password is required"
 msgstr "Un mot de passe est requis"
 
 #: langate/user/models.py:45
-msgid "Superusers must have a password."
-msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe."
+#, fuzzy
+#| msgid "Superusers must have a password."
+msgid "Superusers must have a password"
+msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe"
 
 #: langate/user/models.py:58
 msgid "Player"
@@ -181,40 +197,31 @@ msgstr "Utilisateur⋅rice"
 msgid "Users"
 msgstr "Utilisateur⋅rices"
 
-#: langate/user/serializers.py:39
-#, fuzzy
-#| msgid "A username is required"
-msgid "Username is required"
-msgstr "Un nom d'utilisateur⋅rice est requis"
-
-#: langate/user/serializers.py:41
-#, fuzzy
-#| msgid "A password is required"
-msgid "Password is required"
-msgstr "Un mot de passe est requis"
-
 #: langate/user/serializers.py:66
-msgid "User account is disabled"
+#, fuzzy
+#| msgid "User account is disabled"
+msgid "User account disabled"
 msgstr "Le compte utilisateur⋅rice est désactivé"
 
 #: langate/user/tests.py:103 langate/user/views.py:219
 #: langate/user/views.py:236
-msgid "Bad Username or password"
+#, fuzzy
+#| msgid "Bad Username or password"
+msgid "Bad username or password"
 msgstr "Nom d'utilisateur⋅rice ou mot de passe incorrect"
 
 #: langate/user/tests.py:401 langate/user/tests.py:413
+#: langate/user/tests.py:522
 #, fuzzy
 #| msgid "A password is required"
-msgid "This field is required."
-msgstr "Ce champ est requis."
+msgid "This field is required"
+msgstr "Ce champ est requis"
 
 #: langate/user/tests.py:447 langate/user/tests.py:532
-msgid "\"badrole\" is not a valid choice."
-msgstr "\"badrole\" n'est pas un choix valide."
-
-#: langate/user/tests.py:522
-msgid "This field may not be blank."
-msgstr "Ce champ est requis."
+#, fuzzy
+#| msgid "\"badrole\" is not a valid choice."
+msgid "\"badrole\" is not a valid choice"
+msgstr "\"badrole\" n'est pas un choix valide"
 
 #: langate/user/tests.py:542 langate/user/views.py:80
 #, fuzzy
@@ -225,10 +232,6 @@ msgstr "Le mot de passe ne peut pas être changé"
 #: langate/user/views.py:47
 msgid "CSRF cookie set"
 msgstr "Cookie CSRF défini"
-
-#: langate/user/views.py:112 langate/user/views.py:256
-msgid "Could not get MAC address"
-msgstr "Impossible de récupérer l'adresse MAC"
 
 #: langate/user/views.py:182
 msgid "Username"
