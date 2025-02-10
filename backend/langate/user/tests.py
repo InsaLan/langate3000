@@ -398,7 +398,7 @@ class UserAPITestCase(TestCase):
         )
 
         self.assertEqual(request.status_code, 400)
-        self.assertEqual(request.data["error"]["username"][0], _("This field is required"))
+        self.assertEqual(request.data["error"]["username"][0], _("This field is required."))
 
         # Missing password
         request = self.client.post(
@@ -410,7 +410,7 @@ class UserAPITestCase(TestCase):
         )
 
         self.assertEqual(request.status_code, 400)
-        self.assertEqual(request.data["error"]["password"][0], _("This field is required"))
+        self.assertEqual(request.data["error"]["password"][0], _("This field is required."))
 
         # Bad password
         request = self.client.post(
@@ -444,7 +444,7 @@ class UserAPITestCase(TestCase):
         )
 
         self.assertEqual(request.status_code, 400)
-        self.assertEqual(request.data["error"]["role"][0], _('"badrole" is not a valid choice'))
+        self.assertEqual(request.data["error"]["role"][0], _('"badrole" is not a valid choice.'))
 
     def test_patch_user(self):
         """
@@ -519,7 +519,7 @@ class UserAPITestCase(TestCase):
         )
 
         self.assertEqual(request.status_code, 400)
-        self.assertEqual(request.data["username"][0], _("This field is required"))
+        self.assertEqual(request.data["username"][0], _("This field may not be blank."))
 
         # Bad role
         request = self.client.patch(
@@ -529,7 +529,7 @@ class UserAPITestCase(TestCase):
         )
 
         self.assertEqual(request.status_code, 400)
-        self.assertEqual(request.data["role"][0], _('"badrole" is not a valid choice'))
+        self.assertEqual(request.data["role"][0], _('"badrole" is not a valid choice.'))
 
         # Password
         request = self.client.patch(
