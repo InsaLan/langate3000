@@ -42,7 +42,7 @@ class UserManager(BaseUserManager):
         Check that all required fields are present and create a superuser
         """
         if password is None:
-            raise TypeError(_("Superusers must have a password."))
+            raise TypeError(_("Superusers must have a password"))
         user = self.create_user(username, password, **extra_fields)
         user.role = Role.ADMIN
         user.is_active = True

@@ -23,11 +23,11 @@ class NetworkConfig(AppConfig):
 
     def ready(self):
         """
-            Reconnecting devices registered in the Device set but not in the Ipset
-            This is important when for example the Ipset is flushed, you want the users that are already
+            Reconnecting devices registered in the Device set but not in netcontrol
+            This is important when for example netcontrol is flushed, you want the users that are already
             registered on the gate to be automatically reconnected when the gate restarts.
             This is important to maintain the consistency between the device state from django's point of view
-            and the device state from the Ipset's point of view.
+            and the device state from netcontrol's point of view.
         """
         from langate.network.models import Device, UserDevice, DeviceManager
 
@@ -46,7 +46,7 @@ class NetworkConfig(AppConfig):
             ]
         ):
 
-            logger.info(_("[PortalConfig] Adding previously connected devices to the ipset"))
+            logger.info(_("[PortalConfig] Adding previously connected devices to netcontrol"))
 
             for dev in Device.objects.all():
                 userdevice = UserDevice.objects.filter(mac=dev.mac).first()
@@ -63,7 +63,7 @@ class NetworkConfig(AppConfig):
                 except requests.HTTPError as e:
                     logger.info("[PortalConfig] {e}")
 
-            logger.info(_("[PortalConfig] Add default whitelist devices to the ipset"))
+            logger.info(_("[PortalConfig] Adding default whitelist devices to netcontrol"))
             if os.path.exists("assets/misc/whitelist.txt"):
                 with open("assets/misc/whitelist.txt", "r") as f:
                     for line in f:

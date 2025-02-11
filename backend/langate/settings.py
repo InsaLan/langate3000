@@ -99,9 +99,9 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -173,17 +173,17 @@ AUTH_USER_MODEL = "user.User"
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 TIME_ZONE = "Europe/Paris"
-
-LANGUAGE_CODE = 'en'
-LOCALE_PATH='locale'
-USE_I18N = True
 USE_TZ = True
+
+USE_I18N = True
+LANGUAGE_CODE = 'en'
 
 LANGUAGES = [
     ("en", _("English")),
     ("fr", _("French")),
 ]
 
+LOCALE_PATH='locale'
 LOCALE_PATHS = [path.join(BASE_DIR, 'locale')]
 
 # Static files (CSS, JavaScript, Images)

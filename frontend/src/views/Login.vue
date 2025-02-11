@@ -36,12 +36,12 @@ const showPassword = ref(false);
         Bienvenue sur le réseau de l'InsaLan !
       </h1>
       <div>
-        Pour pouvoir accéder à internet et aux serveurs de jeu, il faut vous identifier avec votre compte insalan.fr
+        Pour pouvoir accéder à internet et aux serveurs de jeu, il faut vous identifier avec votre compte.
       </div>
     </div>
     <form class="flex w-full flex-col gap-3 md:w-1/3">
       <div class="flex flex-col gap-2">
-        <label for="username">Nom d'utilisateur</label>
+        <label for="username">Nom d'utilisateur⋅rice</label>
         <input id="username" v-model="login_form.username" type="text" name="username" required class="rounded-lg border border-black bg-theme-nav text-white"/>
       </div>
       <div class="flex flex-col gap-2">

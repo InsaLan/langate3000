@@ -70,7 +70,7 @@ class DeviceManager(models.Manager):
             logger.info("Connected device %s (the mac %s has been connected)", name, mac)
         except requests.HTTPError as e:
             raise ValidationError(
-              _("Could not connect user.")
+              _("Could not connect user")
             ) from e
 
         try:
@@ -82,10 +82,10 @@ class DeviceManager(models.Manager):
                 netcontrol.disconnect_user(mac)
             except requests.HTTPError as e:
                 raise ValidationError(
-                  _("Could not disconnect user.")
+                  _("Could not disconnect user")
                 ) from e
             raise ValidationError(
-              _("There was an error creating the device. Please try again.")
+              _("An error occurred while creating the device")
             ) from e
 
     @staticmethod
@@ -98,7 +98,7 @@ class DeviceManager(models.Manager):
             logger.info("Disconnected device %s from the internet.", mac)
         except requests.HTTPError as e:
             raise ValidationError(
-              _("Could not disconnect user.")
+              _("Could not disconnect user")
             ) from e
 
         device = Device.objects.get(mac=mac)
@@ -117,7 +117,7 @@ class DeviceManager(models.Manager):
             mac = netcontrol.get_mac(ip)
         except requests.HTTPError as e:
             raise ValidationError(
-              _("Could not get MAC address.")
+              _("Could not get MAC address")
             ) from e
 
         # Validate the MAC address
@@ -135,7 +135,7 @@ class DeviceManager(models.Manager):
             )
         except requests.HTTPError as e:
             raise ValidationError(
-              _("Could not connect user.")
+              _("Could not connect user")
             ) from e
 
         try:
@@ -147,10 +147,10 @@ class DeviceManager(models.Manager):
                 netcontrol.disconnect_user(mac)
             except requests.HTTPError as e:
                 raise ValidationError(
-                  _("Could not disconnect user.")
+                  _("Could not disconnect user")
                 ) from e
             raise ValidationError(
-              _("There was an error creating the device. Please try again.")
+              _("An error occurred while creating the device")
             ) from e
 
     @staticmethod

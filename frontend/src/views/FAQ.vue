@@ -3,14 +3,14 @@ import MarkdownIt from 'markdown-it';
 import { ref } from 'vue';
 
 const FAQ = {
-  'Compte insalan': [
+  Compte: [
     {
-      question: "J'ai perdu mon mot de passe.",
+      question: "J'ai perdu mon mot de passe",
       answer: 'Un membre du staff peut le réinitialiser pour vous.',
       visible: ref(false),
     },
     {
-      question: "Je n'arrive pas à me connecter.",
+      question: "Je n'arrive pas à me connecter",
       answer: 'Vérifiez vos identifiants, et n\'hésitez pas à demander de l\'aide à un membre du staff qui vous aidera.',
       visible: ref(false),
     },
@@ -18,12 +18,12 @@ const FAQ = {
   Réseau: [
     {
       question: 'Mon ordinateur ne se connecte pas au réseau ou indique que la connexion est limitée',
-      answer: '- Revérifiez que votre câble réseau est bien branché.\n- Vérifiez que le cable connectant votre switch au reste du réseau n\'a pas été débranché (il doit être sur le dernier port du switch).\n- Vérifiez que vous n\'utilisez pas de VPN.\n- Vérifiez que le pilote de votre carte réseau est bien installé.\n- Si votre problème n\'est pas résolu, n\'hésitez pas à contacter un membre du staff qui vous aidera.',
+      answer: '- Revérifiez que votre câble réseau est bien branché.\n- Vérifiez que le cable connectant votre switch au reste du réseau n\'a pas été débranché (il doit être sur le dernier port du switch).\n- Vérifiez que vous n\'utilisez pas de VPN.\n- Vérifiez que le pilote de votre carte réseau est bien installé.\n- Vérifiez que vous n\'avez pas configuré une adresse IP statique.\n- Si votre problème n\'est pas résolu, n\'hésitez pas à contacter un membre du staff qui vous aidera.',
       visible: ref(false),
     },
     {
-      question: 'J\'ai accès à certains sites/jeux mais pas à d\'autres.',
-      answer: 'Il s\'agit d\'un problème connu, pour certains services il est résolvable. Contactez un membre du staff.',
+      question: 'J\'ai accès à certains sites/jeux mais pas à d\'autres',
+      answer: 'Si vous pensez que vous devriez y avoir accès, vous pouvez contacter un membre du staff.',
       visible: ref(false),
     },
   ],

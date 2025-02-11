@@ -100,7 +100,7 @@ class UserEndToEndTestCase(TestCase):
             self.assertEqual(request.status_code, 404)
             self.assertEqual(
                 request.data["error"][0],
-                _("Bad Username or password"),
+                _("Bad username or password"),
             )
 
         send_valid_data(

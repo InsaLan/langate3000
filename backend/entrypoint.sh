@@ -8,6 +8,8 @@ echo "=== APPLYING MIGRATIONS ==="
 python manage.py migrate --run-syncdb
 echo "=== DEPLOYING STATIC FILES ==="
 python manage.py collectstatic --noinput
+echo "=== COMPILING TRANSLATIONS ==="
+python manage.py compilemessages --ignore "*/site-packages/*"
 echo "=== CREATING SUPERUSER ==="
 DJANGO_SUPERUSER_USERNAME=${SUPERUSER_USER} \
 DJANGO_SUPERUSER_PASSWORD=${SUPERUSER_PASS} \

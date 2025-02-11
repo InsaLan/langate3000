@@ -36,9 +36,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         Create a new user with the given data
         """
         if not "username" in validated_data:
-            raise serializers.ValidationError(_("Username is required"))
+            raise serializers.ValidationError(_("A username is required"))
         if not "password" in validated_data:
-            raise serializers.ValidationError(_("Password is required"))
+            raise serializers.ValidationError(_("A password is required"))
         validate_password(validated_data["password"])
         user = User.objects.create_user(**validated_data)
         return user
@@ -63,5 +63,5 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(username=data["username"], password=data["password"])
         if user is not None:
             if not user.is_active:
-                raise serializers.ValidationError(_("User account is disabled"))
+                raise serializers.ValidationError(_("User account disabled"))
         return user

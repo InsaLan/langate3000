@@ -36,7 +36,7 @@ const removeMark = (index: number) => {
 
 const submitData = async () => {
   if (await patch_marks(marksCopy.value)) {
-    addNotification('Les marks ont bien été modifiées', 'info');
+    addNotification('Les marks ont été modifiées', 'info');
 
     edit.value = false;
     await fetch_marks();
@@ -68,7 +68,7 @@ const openMoveModal = (selectedMark: number) => {
 
 const validateMove = async () => {
   if (await move_marks(currentMark.value, chosenMark.value)) {
-    addNotification('Les appareils ont bien été déplacés', 'info');
+    addNotification('Les appareils ont été déplacés', 'info');
     // close the modal
     showMoveModal.value = false;
 
@@ -87,7 +87,7 @@ const openSpreadModal = (selectedMark: number) => {
 
 const validateSpread = async () => {
   if (await spread_marks(currentMark.value)) {
-    addNotification('Les appareils ont bien été déplacés', 'info');
+    addNotification('Les appareils ont été déplacés', 'info');
     // close the modal
     showSpreadModal.value = false;
 
@@ -137,7 +137,7 @@ const submitGame = async () => {
     // close the modal
     game.value = false;
 
-    addNotification('La répartition par jeu a bien été modifiée', 'info');
+    addNotification('La répartition par jeu a été modifiée', 'info');
 
     // reload the game marks to update the number of devices
     await fetch_game_marks();
