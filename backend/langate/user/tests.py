@@ -124,12 +124,12 @@ class UserEndToEndTestCase(TestCase):
         user.save()
 
         def send_valid_data(data):
-            # Add HTTP_X_FORWARDED_FOR to simulate a request from a client
+            # Add HTTP_X_REAL_IP to simulate a request from a client
             request = self.client.post(
               "/user/login/",
               data,
               format="json",
-              HTTP_X_FORWARDED_FOR="127.0.0.1"
+              HTTP_X_REAL_IP="127.0.0.1"
             )
 
             self.assertEqual(request.status_code, 200)
@@ -175,7 +175,7 @@ class UserAPITestCase(TestCase):
         Test that the user can get his own information
         """
         self.client.force_authenticate(user=User.objects.get(username="randomplayer"))
-        request = self.client.get("/user/me/", HTTP_X_FORWARDED_FOR="127.0.0.1")
+        request = self.client.get("/user/me/", HTTP_X_REAL_IP="127.0.0.1")
 
         self.assertEqual(request.status_code, 200)
         self.assertEqual(request.data["username"], "randomplayer")
