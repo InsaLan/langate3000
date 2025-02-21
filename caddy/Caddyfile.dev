@@ -17,12 +17,14 @@
 }
 
 api.{$CADDY_HOST}:{$CADDY_PORT} {
-	@file_routes path /{$STATIC_ROUTE} /{$MEDIA_ROUTE}
-	file_server @file_routes {
-		root /srv/frontend
-	}
+    @file_routes path /{$STATIC_ROUTE} /{$MEDIA_ROUTE}
+    file_server @file_routes {
+        root /srv/frontend
+    }
 
-	reverse_proxy http://backend:8000
+    reverse_proxy http://backend:8000 {
+        header_up X-Real-IP {http.request.remote.host}
+    }
 
-	import server-log backend
+    import server-log backend
 }
