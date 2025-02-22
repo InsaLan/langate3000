@@ -7,3 +7,11 @@ class Variables:
     
     def ip_range(self) -> str:
         return self.data["ip_range"]
+    
+    def vlans(self) -> dict[int, str]:
+        vlans = {}
+        
+        for vlan in self.data["vlans"]:
+            vlans[vlan["id"]] = vlan["name"]
+        
+        return vlans

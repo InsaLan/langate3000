@@ -100,10 +100,13 @@ services:
     restart: unless-stopped
     environment:
       - MOCK_NETWORK=${MOCK_NETWORK}
+      - SNMP_COMMUNITY=${SNMP_COMMUNITY}
     cap_add:
       - NET_ADMIN
     volumes:
       - ${VARIABLES_PATH}:/variables.json
+      - /etc/hosts:/hosts
+      - /var/lib/misc/dnsmasq.leases:/dnsmasq.leases
     network_mode: "host"
 
 networks:
