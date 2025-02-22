@@ -5,14 +5,13 @@ import subprocess
 from .variables import Variables
 from fastapi import HTTPException
 
-variables = Variables()
-
 class Nft:
     """
     Class which interacts with the nftables backend
     """
-    def __init__(self, logger: logging.Logger) -> None:
+    def __init__(self, logger: logging.Logger, variables: Variables) -> None:
         self.logger = logger
+        self.variables = variables
         self.nft = nftables.Nftables()
         self.nft.set_json_output(True)
 

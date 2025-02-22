@@ -2,21 +2,28 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import os
 import logging
+from .variables import Variables
 from .nft import Nft, MockedNft
 from .arp import Arp, MockedArp
+from .snmp import Snmp
+from .devices import Devices
 
 mock = os.getenv("MOCK_NETWORK", "0") == "1"
+snmp_community = os.getenv("SNMP_COMMUNITY", "hotlinemontreal")
 
 logger = logging.getLogger('uvicorn.error')
 # for some reason, default loggers are not working with FastAPI
 
+variables = Variables()
 if mock:
     logger.warning("MOCK_NETWORK is set to 1, Nftables rules will not be applied.")
-    nft = MockedNft(logger)
+    nft = MockedNft(logger, variables)
     arp = MockedArp(logger)
 else:
-    nft = Nft(logger)
+    nft = Nft(logger, variables)
     arp = Arp(logger)
+snmp= Snmp(logger, snmp_community)
+devices = Devices(logger, snmp, arp)
 
 logger.info("Checking that nftables is working...")
 nft.check_nftables()
@@ -60,3 +67,7 @@ def get_mac(ip: str):
 @app.get("/get_ip")
 def get_ip(mac: str):
     return arp.get_ip(mac)
+
+@app.get("/get_device_info")
+def get_device_info(mac:str):
+    return devices.get_device_info(mac)
