@@ -65,6 +65,7 @@ const queryParams = window.location.search;
             key: 'delete',
             modal: {
               title: 'Supprimer l\'appareil',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Voulez-vous vraiment supprimer cet appareil ?',
@@ -85,6 +86,7 @@ const queryParams = window.location.search;
             key: 'update',
             modal: {
               title: 'Modifier l\'appareil',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Nom de l\'appareil',
@@ -95,6 +97,67 @@ const queryParams = window.location.search;
                   name: 'Mark',
                   key: 'mark',
                   type: 'number',
+                },
+              ],
+            },
+            function: async (device, fields) => {
+              if (await editDevice((device as unknown as Device).id, fields as unknown as Device)) {
+                return 'L\'appareil a été modifié';
+              }
+            },
+          },
+          {
+            hint: 'Afficher les détails',
+            icon: 'info',
+            key: 'details',
+            modal: {
+              title: 'Détails de l\'appareil',
+              buttons: 'None',
+              fields: [
+                {
+                  name: 'Nom de l\'appareil',
+                  key: 'name',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Nom d\'hôte',
+                  key: 'hostname',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Mark',
+                  key: 'mark',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Accès aux sites bloqués',
+                  key: 'bypass',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Adresse MAC',
+                  key: 'mac',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Adresse IP',
+                  key: 'ip',
+                  type: 'readonly',
+                },
+                {
+                  name: 'VLAN',
+                  key: 'vlan',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Nom du switch',
+                  key: 'switch_name',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Adresse IP du switch',
+                  key: 'switch_ip',
+                  type: 'readonly',
                 },
               ],
             },

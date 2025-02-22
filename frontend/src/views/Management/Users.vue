@@ -72,6 +72,7 @@ const {
         :create="{
           modal: {
             title: 'Ajouter un⋅e utilisateur⋅rice',
+            buttons: 'ValiderAnnuler',
             fields: [
               {
                 name: 'Pseudo',
@@ -149,6 +150,7 @@ const {
             key: 'update',
             modal: {
               title: 'Modifier l\'utilisateur⋅rice',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Pseudo',
@@ -217,6 +219,7 @@ const {
             key: 'reset',
             modal: {
               title: 'Changer le mot de passe',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Nouveau mot de passe',
@@ -237,6 +240,7 @@ const {
             key: 'devices',
             modal: {
               title: 'Modifier les marks',
+              buttons: 'ValiderAnnuler',
               fields: (devices: unknown) => {
                 return (devices as Device[]).map((device: any) => ({
                   name: `Mark de ${device.name} (${device.ip})`,
@@ -260,6 +264,7 @@ const {
             key: 'delete',
             modal: {
               title: 'Supprimer l\'utilisateur⋅rice',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Voulez-vous vraiment supprimer cet⋅te utilisateur⋅rice ?',

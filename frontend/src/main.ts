@@ -5,7 +5,7 @@ import {
   faBolt, faChevronDown, faChevronUp,
   faCircle, faCircleCheck, faCirclePlus, faClock,
   faCrown, faDownload, faEye, faEyeSlash,
-  faFile, faHammer, faKey, faLocationDot,
+  faFile, faHammer, faInfo, faKey, faLocationDot,
   faMagnifyingGlass, faPencil, faPlus,
   faRedo,
   faSort, faSortDown, faSortUp, faSpinner,
@@ -54,6 +54,7 @@ library.add(
   faLocationDot,
   faArrowsAlt,
   faPlus,
+  faInfo,
 );
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;

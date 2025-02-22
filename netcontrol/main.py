@@ -6,7 +6,7 @@ from .variables import Variables
 from .nft import Nft, MockedNft
 from .arp import Arp, MockedArp
 from .snmp import Snmp
-from .devices import Devices
+from .devices import Devices, MockedDevices
 
 mock = os.getenv("MOCK_NETWORK", "0") == "1"
 snmp_community = os.getenv("SNMP_COMMUNITY", "hotlinemontreal")
@@ -15,15 +15,16 @@ logger = logging.getLogger('uvicorn.error')
 # for some reason, default loggers are not working with FastAPI
 
 variables = Variables()
+snmp= Snmp(logger, snmp_community)
 if mock:
     logger.warning("MOCK_NETWORK is set to 1, Nftables rules will not be applied.")
-    nft = MockedNft(logger, variables)
+    nft = MockedNft(logger)
     arp = MockedArp(logger)
+    devices = MockedDevices(logger)
 else:
     nft = Nft(logger, variables)
     arp = Arp(logger)
-snmp= Snmp(logger, snmp_community)
-devices = Devices(logger, snmp, arp)
+    devices = Devices(logger, variables, snmp, arp)
 
 logger.info("Checking that nftables is working...")
 nft.check_nftables()
