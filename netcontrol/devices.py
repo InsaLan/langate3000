@@ -25,6 +25,7 @@ class Devices:
 			hostname = "not_found"
 		
 		ip = self.arp.get_ip(mac)
+		vlan = self.get_vlan(ip)
 		
 		switches = self.get_all_switches()
 		try:
@@ -33,11 +34,12 @@ class Devices:
 			switch_ip = "not_found"
 			switches["not_found"] = "not_found"
 		
-		device_info = {
+		self.logger.info(f"Fetched information for device {mac} (ip: {ip})")
+		
+		return {
 			"hostname": hostname,
-			"ip": ip,
-			"mac": mac,
-			"vlan": self.get_vlan(ip)[0],
+			"vlan_number": vlan[0],
+			"vlan_name": vlan[1],
 			"switch_name": switches[switch_ip],
 			"switch_ip": switch_ip
 		}
@@ -76,6 +78,7 @@ class Devices:
 			if parts[1] == mac:
 				return parts[3]
 		
+		self.logger.error(f"Could not find device {mac} in dnsmasq.leases")
 		raise HTTPException(status_code=404, detail="Device not found")
 	
 	def get_vlan(self, ip: str) -> tuple[int, str]:
@@ -97,4 +100,19 @@ class Devices:
 		except:
 			vlan = 0
 		
-		return (vlan, self.variables.vlans[vlan])
+		return (vlan, self.variables.vlans()[vlan])
+
+class MockedDevices(Devices):
+	def __init__(self, logger):
+		self.logger = logger
+	
+	def get_device_info(self, mac):
+		self.logger.info(f"Fetched information for device {mac} (ip: 127.0.0.1)")
+		
+		return {
+			"hostname": "computer",
+			"vlan_number": 1,
+			"vlan_name": "v001-management",
+			"switch_name": "Hydrogen-1",
+			"switch_ip": "172.16.1.101"
+		}

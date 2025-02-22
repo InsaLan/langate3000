@@ -29,6 +29,7 @@ export interface Props {
     );
     modal: {
       title: string;
+      buttons: 'OK' | 'ValiderAnnuler' | 'None';
       fields: {
         name: string;
         key: string;
@@ -52,6 +53,7 @@ export interface Props {
     icon: string;
     modal?: {
       title: string;
+      buttons: 'OK' | 'ValiderAnnuler' | 'None';
       fields: {
         name: string;
         key: string;
@@ -262,6 +264,7 @@ onMounted(async () => {
 const modal = reactive({
   open: false,
   title: '',
+  buttons: '' as 'OK' | 'ValiderAnnuler' | 'None',
   fields: [] as {
     name: string;
     key: string;
@@ -294,6 +297,7 @@ const openFormModal = (
     icon: string;
     modal?: {
       title: string;
+      buttons: 'OK' | 'ValiderAnnuler' | 'None';
       fields: {
         name: string;
         key: string;
@@ -354,6 +358,7 @@ const openFormModal = (
       }
     };
     modal.title = action.modal.title;
+    modal.buttons = action.modal.buttons;
     modal.open = true;
   } else {
     (
@@ -368,6 +373,7 @@ const openFormModalCreate = (
   create: {
     modal: {
       title: string;
+      buttons: 'OK' | 'ValiderAnnuler' | 'None';
       fields: {
         name: string;
         key: string;
@@ -412,6 +418,7 @@ const openFormModalCreate = (
     }
   };
   modal.title = create.modal.title;
+  modal.buttons = create.modal.buttons;
   modal.open = true;
 };
 
@@ -422,6 +429,7 @@ const openFormModalCreateMultiple = (
   create: {
     modal: {
       title: string;
+      buttons: 'OK' | 'ValiderAnnuler' | 'None';
       fields: {
         name: string;
         key: string;
@@ -500,6 +508,7 @@ const openFormModalCreateMultiple = (
     modal.open = false;
   };
   modal.title = create.modal.title;
+  modal.buttons = create.modal.buttons;
   modal.open = true;
 };
 
@@ -813,6 +822,7 @@ const openFormModalCreateMultiple = (
     </div>
   </div>
   <FormModal
+    :buttons="modal.buttons"
     :open="modal.open"
     :title="modal.title"
     :fields="modal.fields"
@@ -820,7 +830,7 @@ const openFormModalCreateMultiple = (
     @update:open="modal.open = $event"
   />
   <FormModal
-    :confirm="true"
+    :buttons="'OK'"
     :open="confirm_modal.open"
     :title="confirm_modal.title"
     :fields="confirm_modal.fields"

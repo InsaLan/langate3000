@@ -81,6 +81,7 @@ const { addNotification } = useNotificationStore();
             key: 'update',
             modal: {
               title: 'Modifier l\'appareil',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Nom',
@@ -105,6 +106,7 @@ const { addNotification } = useNotificationStore();
             key: 'delete',
             modal: {
               title: 'Supprimer l\'appareil',
+              buttons: 'ValiderAnnuler',
               fields: [
                 {
                   name: 'Voulez-vous vraiment supprimer cet appareil ?',

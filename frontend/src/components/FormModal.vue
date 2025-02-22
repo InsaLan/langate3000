@@ -7,7 +7,7 @@ const { create_temp_password } = useUserStore();
 export interface Props {
   open: boolean;
   title: string;
-  confirm?: boolean;
+  buttons: 'OK' | 'ValiderAnnuler' | 'None';
   fields: {
     name: string;
     key: string;
@@ -86,6 +86,11 @@ const showPassword = ref<{ [key: string]: boolean }>({});
               class="ml-auto rounded-md border border-black bg-theme-nav p-2 text-white"
             />
           </div>
+          <div v-else-if="field.type === 'readonly'">
+            <pre v-if="typeof field.value === 'boolean' && field.value === false" class="whitespace-pre-wrap">✘ Non</pre>
+            <pre v-else-if="typeof field.value === 'boolean' && field.value === true" class="whitespace-pre-wrap">✔ Oui</pre>
+            <pre v-else class="whitespace-pre-wrap">{{ field.value }}</pre>
+          </div>
           <!-- If type is password, don't autocomplete with saved password -->
           <div
             v-else
@@ -130,7 +135,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
         </div>
       </div>
       <div
-        v-if="!props.confirm"
+        v-if="props.buttons === 'ValiderAnnuler'"
         class="flex justify-end"
       >
         <button
@@ -148,7 +153,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
         </button>
       </div>
       <div
-        v-else
+        v-else-if="props.buttons === 'OK'"
         class="flex justify-end"
       >
         <button
