@@ -3,7 +3,7 @@ import logging
 
 import prometheus_client as prometheus
 
-GET_REQUESTS = ["get_mac", "get_ip", '']
+GET_REQUESTS = ["get_mac", "get_ip", '', "get_device_info"]
 POST_REQUESTS = ["connect_user"]
 DELETE_REQUESTS = ["disconnect_user"]
 PUT_REQUESTS = ["set_mark"]
@@ -61,6 +61,13 @@ class Netcontrol:
         """
         self.logger.info(f"Getting IP address of {mac}...")
         return self.request("get_ip", {"mac": mac})["ip"]
+    
+    def get_device_info(self, mac: str):
+        """
+        Get information about the device with the given MAC address.
+        """
+        self.logger.info(f"Getting info about {mac}...")
+        return self.request("get_device_info", {"mac": mac})
 
     def connect_user(self, mac: str, mark: int, bypass: bool, name: str) -> None:
         """

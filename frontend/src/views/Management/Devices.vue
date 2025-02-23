@@ -113,6 +113,7 @@ const queryParams = window.location.search;
             modal: {
               title: 'Détails de l\'appareil',
               buttons: 'None',
+              additionalUrl: '/network/devices/$(id)/info',
               fields: [
                 {
                   name: 'Nom de l\'appareil',
@@ -122,16 +123,6 @@ const queryParams = window.location.search;
                 {
                   name: 'Nom d\'hôte',
                   key: 'hostname',
-                  type: 'readonly',
-                },
-                {
-                  name: 'Mark',
-                  key: 'mark',
-                  type: 'readonly',
-                },
-                {
-                  name: 'Accès aux sites bloqués',
-                  key: 'bypass',
                   type: 'readonly',
                 },
                 {
@@ -146,7 +137,17 @@ const queryParams = window.location.search;
                 },
                 {
                   name: 'VLAN',
-                  key: 'vlan',
+                  key: 'vlan_name',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Mark',
+                  key: 'mark',
+                  type: 'readonly',
+                },
+                {
+                  name: 'Accès aux sites bloqués',
+                  key: 'bypass',
                   type: 'readonly',
                 },
                 {
@@ -161,11 +162,7 @@ const queryParams = window.location.search;
                 },
               ],
             },
-            function: async (device, fields) => {
-              if (await editDevice((device as unknown as Device).id, fields as unknown as Device)) {
-                return 'L\'appareil a été modifié';
-              }
-            },
+            function: async (device, fields) => { },
           },
         ]"
       />
