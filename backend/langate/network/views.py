@@ -255,6 +255,27 @@ class DeviceDetail(generics.RetrieveDestroyAPIView):
         except ValidationError as e:
             return Response({"error": e.message}, status=status.HTTP_400_BAD_REQUEST)
 
+class DeviceInfo(generics.RetrieveAPIView):
+    """
+    API endpoint that allows to see details about a device.
+    """
+    @swagger_auto_schema(
+        responses={
+            200: {},
+            404: "Device not found",
+        }
+    )
+    def get(self, request, pk):
+        """
+        Get info about a device by its primary key
+        """
+        try:
+            device = Device.objects.get(pk=pk)
+            device_info = DeviceManager.get_device_info(device.mac)
+            return Response(device_info)
+        except Device.DoesNotExist:
+            return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)
+
 class DeviceWhitelist(generics.ListAPIView):
     """
     API endpoint that allows devices to be viewed.

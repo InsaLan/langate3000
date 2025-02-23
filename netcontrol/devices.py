@@ -38,6 +38,7 @@ class Devices:
 		
 		return {
 			"hostname": hostname,
+			"ip": ip,
 			"vlan_number": vlan[0],
 			"vlan_name": vlan[1],
 			"switch_name": switches[switch_ip],
@@ -111,6 +112,7 @@ class MockedDevices(Devices):
 		
 		return {
 			"hostname": "computer",
+			"ip": "127.0.0.1",
 			"vlan_number": 1,
 			"vlan_name": "v001-management",
 			"switch_name": "Hydrogen-1",

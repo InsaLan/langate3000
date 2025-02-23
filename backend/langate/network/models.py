@@ -207,3 +207,11 @@ class DeviceManager(models.Manager):
             device.save()
         except Exception as e:
             raise ValidationError(_("The data provided is invalid")) from e
+    
+    @staticmethod
+    def get_device_info(mac):
+        """
+        Get information about a device
+        """
+        
+        return netcontrol.get_device_info(mac)
