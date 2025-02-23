@@ -291,7 +291,7 @@ const confirm_modal = reactive({
   function: async () => {},
 });
 
-const openFormModal = async (
+const openFormModal = (
   action: {
     hint: string;
     key: string;
@@ -326,13 +326,6 @@ const openFormModal = async (
   object: { [key: string]: string },
 ) => {
   if (action.modal) {
-    let additional: { [key: string]: string };
-
-    if (action.modal.additionalUrl) {
-      const url = action.modal.additionalUrl.replace(/\$\((\w+)\)/g, (_, key) => object[key as string]);
-      await axios.get(url).then((response) => { additional = response.data as { [key: string]: string }; });
-    }
-
     // if modal.fields is a function, call it with the object
     if (typeof action.modal.fields === 'function') {
       modal.fields = action.modal.fields(object[action.key]);
@@ -340,11 +333,7 @@ const openFormModal = async (
       modal.fields = action.modal.fields.map((field) => ({
         name: field.name,
         key: field.key,
-        value: (() => {
-          if (object[field.key]) return object[field.key];
-          if (additional) return additional[field.key];
-          return '';
-        })(),
+        value: object[field.key],
         choices: field.choices,
         type: field.type,
         required: field.required,
@@ -373,6 +362,19 @@ const openFormModal = async (
     modal.title = action.modal.title;
     modal.buttons = action.modal.buttons;
     modal.open = true;
+
+    if (action.modal.additionalUrl && typeof action.modal.fields !== 'function') {
+      const url = action.modal.additionalUrl.replace(/\$\((\w+)\)/g, (_, key) => object[key as string]);
+      axios.get(url).then((response) => {
+        const data = response.data as { [key: string]: string };
+        modal.fields = modal.fields.map((field) => ({
+          ...field,
+          value: field.value ? field.value : data[field.key],
+        }));
+      }).catch((error) => {
+        addNotification(`Erreur lors de la récupération des données: ${error}`, 'error');
+      });
+    }
   } else {
     (
       action.function as (
