@@ -9,3 +9,5 @@ C'est cette page qui permet aux administrateurs de gérer les joueurs et les app
 - Kick / Ban des joueurs ou des appareils.
 
 Django dispose d'une page de management native assez capable, mais nous avons choisi d'en faire une custom.
+
+Pour cela, nous avons notamment créé le composant [PaginatedTable](PaginatedTable.md).
