@@ -64,7 +64,8 @@ class Nft:
         # Block external requests to the netcontrol module
         ips = subprocess.run('ip addr | grep -o "[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*/[0-9]*" | grep -o "[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*"', shell=True, capture_output=True).stdout.decode("utf-8").split("\n")[:-1]
         docker0_ip = subprocess.run("ip addr show docker0 | awk '/inet / {print $2}' | cut -d'/' -f1", shell=True, capture_output=True).stdout.decode("utf-8").strip()
-        self._execute_nft_cmd(f"add rule insalan netcontrol-filter ip daddr {{ {docker0_ip},172.16.1.1 }} tcp dport 6784 ip saddr != {{ {','.join(ips)} }} drop")
+        docker_subnet = ".".join(docker0_ip.split(".")[:2]) + ".0.0/16"
+        self._execute_nft_cmd(f"add rule insalan netcontrol-filter ip daddr {{ {docker0_ip},172.16.1.1 }} tcp dport 6784 ip saddr != {{ {','.join(ips)}, {docker_subnet} }} drop")
         
         # Allow traffic to port 80 from unauthenticated devices and redirect it to the network head, to allow access to the langate webpage
         self._execute_nft_cmd("add chain insalan netcontrol-nat { type nat hook prerouting priority 0; }")
@@ -72,7 +73,6 @@ class Nft:
         
         # Block other traffic from users that are not authenticated
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
-        docker_subnet = ".".join(docker0_ip.split(".")[:2]) + ".0.0/16"
         self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != {{ 172.16.1.1,{docker_subnet} }} ip saddr {variables.ip_range()} ip saddr != {{ 172.16.1.1,{docker_subnet} }} ether saddr != @netcontrol-auth reject")
 
         self.logger.info("Gate nftables set up")
