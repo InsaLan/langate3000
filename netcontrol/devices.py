@@ -29,7 +29,7 @@ class Devices:
 		
 		switches = self.get_all_switches()
 		try:
-			switch_ip = self.snmp.get_switch_ip(mac, switches.keys())
+			switch_ip = self.snmp.get_switch(mac, switches.keys())
 		except HTTPException:
 			switch_ip = "not_found"
 			switches["not_found"] = "not_found"
@@ -52,16 +52,19 @@ class Devices:
 		:return: Dict containing all switch names indexed by IP.
 		"""
 		
-		switches = {}
+		if not self.switches:
+			self.switches = {}
 		
-		with open("/hosts", "r") as file:
-			lines = file.readlines()
+			with open("/hosts", "r") as file:
+				lines = file.readlines()
+			
+			for line in lines:
+				if line[0] != "#":
+					(ip, name) = line.split(" ")
+					if ip.split(".")[3] > 100 and ip.split(".")[3] < 200:
+						self.switches[ip] = name.strip()
 		
-		for line in lines:
-			if line[0] != "#":
-				(ip, name) = line.split(" ")
-				if ip.split(".")[3] > 100 and ip.split(".")[3] < 200:
-					switches[ip] = name.strip()
+		return self.switches
 	
 	def get_hostname(self, mac: str) -> str:
 		"""
