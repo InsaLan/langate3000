@@ -1,16 +1,17 @@
 import logging
-from pysnmp.hlapi import *
+import pysnmp.hlapi.v3arch.asyncio
+import pysnmp.smi.rfc1902
 from fastapi import HTTPException
 
 class Snmp:
     def __init__(self, logger: logging.Logger, community: str):
         self.logger = logger
         
-        self.snmp_engine = SnmpEngine()
-        self.community_data = CommunityData(community, mpModel=1)
-        self.context_data = ContextData()
+        self.snmp_engine = pysnmp.hlapi.v3arch.asyncio.SnmpEngine()
+        self.community_data = pysnmp.hlapi.v3arch.asyncio.CommunityData(community, mpModel=1)
+        self.context_data = pysnmp.hlapi.v3arch.asyncio.ContextData()
         oid = '1.3.6.1.2.1.17.4.3.1.2' # oid for MAC address table
-        self.object_type = ObjectType(ObjectIdentity(oid))
+        self.object_type = pysnmp.smi.rfc1902.ObjectType(pysnmp.smi.rfc1902.ObjectIdentity(oid))
     
     def get_switch(self, mac: str, switches: list[str]):
         """
@@ -25,7 +26,7 @@ class Snmp:
             for errorIndication, errorStatus, errorIndex, varBinds in nextCmd(
                 self.snmp_engine,
                 self.community_data,
-                UdpTransportTarget((switch, 161)),
+                pysnmp.hlapi.v3arch.asyncio.UdpTransportTarget((switch, 161)),
                 self.context_data,
                 self.object_type,
                 lexicographicMode=False,
