@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-03 13:27+0100\n"
+"POT-Creation-Date: 2025-03-03 13:28+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -57,7 +57,7 @@ msgid "An error occurred while creating the device"
 msgstr "Une erreur a eu lieu lors de la création de l'appareil"
 
 #: langate/network/models.py:121 langate/user/views.py:128
-#: langate/user/views.py:272
+#: langate/user/views.py:372
 msgid "Could not get MAC address"
 msgstr "Impossible de récupérer l'adresse MAC"
 
@@ -75,8 +75,8 @@ msgstr "Impossible de définir la mark"
 msgid "The data provided is invalid"
 msgstr "Les données fournies sont invalides"
 
-#: langate/network/serializers.py:90 langate/user/views.py:525
-#: langate/user/views.py:540
+#: langate/network/serializers.py:90 langate/user/views.py:625
+#: langate/user/views.py:640
 msgid "User not found"
 msgstr "Utilisateur⋅rice introuvable"
 
@@ -143,11 +143,11 @@ msgstr "Mauvaise requête"
 msgid "You are not allowed to edit this device"
 msgstr "Vous n'êtes pas autorisé⋅e à modifier cet appareil"
 
-#: langate/settings.py:184
+#: langate/settings.py:185
 msgid "English"
 msgstr "Anglais"
 
-#: langate/settings.py:185
+#: langate/settings.py:186
 msgid "French"
 msgstr "Français"
 
@@ -209,7 +209,7 @@ msgid "User account disabled"
 msgstr "Le compte utilisateur⋅rice est désactivé"
 
 #: langate/user/tests.py:103 langate/user/views.py:235
-#: langate/user/views.py:252
+#: langate/user/views.py:278 langate/user/views.py:352
 #, fuzzy
 #| msgid "Bad Username or password"
 msgid "Bad username or password"
@@ -253,33 +253,55 @@ msgstr "Mot de passe"
 msgid "User logged in"
 msgstr "Utilisateur⋅rice connecté⋅e"
 
-#: langate/user/views.py:223 langate/user/views.py:327
-#: langate/user/views.py:450 langate/user/views.py:513
-#: langate/user/views.py:548
+#: langate/user/views.py:223 langate/user/views.py:427
+#: langate/user/views.py:550 langate/user/views.py:613
+#: langate/user/views.py:648
 msgid "Invalid data format"
 msgstr "Format de données invalide"
 
-#: langate/user/views.py:402
+#: langate/user/views.py:272
+msgid "You are not registered to the event, please contact a staff member"
+msgstr "Vous n'êtes pas inscrit⋅e à l'événement, veuillez contacter un⋅e staff"
+
+#: langate/user/views.py:287
+msgid "Your ticket has not been paid, please contact a staff member"
+msgstr "Votre billet n'a pas été payé, veuillez contacter un⋅e staff"
+
+#: langate/user/views.py:325
+msgid "Your account seems to be invalid, please contact a staff member"
+msgstr "Votre compte semble invalide, veuillez contacter un⋅e staff"
+
+#: langate/user/views.py:332 langate/user/views.py:343
+#: langate/user/views.py:348
+msgid "An error occured during the request, please contact a staff member"
+msgstr ""
+"Une erreur est survenue lors de la requête, veuillez contacter un⋅e staff"
+
+#: langate/user/views.py:338
+msgid "The request timed out, please try again or contact a staff member"
+msgstr "La requête a expiré, veuillez réessayer ou contacter un⋅e staff"
+
+#: langate/user/views.py:502
 msgid "Filter the users"
 msgstr "Filtrer les utilisateur⋅rices"
 
-#: langate/user/views.py:408
+#: langate/user/views.py:508
 msgid "Order the users"
 msgstr "Ordonner les utilisateur⋅rices"
 
-#: langate/user/views.py:439
+#: langate/user/views.py:539
 #, fuzzy
 #| msgid "Username"
 msgid "User created"
 msgstr "Utilisateur⋅rice créé⋅e"
 
-#: langate/user/views.py:492
+#: langate/user/views.py:592
 #, fuzzy
 #| msgid "Password"
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
-#: langate/user/views.py:502
+#: langate/user/views.py:602
 #, fuzzy
 #| msgid "Password"
 msgid "Password changed"
