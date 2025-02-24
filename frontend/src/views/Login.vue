@@ -4,6 +4,8 @@ import { useUserStore } from '@/stores/user.store';
 
 const { login } = useUserStore();
 
+const LAN = (import.meta.env.VITE_LAN as string) === '1';
+
 const login_form = reactive({
   username: '',
   password: '',
@@ -31,12 +33,35 @@ const showPassword = ref(false);
 
 <template>
   <div class="m-4 flex flex-col items-center justify-center gap-16 md:m-16">
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 text-center">
       <h1 class="text-center text-2xl font-bold md:text-4xl">
         Bienvenue sur le réseau de l'InsaLan !
       </h1>
       <div>
         Pour pouvoir accéder à internet et aux serveurs de jeu, il faut vous identifier avec votre compte.
+      </div>
+      <div
+        v-if="LAN"
+        class="text-sm text-gray-500"
+      >
+        Votre nom
+        <b
+          class="text-red-500"
+        >
+          d'utilisateur⋅rice
+        </b>
+        et votre
+        <b
+          class="text-red-500"
+        >
+          mot de passe
+        </b>
+        sont les mêmes que sur
+        <b>
+          <a href="https://insalan.fr" target="_blank" rel="noopener noreferrer" class="text-blue-500">
+            insalan.fr
+          </a>
+        </b>
       </div>
     </div>
     <form class="flex w-full flex-col gap-3 md:w-1/3">
