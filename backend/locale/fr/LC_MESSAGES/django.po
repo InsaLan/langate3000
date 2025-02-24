@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-25 14:33+0100\n"
+"POT-Creation-Date: 2025-02-27 20:01+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -61,7 +61,7 @@ msgstr "Une erreur a eu lieu lors de la création de l'appareil"
 msgid "Could not get MAC address"
 msgstr "Impossible de récupérer l'adresse MAC"
 
-#: langate/network/models.py:189 langate/network/views.py:320
+#: langate/network/models.py:189 langate/network/views.py:341
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid mark"
@@ -99,47 +99,47 @@ msgid "Name not provided"
 msgstr "Nom non fourni"
 
 #: langate/network/views.py:211 langate/network/views.py:228
-#: langate/network/views.py:254 langate/network/views.py:436
-#: langate/network/views.py:453 langate/network/views.py:460
-#: langate/network/views.py:485
+#: langate/network/views.py:254 langate/network/views.py:277
+#: langate/network/views.py:457 langate/network/views.py:474
+#: langate/network/views.py:481 langate/network/views.py:506
 msgid "Device not found"
 msgstr "Appareil introuvable"
 
-#: langate/network/views.py:317
+#: langate/network/views.py:338
 msgid "No data provided"
 msgstr "Aucune donnée fournie"
 
-#: langate/network/views.py:363 langate/network/views.py:389
+#: langate/network/views.py:384 langate/network/views.py:410
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid origin mark"
 msgstr "Mark d'origine invalide"
 
-#: langate/network/views.py:366
+#: langate/network/views.py:387
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid destination mark"
 msgstr "Mark de destination invalide"
 
-#: langate/network/views.py:392
+#: langate/network/views.py:413
 msgid "No mark to spread to"
 msgstr "Aucune mark vers laquelle dispatcher"
 
-#: langate/network/views.py:418
+#: langate/network/views.py:439
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid game"
 msgstr "Jeu invalide"
 
-#: langate/network/views.py:435 langate/network/views.py:448
+#: langate/network/views.py:456 langate/network/views.py:469
 msgid "You are not allowed to delete this device"
 msgstr "Vous n'êtes pas autorisé⋅e à supprimer cet appareil"
 
-#: langate/network/views.py:458
+#: langate/network/views.py:479
 msgid "Bad request"
 msgstr "Mauvaise requête"
 
-#: langate/network/views.py:459 langate/network/views.py:472
+#: langate/network/views.py:480 langate/network/views.py:493
 msgid "You are not allowed to edit this device"
 msgstr "Vous n'êtes pas autorisé⋅e à modifier cet appareil"
 
