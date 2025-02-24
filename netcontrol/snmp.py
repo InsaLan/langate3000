@@ -1,4 +1,5 @@
 import logging
+from .utilities import to_decimal_mac
 import pysnmp.hlapi.v3arch.asyncio
 import pysnmp.smi.rfc1902
 from fastapi import HTTPException
@@ -18,10 +19,10 @@ class Snmp:
         
         :param mac: Mac address of the machine to locate.
         :param switches: List of all the switch IPs.
-        :return: IP address of the switch the machine is connected to.
+        :return: Tuple of (IP address of the switch the machine is connected to, port on the switch).
         """
         
-        mac = mac.lower()
+        dec_mac = to_decimal_mac(mac)
         
         oid = '1.3.6.1.2.1.17.4.3.1.2' # oid for MAC address table
         object_type = pysnmp.smi.rfc1902.ObjectType(pysnmp.smi.rfc1902.ObjectIdentity(oid))
@@ -35,11 +36,14 @@ class Snmp:
                 object_type,
                 lexicographicMode=False,
             ):
-                if not errorIndication:
+                if errorIndication or errorStatus:
+                    break
+                else:
                     for var in varBinds:
-                        if mac in var.lower():
-                            return switch
-                return None
+                        oid, port = var
+                        if dec_mac in oid:
+                            return (switch, port)
+            return None
         
         tasks = [check_switch(switch) for switch in switches]
         results = await asyncio.gather(*tasks)

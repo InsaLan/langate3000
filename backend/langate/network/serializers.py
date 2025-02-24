@@ -127,3 +127,4 @@ class DeviceInfoSerializer(serializers.Serializer):
     vlan_name = serializers.CharField(read_only=True)
     switch_name = serializers.CharField(read_only=True)
     switch_ip = serializers.IPAddressField(read_only=True)
+    switch_port = serializers.IntegerField(read_only=True)

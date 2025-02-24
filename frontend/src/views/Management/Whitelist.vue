@@ -164,6 +164,11 @@ const {
                   key: 'switch_ip',
                   type: 'readonly',
                 },
+                {
+                  name: 'Port du switch',
+                  key: 'switch_port',
+                  type: 'readonly',
+                },
               ],
             },
             function: async (device, fields) => { },
