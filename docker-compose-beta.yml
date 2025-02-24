@@ -70,6 +70,7 @@ services:
 #      - NODE_ENV=${FRONTEND_NODE_ENV}
       - VITE_WEBSITE_HOST=beta.${WEBSITE_HOST}
       - VITE_SESSION_COOKIE_AGE=${SESSION_COOKIE_AGE}
+      - VITE_LAN=${LAN}
     volumes:
       - ./frontend:/src
     expose:
