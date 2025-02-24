@@ -6,7 +6,7 @@ from operator import or_
 
 from django.db.models import Q
 from django.contrib.auth import login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET
@@ -28,7 +28,7 @@ from langate.user.serializers import (
 )
 
 from .models import User, Role
-from langate.settings import netcontrol
+from langate.settings import netcontrol, LAN
 
 from langate.network.models import UserDevice, Device, DeviceManager
 from langate.network.serializers import UserDeviceSerializer
@@ -140,14 +140,14 @@ class UserMe(generics.RetrieveAPIView):
                 if device.user != request.user:
                     if user_devices.count() >= request.user.max_device_nb:
                         user["too_many_devices"] = True
-                        
+
                         user_devices = UserDevice.objects.filter(user=request.user)
 
                         # Add UserDevices that belong to the user
                         user["devices"] = UserDeviceSerializer(
                             user_devices, many=True
                         ).data
-                        
+
                         return Response(user, status=status.HTTP_200_OK)
                     DeviceManager.delete_user_device(device)
 
@@ -161,14 +161,14 @@ class UserMe(generics.RetrieveAPIView):
                 # If the device is not registered on the network, we register it.
                 if user_devices.count() >= request.user.max_device_nb:
                     user["too_many_devices"] = True
-                    
+
                     user_devices = UserDevice.objects.filter(user=request.user)
 
                     # Add UserDevices that belong to the user
                     user["devices"] = UserDeviceSerializer(
                         user_devices, many=True
                     ).data
-                    
+
                     return Response(user, status=status.HTTP_200_OK)
                 DeviceManager.create_user_device(request.user, client_ip)
 
@@ -248,10 +248,110 @@ class UserLogin(APIView):
         if serializer.is_valid():
             user = serializer.check_validity(data)
             if user is None:
-                return Response(
-                    {"error": [_("Bad username or password")]},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
+                # No user found locally, we try to login with the insalan website if we are LAN mode.
+                if LAN:
+                    username = data["username"]
+                    password = data["password"]
+
+                    # Try to login with the insalan website to create account
+                    try:
+                        request_result = requests.post(
+                          "https://api.insalan.fr/v1/langate/authenticate/",
+                          json={
+                              "username": username,
+                              "password": password
+                              },
+                          # Timeout is required when using requests module to avoid blocking the request
+                          # This might be not enough in case of website load, should be monitored during the event
+                          timeout=4
+                        )
+                        if request_result.status_code == 404:
+                            # If the user is not registered to the event
+                            if "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
+                                return Response(
+                                    {"error": [_("You are not registered to the event, please contact a staff member")]},
+                                    status=status.HTTP_404_NOT_FOUND,
+                                )
+                            else:
+                                # There should not be any other 404 than the user not found
+                                return Response(
+                                    {"error": [_("Bad username or password")]},
+                                    status=status.HTTP_404_NOT_FOUND,
+                                )
+                        elif request_result.status_code == 200:
+                            json_result = request_result.json()
+
+                            # If the user has not paid his ticket
+                            if json_result["err"] == "no_paid_place":
+                                return Response(
+                                    {"error": [_("Your ticket has not been paid, please contact a staff member")]},
+                                    status=status.HTTP_404_NOT_FOUND,
+                                )
+                            else:
+                                is_staff = json_result["user"]["is_staff"]
+
+                                tournaments = json_result["tournaments"]
+
+                                # If the user is registered to the event, then it's a player
+                                if len(tournaments) != 0:
+                                    manager = False
+                                    short_name = None
+                                    team = None
+                                    # there should only be one tournament but in case of multiple tournaments
+                                    # we take the first one that has been paid
+                                    for t in tournaments:
+                                        if t["has_paid"]:
+                                            short_name = t["shortname"]
+                                            manager = True if t["manager"] else manager
+                                            team = t["team"]
+                                            break
+                                    user = User.objects.create(
+                                        username=username,
+                                        password=password,
+                                        role=Role.MANAGER if manager else Role.PLAYER,
+                                        tournament=short_name,
+                                        team=team
+                                    )
+                                # If the user is staff
+                                elif is_staff:
+                                    user = User.objects.create(
+                                        username=username,
+                                        password=password,
+                                        role=Role.STAFF
+                                    )
+                                else:
+                                    # We should never reach this point (if the user is not registered to the event and is not staff, he should not be able to login)
+                                    return Response(
+                                        {"error": [_("Your account seems to be invalid, please contact a staff member")]},
+                                        status=status.HTTP_404_NOT_FOUND,
+                                    )
+                                user.save()
+                        else:
+                            # Other status code should not be returned
+                            return Response(
+                                {"error": [_("An error occured during the request, please contact a staff member")]},
+                                status=status.HTTP_404_NOT_FOUND,
+                            )
+
+                    except requests.exceptions.Timeout:
+                        return Response(
+                            {"error": [_("The request timed out, please try again or contact a staff member")]},
+                            status=status.HTTP_404_NOT_FOUND,
+                        )
+                    except requests.exceptions.RequestException as e:
+                        return Response(
+                            {"error": [_("An error occured during the request, please contact a staff member")]},
+                            status=status.HTTP_404_NOT_FOUND,
+                        )
+                    except Exception as e:
+                        raise Http404(
+                            _("An error occured during the request, please contact a staff member")
+                        ) from e
+                else:
+                    return Response(
+                        {"error": [_("Bad username or password")]},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
             login(request, user)
 
             user = UserSerializer(user, context={"request": request}).data
@@ -284,14 +384,14 @@ class UserLogin(APIView):
                     if device.user != request.user:
                         if user_devices.count() >= request.user.max_device_nb:
                             user["too_many_devices"] = True
-                            
+
                             user_devices = UserDevice.objects.filter(user=request.user)
 
                             # Add UserDevices that belong to the user
                             user["devices"] = UserDeviceSerializer(
                                 user_devices, many=True
                             ).data
-                            
+
                             return Response(user, status=status.HTTP_200_OK)
                         DeviceManager.delete_user_device(device)
 
@@ -305,14 +405,14 @@ class UserLogin(APIView):
                     # If the device is not registered on the network, we register it.
                     if user_devices.count() >= request.user.max_device_nb:
                         user["too_many_devices"] = True
-                        
+
                         user_devices = UserDevice.objects.filter(user=request.user)
 
                         # Add UserDevices that belong to the user
                         user["devices"] = UserDeviceSerializer(
                             user_devices, many=True
                         ).data
-                        
+
                         return Response(user, status=status.HTTP_200_OK)
                     DeviceManager.create_user_device(request.user, client_ip)
 

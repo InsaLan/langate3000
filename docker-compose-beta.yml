@@ -21,6 +21,7 @@ services:
       DJANGO_SECRET: ${BACKEND_DJANGO_SECRET}
       SESSION_COOKIE_AGE: ${SESSION_COOKIE_AGE}
       DEV: ${DEV}
+      LAN: ${LAN}
     volumes:
       - ./volumes/beta/backend:/app/v1
       - ./backend:/app
