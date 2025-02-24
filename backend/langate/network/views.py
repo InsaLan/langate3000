@@ -23,7 +23,7 @@ from langate.user.models import Role
 from langate.network.models import Device, UserDevice, DeviceManager
 from langate.network.utils import validate_marks, validate_games, save_settings, get_mark
 
-from langate.network.serializers import DeviceSerializer, UserDeviceSerializer, FullDeviceSerializer
+from langate.network.serializers import DeviceSerializer, UserDeviceSerializer, FullDeviceSerializer, DeviceInfoSerializer
 
 class Pagination(PageNumberPagination):
     page_size = 10
@@ -261,7 +261,7 @@ class DeviceInfo(generics.RetrieveAPIView):
     """
     @swagger_auto_schema(
         responses={
-            200: {},
+            200: DeviceInfoSerializer,
             404: "Device not found",
         }
     )
@@ -272,7 +272,8 @@ class DeviceInfo(generics.RetrieveAPIView):
         try:
             device = Device.objects.get(pk=pk)
             device_info = DeviceManager.get_device_info(device.mac)
-            return Response(device_info)
+            serializer = DeviceInfoSerializer(device_info)
+            return Response(serializer.data)
         except Device.DoesNotExist:
             return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)
 

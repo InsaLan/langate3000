@@ -116,3 +116,14 @@ class FullDeviceSerializer(serializers.Serializer):
             raise serializers.ValidationError(_(e.__cause__.diag.message_detail)) from e
         except Exception as e:
             raise serializers.ValidationError(_("An error occurred while creating the device")) from e
+
+class DeviceInfoSerializer(serializers.Serializer):
+    """
+    Serializer for extra device info.
+    """
+    hostname = serializers.CharField(read_only=True)
+    ip = serializers.IPAddressField(read_only=True)
+    vlan_number = serializers.IntegerField(read_only=True)
+    vlan_name = serializers.CharField(read_only=True)
+    switch_name = serializers.CharField(read_only=True)
+    switch_ip = serializers.IPAddressField(read_only=True)

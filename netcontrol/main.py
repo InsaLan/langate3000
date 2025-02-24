@@ -9,7 +9,7 @@ from .snmp import Snmp
 from .devices import Devices, MockedDevices
 
 mock = os.getenv("MOCK_NETWORK", "0") == "1"
-snmp_community = os.getenv("SNMP_COMMUNITY", "hotlinemontreal")
+snmp_community = os.getenv("SNMP_COMMUNITY", "")
 
 logger = logging.getLogger('uvicorn.error')
 # for some reason, default loggers are not working with FastAPI
