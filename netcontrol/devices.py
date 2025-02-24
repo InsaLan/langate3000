@@ -29,7 +29,7 @@ class Devices:
 		
 		switches = self.get_all_switches()
 		try:
-			switch_ip = await self.snmp.get_switch(mac, switches.keys())
+			switch_ip, switch_port = await self.snmp.get_switch(mac, switches.keys())
 		except HTTPException:
 			switch_ip = "not_found"
 			switches["not_found"] = "not_found"
@@ -42,7 +42,8 @@ class Devices:
 			"vlan_number": vlan[0],
 			"vlan_name": vlan[1],
 			"switch_name": switches[switch_ip],
-			"switch_ip": switch_ip
+			"switch_ip": switch_ip,
+			"switch_port": switch_port
 		}
 	
 	def get_all_switches(self) -> dict[str, str]:
@@ -119,5 +120,6 @@ class MockedDevices(Devices):
 			"vlan_number": 1,
 			"vlan_name": "v001-management",
 			"switch_name": "Hydrogen-1",
-			"switch_ip": "172.16.1.101"
+			"switch_ip": "172.16.1.101",
+			"switch_port": "0"
 		}

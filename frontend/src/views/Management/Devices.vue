@@ -160,6 +160,11 @@ const queryParams = window.location.search;
                   key: 'switch_ip',
                   type: 'readonly',
                 },
+                {
+                  name: 'Port du switch',
+                  key: 'switch_port',
+                  type: 'readonly',
+                },
               ],
             },
             function: async (device, fields) => { },
