@@ -56,7 +56,12 @@ class NetworkConfig(AppConfig):
                     else:
                         connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
                 except requests.HTTPError as e:
-                    logger.info("[PortalConfig] {e}")
+                    logger.info(f"[PortalConfig] {e}")
+
+                try:
+                    mark_res = netcontrol.set_mark(dev.mac, dev.mark, dev.bypass)
+                except requests.HTTPError as e:
+                    logger.info(f"[PortalConfig] {e}")
 
             logger.info(_("[PortalConfig] Adding default whitelist devices to netcontrol"))
             if os.path.exists("assets/misc/whitelist.txt"):
@@ -78,11 +83,11 @@ class NetworkConfig(AppConfig):
                                 try:
                                     connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
                                 except requests.HTTPError as e:
-                                    logger.info("[PortalConfig] {e}")
+                                    logger.info(f"[PortalConfig] {e}")
 
                                 try:
                                     mark_res = netcontrol.set_mark(dev.mac, mark, dev.bypass)
                                 except requests.HTTPError as e:
-                                    logger.info("[PortalConfig] {e}")
+                                    logger.info(f"[PortalConfig] {e}")
                         else:
                             logger.error("[PortalConfig] Invalid line in whitelist.txt: %s", line)
