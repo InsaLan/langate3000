@@ -369,7 +369,7 @@ const openFormModal = (
         const data = response.data as { [key: string]: string };
         modal.fields = modal.fields.map((field) => ({
           ...field,
-          value: field.value ? field.value : data[field.key],
+          value: field.value ?? data[field.key] ?? '',
         }));
       }).catch((error) => {
         addNotification(`Erreur lors de la récupération des données: ${error}`, 'error');
