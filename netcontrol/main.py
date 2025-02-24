@@ -70,5 +70,5 @@ def get_ip(mac: str):
     return arp.get_ip(mac)
 
 @app.get("/get_device_info")
-def get_device_info(mac:str):
-    return devices.get_device_info(mac)
+async def get_device_info(mac:str):
+    return await devices.get_device_info(mac)
