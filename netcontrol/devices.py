@@ -11,7 +11,7 @@ class Devices:
 		self.snmp = snmp
 		self.arp = arp
 
-	def get_device_info(self, mac: str):
+	async def get_device_info(self, mac: str):
 		"""
 		Get device informations.
 		
@@ -29,7 +29,7 @@ class Devices:
 		
 		switches = self.get_all_switches()
 		try:
-			switch_ip = self.snmp.get_switch(mac, switches.keys())
+			switch_ip = await self.snmp.get_switch(mac, switches.keys())
 		except HTTPException:
 			switch_ip = "not_found"
 			switches["not_found"] = "not_found"
@@ -110,7 +110,7 @@ class MockedDevices(Devices):
 	def __init__(self, logger):
 		self.logger = logger
 	
-	def get_device_info(self, mac):
+	async def get_device_info(self, mac):
 		self.logger.info(f"Fetched information for device {mac} (ip: 127.0.0.1)")
 		
 		return {
