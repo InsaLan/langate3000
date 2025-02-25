@@ -15,7 +15,7 @@ logger = logging.getLogger('uvicorn.error')
 # for some reason, default loggers are not working with FastAPI
 
 variables = Variables()
-snmp= Snmp(logger, snmp_community)
+snmp = Snmp(logger, snmp_community)
 if mock:
     logger.warning("MOCK_NETWORK is set to 1, Nftables rules will not be applied.")
     nft = MockedNft(logger)
