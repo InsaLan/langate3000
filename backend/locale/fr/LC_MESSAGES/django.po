@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-21 11:51+0100\n"
+"POT-Creation-Date: 2025-02-25 14:33+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -61,7 +61,7 @@ msgstr "Une erreur a eu lieu lors de la création de l'appareil"
 msgid "Could not get MAC address"
 msgstr "Impossible de récupérer l'adresse MAC"
 
-#: langate/network/models.py:189 langate/network/views.py:316
+#: langate/network/models.py:189 langate/network/views.py:320
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid mark"
@@ -98,102 +98,107 @@ msgstr "Adresse MAC non fournie"
 msgid "Name not provided"
 msgstr "Nom non fourni"
 
-#: langate/network/views.py:207 langate/network/views.py:224
-#: langate/network/views.py:250 langate/network/views.py:432
-#: langate/network/views.py:449 langate/network/views.py:456
-#: langate/network/views.py:481
+#: langate/network/views.py:211 langate/network/views.py:228
+#: langate/network/views.py:254 langate/network/views.py:436
+#: langate/network/views.py:453 langate/network/views.py:460
+#: langate/network/views.py:485
 msgid "Device not found"
 msgstr "Appareil introuvable"
 
-#: langate/network/views.py:313
+#: langate/network/views.py:317
 msgid "No data provided"
 msgstr "Aucune donnée fournie"
 
-#: langate/network/views.py:359 langate/network/views.py:385
+#: langate/network/views.py:363 langate/network/views.py:389
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid origin mark"
 msgstr "Mark d'origine invalide"
 
-#: langate/network/views.py:362
+#: langate/network/views.py:366
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid destination mark"
 msgstr "Mark de destination invalide"
 
-#: langate/network/views.py:388
+#: langate/network/views.py:392
 msgid "No mark to spread to"
 msgstr "Aucune mark vers laquelle dispatcher"
 
-#: langate/network/views.py:414
+#: langate/network/views.py:418
 #, fuzzy
 #| msgid "Invalid data format"
 msgid "Invalid game"
 msgstr "Jeu invalide"
 
-#: langate/network/views.py:431 langate/network/views.py:444
+#: langate/network/views.py:435 langate/network/views.py:448
 msgid "You are not allowed to delete this device"
 msgstr "Vous n'êtes pas autorisé⋅e à supprimer cet appareil"
 
-#: langate/network/views.py:454
+#: langate/network/views.py:458
 msgid "Bad request"
 msgstr "Mauvaise requête"
 
-#: langate/network/views.py:455 langate/network/views.py:468
+#: langate/network/views.py:459 langate/network/views.py:472
 msgid "You are not allowed to edit this device"
 msgstr "Vous n'êtes pas autorisé⋅e à modifier cet appareil"
 
-#: langate/settings.py:182
+#: langate/settings.py:184
 msgid "English"
 msgstr "Anglais"
 
-#: langate/settings.py:183
+#: langate/settings.py:185
 msgid "French"
 msgstr "Français"
 
-#: langate/user/apps.py:13
+#: langate/user/apps.py:16
 msgid "User module"
 msgstr "Gestionnaire d'utilisateur⋅rices"
 
-#: langate/user/models.py:28 langate/user/serializers.py:39
+#: langate/user/apps.py:39
+#, python-brace-format
+msgid "[PortalConfig] Loaded {users_count} users"
+msgstr "[PortalConfig] {users_count} utilisateurs chargés"
+
+#: langate/user/models.py:32 langate/user/serializers.py:39
 msgid "A username is required"
 msgstr "Un nom d'utilisateur⋅rice est requis"
 
-#: langate/user/models.py:30 langate/user/serializers.py:41
+#: langate/user/models.py:34 langate/user/serializers.py:41
 msgid "A password is required"
 msgstr "Un mot de passe est requis"
 
-#: langate/user/models.py:45
+#: langate/user/models.py:50
 #, fuzzy
 #| msgid "Superusers must have a password."
 msgid "Superusers must have a password"
 msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe"
 
-#: langate/user/models.py:58
+#: langate/user/models.py:63
 msgid "Player"
 msgstr "Joueur·euse"
 
-#: langate/user/models.py:59
+#: langate/user/models.py:64
 msgid "Manager"
 msgstr "Manager"
 
-#: langate/user/models.py:60
+#: langate/user/models.py:65
 msgid "Guest"
 msgstr "Invité"
 
-#: langate/user/models.py:61
+#: langate/user/models.py:66
 msgid "Staff"
 msgstr "Staff"
 
-#: langate/user/models.py:62
+#: langate/user/models.py:67
 msgid "Admin"
 msgstr "Admin"
 
-#: langate/user/models.py:104
+#: langate/user/models.py:109
 msgid "User"
 msgstr "Utilisateur⋅rice"
 
-#: langate/user/models.py:105
+#: langate/user/models.py:110
 msgid "Users"
 msgstr "Utilisateur⋅rices"
 
