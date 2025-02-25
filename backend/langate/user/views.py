@@ -6,11 +6,11 @@ from operator import or_
 
 from django.db.models import Q
 from django.contrib.auth import login, logout
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 
 from rest_framework import generics, permissions, status
 from rest_framework.authentication import SessionAuthentication
@@ -225,7 +225,7 @@ class UserLogin(APIView):
                     )
                 }
             ),
-            404: openapi.Schema(
+            403: openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
                     "error": openapi.Schema(
@@ -266,17 +266,25 @@ class UserLogin(APIView):
                           timeout=4
                         )
                         if request_result.status_code == 404:
+                            # If the user is a staff member, he should have his account created
+                            if "user" in request_result.json() and request_result.json()["user"]["is_staff"]:
+                                user = User.objects.create(
+                                    username=username,
+                                    password=password,
+                                    role=Role.STAFF
+                                )
+                                user.save()
                             # If the user is not registered to the event
-                            if "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
+                            elif "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
                                 return Response(
                                     {"error": [_("You are not registered to the event, please contact a staff member")]},
-                                    status=status.HTTP_404_NOT_FOUND,
+                                    status=status.HTTP_403_FORBIDDEN,
                                 )
                             else:
                                 # There should not be any other 404 than the user not found
                                 return Response(
                                     {"error": [_("Bad username or password")]},
-                                    status=status.HTTP_404_NOT_FOUND,
+                                    status=status.HTTP_403_FORBIDDEN,
                                 )
                         elif request_result.status_code == 200:
                             json_result = request_result.json()
@@ -285,7 +293,7 @@ class UserLogin(APIView):
                             if json_result["err"] == "no_paid_place":
                                 return Response(
                                     {"error": [_("Your ticket has not been paid, please contact a staff member")]},
-                                    status=status.HTTP_404_NOT_FOUND,
+                                    status=status.HTTP_403_FORBIDDEN,
                                 )
                             else:
                                 is_staff = json_result["user"]["is_staff"]
@@ -323,34 +331,29 @@ class UserLogin(APIView):
                                     # We should never reach this point (if the user is not registered to the event and is not staff, he should not be able to login)
                                     return Response(
                                         {"error": [_("Your account seems to be invalid, please contact a staff member")]},
-                                        status=status.HTTP_404_NOT_FOUND,
+                                        status=status.HTTP_403_FORBIDDEN,
                                     )
                                 user.save()
                         else:
                             # Other status code should not be returned
                             return Response(
                                 {"error": [_("An error occured during the request, please contact a staff member")]},
-                                status=status.HTTP_404_NOT_FOUND,
+                                status=status.HTTP_403_FORBIDDEN,
                             )
 
                     except requests.exceptions.Timeout:
                         return Response(
                             {"error": [_("The request timed out, please try again or contact a staff member")]},
-                            status=status.HTTP_404_NOT_FOUND,
-                        )
-                    except requests.exceptions.RequestException as e:
-                        return Response(
-                            {"error": [_("An error occured during the request, please contact a staff member")]},
-                            status=status.HTTP_404_NOT_FOUND,
+                            status=status.HTTP_403_FORBIDDEN,
                         )
                     except Exception as e:
-                        raise Http404(
-                            _("An error occured during the request, please contact a staff member")
+                        raise PermissionDenied(
+                            _("An error occured during the request, please contact a staff member"),
                         ) from e
                 else:
                     return Response(
                         {"error": [_("Bad username or password")]},
-                        status=status.HTTP_404_NOT_FOUND,
+                        status=status.HTTP_403_FORBIDDEN,
                     )
             login(request, user)
 
