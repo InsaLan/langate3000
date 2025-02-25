@@ -92,7 +92,7 @@ class Netcontrol:
         Set the mark of the user with the given MAC address.
         """
         self.logger.info(f"Setting mark of user with MAC address {mac} to {mark}...")
-        self.request("set_mark", {"mac": mac, "mark": mark})
+        self.request("set_mark", {"mac": mac, "mark": mark, "bypass": bypass})
         if mac in mark_table:
             old_mark = mark_table[mac]
             connected_devices_gauge.labels(str(old_mark)).dec()
