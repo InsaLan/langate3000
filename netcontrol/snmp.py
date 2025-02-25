@@ -1,14 +1,13 @@
 import logging
 from .utilities import to_decimal_mac
-import pysnmp.hlapi.v3arch.asyncio
-import pysnmp.smi.rfc1902
+from puresnmp import Client, V2C, PyWrapper
 from fastapi import HTTPException
 import asyncio
 
 class Snmp:
     def __init__(self, logger: logging.Logger, community: str):
         self.logger = logger
-        self.community = community
+        self.v2c = V2C(community)
 
     async def get_switch(self, mac: str, switches: list[str]):
         """
@@ -21,28 +20,13 @@ class Snmp:
         
         dec_mac = to_decimal_mac(mac)
         
-        snmp_engine = pysnmp.hlapi.v3arch.asyncio.SnmpEngine()
-        community_data = pysnmp.hlapi.v3arch.asyncio.CommunityData(self.community, mpModel=1)
-        context_data = pysnmp.hlapi.v3arch.asyncio.ContextData()
-
-        oid = '1.3.6.1.2.1.17.4.3.1.2' # oid for MAC address table
-        object_type = pysnmp.smi.rfc1902.ObjectType(pysnmp.smi.rfc1902.ObjectIdentity(oid))
+        mac_oid = '1.3.6.1.2.1.17.4.3.1.2' # oid for MAC address table
         
         async def check_switch(switch):
-            for errorIndication, errorStatus, errorIndex, varBinds in await pysnmp.hlapi.v3arch.asyncio.next_cmd(
-                snmp_engine,
-                community_data,
-                await pysnmp.hlapi.v3arch.asyncio.UdpTransportTarget.create((switch, 161)),
-                context_data,
-                object_type,
-            ):
-                if errorIndication or errorStatus:
-                    break
-                else:
-                    for var in varBinds:
-                        oid, port = var
-                        if dec_mac in oid:
-                            return (switch, port)
+            client = PyWrapper(Client(switch, self.v2c))
+            async for (oid, port) in client.bulkwalk(mac_oid):
+                if dec_mac in oid:
+                    return (switch, port)
             return None
         
         tasks = [check_switch(switch) for switch in switches]
