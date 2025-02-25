@@ -8,11 +8,8 @@ import asyncio
 class Snmp:
     def __init__(self, logger: logging.Logger, community: str):
         self.logger = logger
-        
-        self.snmp_engine = pysnmp.hlapi.v3arch.asyncio.SnmpEngine()
-        self.community_data = pysnmp.hlapi.v3arch.asyncio.CommunityData(community, mpModel=1)
-        self.context_data = pysnmp.hlapi.v3arch.asyncio.ContextData()
-    
+        self.community = community
+
     async def get_switch(self, mac: str, switches: list[str]):
         """
         Get information about the switch that a machine is connected to.
@@ -24,17 +21,20 @@ class Snmp:
         
         dec_mac = to_decimal_mac(mac)
         
+        snmp_engine = pysnmp.hlapi.v3arch.asyncio.SnmpEngine()
+        community_data = pysnmp.hlapi.v3arch.asyncio.CommunityData(self.community, mpModel=1)
+        context_data = pysnmp.hlapi.v3arch.asyncio.ContextData()
+
         oid = '1.3.6.1.2.1.17.4.3.1.2' # oid for MAC address table
         object_type = pysnmp.smi.rfc1902.ObjectType(pysnmp.smi.rfc1902.ObjectIdentity(oid))
         
         async def check_switch(switch):
-            async for errorIndication, errorStatus, errorIndex, varBinds in pysnmp.hlapi.v3arch.asyncio.nextCmd(
-                self.snmp_engine,
-                self.community_data,
-                pysnmp.hlapi.v3arch.asyncio.UdpTransportTarget((switch, 161)),
-                self.context_data,
+            for errorIndication, errorStatus, errorIndex, varBinds in await pysnmp.hlapi.v3arch.asyncio.next_cmd(
+                snmp_engine,
+                community_data,
+                await pysnmp.hlapi.v3arch.asyncio.UdpTransportTarget.create((switch, 161)),
+                context_data,
                 object_type,
-                lexicographicMode=False,
             ):
                 if errorIndication or errorStatus:
                     break

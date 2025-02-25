@@ -72,9 +72,9 @@ class Nft:
         
         # Block other traffic from users that are not authenticated
         self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
-        self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != {{ 172.16.1.1,{docker_subnet} }} ip saddr {variables.ip_range()} ip saddr != {{ 172.16.1.1,{docker_subnet} }} ether saddr != @netcontrol-auth reject")
+        self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != {{ 172.16.1.1,{docker_subnet} }} ip saddr {self.variables.ip_range()} ip saddr != {{ 172.16.1.1,{docker_subnet} }} ether saddr != @netcontrol-auth reject")
 
-        self.logger.info("Gate nftables set up")
+        self.logger.info("Gate nftables set up.")
         
     def remove_portail(self) -> None:
         """
@@ -86,7 +86,7 @@ class Nft:
         self._execute_nft_cmd("delete set insalan netcontrol-auth")
         self._execute_nft_cmd("delete map insalan netcontrol-mac2mark")
         
-        self.logger.info("Gate nftables removed")
+        self.logger.info("Gate nftables removed.")
 
     def set_mark(self, mac: str, mark: int, bypass: bool) -> None:
         """
@@ -150,10 +150,10 @@ class MockedNft(Nft):
         self.logger = logger
     
     def check_nftables(self) -> None:
-        self.logger.info("Mocked nftables OK")
+        self.logger.info("Mocked nftables OK.")
     
     def _execute_nft_cmd(self, cmd: str) -> dict:
         return {}
     
     def setup_portail(self) -> None:
-        self.logger.info("Gate nftables set up")
+        self.logger.info("Gate nftables set up.")
