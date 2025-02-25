@@ -97,7 +97,7 @@ class UserEndToEndTestCase(TestCase):
         def send_valid_data(data):
             request = self.client.post("/user/login/", data, format="json")
 
-            self.assertEqual(request.status_code, 404)
+            self.assertEqual(request.status_code, 403)
             self.assertEqual(
                 request.data["error"][0],
                 _("Bad username or password"),

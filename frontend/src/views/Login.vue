@@ -44,11 +44,11 @@ const showPassword = ref(false);
         v-if="LAN"
         class="text-sm text-gray-500"
       >
-        Votre nom
+        Votre
         <b
           class="text-red-500"
         >
-          d'utilisateur⋅rice
+          nom d'utilisateur⋅rice
         </b>
         et votre
         <b
