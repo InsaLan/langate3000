@@ -34,6 +34,7 @@ class Devices:
         except HTTPException:
             switch_ip = "not_found"
             switches["not_found"] = "not_found"
+            switch_port = -1
         
         self.logger.info(f"Fetched information for device {mac} (ip: {ip})")
         
@@ -64,7 +65,7 @@ class Devices:
                         ip = line.split()[0]
                         name = line.split()[1]
                         if len(ip.split(".")) == 4:
-                            if int(ip.split(".")[3]) > 100 and int(ip.split(".")[3]) < 200:
+                            if int(ip.split(".")[0]) == 172 and int(ip.split(".")[3]) > 20 and int(ip.split(".")[3]) < 200:
                                 self.switches[ip] = name.strip()
         
         return self.switches

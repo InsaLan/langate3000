@@ -19,19 +19,30 @@ class Snmp:
         """
         
         dec_mac = to_decimal_mac(mac)
-        
+
         mac_oid = '1.3.6.1.2.1.17.4.3.1.2' # oid for MAC address table
         
         async def check_switch(switch):
-            client = PyWrapper(Client(switch, self.v2c))
-            async for (oid, port) in client.bulkwalk(mac_oid):
-                if dec_mac in oid:
-                    return (switch, port)
+            try:
+                client = Client(switch, self.v2c)
+                with client.reconfigure(timeout=1.4,retries=1):
+                    client = PyWrapper(client)
+                    oids = {}
+                    async for (oid, port) in client.walk(mac_oid):
+                        if port in oids.keys():
+                            oids[port].append(oid)
+                        else:
+                            oids[port] = [oid]
+                    for port in oids.keys():
+                        if len(oids[port]) == 1 and dec_mac in oids[port][0]:
+                            return (switch, port)
+            except Exception:
+                pass
             return None
         
         tasks = [check_switch(switch) for switch in switches]
         results = await asyncio.gather(*tasks)
-        
+
         for result in results:
             if result:
                 return result
