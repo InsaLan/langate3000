@@ -27,10 +27,10 @@ class Arp:
     
     def get_ip(self, mac: str):
         """
-        Get the mac address associated with a given ip address.
+        Get the ip address associated with a given mac address.
 
-        :param ip: Ip address of the machine.
-        :return: Mac address of the machine.
+        :param mac: Mac address of the machine.
+        :return: Ip address of the machine.
         """
         self.logger.info("Querying IP for MAC %s", mac)
         with open('/proc/net/arp', 'r') as f: # Open arp table

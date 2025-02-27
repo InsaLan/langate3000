@@ -103,12 +103,15 @@ class Devices:
                 vlan = 1
             else :
                 vlan:int = 100 + (int(ip_parts[1])-17)*10 + int(ip_parts[2])
-                if vlan < 100 or vlan > 199:
-                    vlan = 0
         except:
-            vlan = 0
+            vlan = -1
         
-        return (vlan, self.variables.vlans()[vlan])
+        if vlan not in self.variables.vlans().keys():
+            vlan_name = "not_found"
+        else:
+            vlan_name = self.variables.vlans()[vlan]
+        
+        return (vlan, vlan_name)
 
 class MockedDevices(Devices):
     def __init__(self, logger):
