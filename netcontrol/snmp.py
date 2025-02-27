@@ -4,6 +4,9 @@ from puresnmp import Client, V2C, PyWrapper
 from fastapi import HTTPException
 import asyncio
 
+TIMEOUT = 4
+RETRIES = 2
+
 class Snmp:
     def __init__(self, logger: logging.Logger, community: str):
         self.logger = logger
@@ -25,7 +28,7 @@ class Snmp:
         async def check_switch(switch):
             try:
                 client = Client(switch, self.v2c)
-                with client.reconfigure(timeout=1.4,retries=1):
+                with client.reconfigure(timeout=TIMEOUT,retries=RETRIES):
                     client = PyWrapper(client)
                     oids = {}
                     async for (oid, port) in client.walk(mac_oid):
@@ -40,12 +43,22 @@ class Snmp:
                 pass
             return None
         
-        tasks = [check_switch(switch) for switch in switches]
-        results = await asyncio.gather(*tasks)
+        tasks = [asyncio.create_task(check_switch(switch)) for switch in switches]
 
-        for result in results:
-            if result:
-                return result
+        while tasks:
+            done, pending = await asyncio.wait(
+                tasks,
+                return_when=asyncio.FIRST_COMPLETED
+            )
+
+            for task in done:
+                result = task.result()
+                if result is not None:
+                    for pending_task in pending:
+                        pending_task.cancel()
+                    return result
+
+            tasks = list(pending)
     
         self.logger.error(f"SNMP : Could not find switch for device {mac}")
         raise HTTPException(status_code=404, detail="Switch not found")
