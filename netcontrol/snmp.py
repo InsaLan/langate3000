@@ -4,7 +4,7 @@ from puresnmp import Client, V2C, PyWrapper
 from fastapi import HTTPException
 import asyncio
 
-TIMEOUT = 4
+TIMEOUT = 2.5
 RETRIES = 2
 
 class Snmp:
