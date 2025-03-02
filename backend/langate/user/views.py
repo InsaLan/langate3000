@@ -1,5 +1,6 @@
 """User module API Endpoints"""
 import requests
+import logging
 
 from functools import reduce
 from operator import or_
@@ -27,11 +28,13 @@ from langate.user.serializers import (
     UserRegisterSerializer,
 )
 
-from .models import User, Role
+from .models import User, Role, UserManager
 from langate.settings import netcontrol, LAN
 
 from langate.network.models import UserDevice, Device, DeviceManager
 from langate.network.serializers import UserDeviceSerializer
+
+logger = logging.getLogger(__name__)
 
 class Pagination(PageNumberPagination):
     page_size = 10
@@ -268,12 +271,11 @@ class UserLogin(APIView):
                         if request_result.status_code == 404:
                             # If the user is a staff member, he should have his account created
                             if "user" in request_result.json() and request_result.json()["user"]["is_staff"]:
-                                user = User.objects.create(
+                                user = User.objects.create_user(
                                     username=username,
                                     password=password,
                                     role=Role.STAFF
                                 )
-                                user.save()
                             # If the user is not registered to the event
                             elif "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
                                 return Response(
@@ -313,7 +315,7 @@ class UserLogin(APIView):
                                             manager = True if t["manager"] else manager
                                             team = t["team"]
                                             break
-                                    user = User.objects.create(
+                                    user = User.objects.create_user(
                                         username=username,
                                         password=password,
                                         role=Role.MANAGER if manager else Role.PLAYER,
@@ -322,7 +324,7 @@ class UserLogin(APIView):
                                     )
                                 # If the user is staff
                                 elif is_staff:
-                                    user = User.objects.create(
+                                    user = User.objects.create_user(
                                         username=username,
                                         password=password,
                                         role=Role.STAFF
@@ -333,7 +335,6 @@ class UserLogin(APIView):
                                         {"error": [_("Your account seems to be invalid, please contact a staff member")]},
                                         status=status.HTTP_403_FORBIDDEN,
                                     )
-                                user.save()
                         else:
                             # Other status code should not be returned
                             return Response(
@@ -347,9 +348,11 @@ class UserLogin(APIView):
                             status=status.HTTP_403_FORBIDDEN,
                         )
                     except Exception as e:
-                        raise PermissionDenied(
-                            _("An error occured during the request, please contact a staff member"),
-                        ) from e
+                        logger.exception("An error occurred during the request")
+                        return Response(
+                            {"error": [_("An error occurred during the request, please contact a staff member")]},
+                            status=status.HTTP_403_FORBIDDEN,
+                        )
                 else:
                     return Response(
                         {"error": [_("Bad username or password")]},
