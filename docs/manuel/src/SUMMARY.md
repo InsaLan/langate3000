@@ -6,7 +6,7 @@
   - [API REST](00-netcontrol/api.md)
   - [nftables](00-netcontrol/nftables.md)
   - [Marks](00-netcontrol/marks.md)
-  - [SNMP](snmp)
+  - [SNMP](00-netcontrol/snmp.md)
 
 - [Backend](01-backend/README.md)
   - [Classe netcontrol](01-backend/netcontrol.md)
