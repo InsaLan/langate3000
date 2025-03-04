@@ -43,7 +43,7 @@ définies dans le fichier `views.py` de l'application `network`.
 Ces vues sont protégées et nécessitent d'être authentifié en tant
 qu'administrateur pour être utilisées.
 
-Les vues de l'application `network` ne sont pas très complexes de la gate et ont
+Les vues de l'application `network` de la gate ne sont pas très complexes et ont
 pour but de renvoyer les listes d'appareils connectés, d'appareils
 whitelistés,... de manière paginée. Certains endpoints permettent aussi d'avoir
 des informations sur un appareil en particulier ou de le modifier.
