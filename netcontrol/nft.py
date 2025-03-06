@@ -83,6 +83,7 @@ class Nft:
         self._execute_nft_cmd("delete chain insalan netcontrol-filter")
         self._execute_nft_cmd("delete chain insalan netcontrol-nat")
         self._execute_nft_cmd("delete chain insalan netcontrol-forward")
+        self._execute_nft_cmd("delete chain insalan netcontrol-debypass")
         self._execute_nft_cmd("delete set insalan netcontrol-auth")
         self._execute_nft_cmd("delete map insalan netcontrol-mac2mark")
         

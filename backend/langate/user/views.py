@@ -84,7 +84,7 @@ class UserView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [SessionAuthentication]
     serializer_class = UserSerializer
 
-    def patch(self, request, *args, **kwargs):
+    def patch(self, request, pk, *args, **kwargs):
         """
         Update a user
         """
@@ -95,8 +95,8 @@ class UserView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if "bypass" in request.data:
-            user = UserSerializer(request.user, context={"request": request}).data
-            user_devices = UserDevice.objects.filter(user=request.user)
+            user = User.objects.get(pk=pk)
+            user_devices = UserDevice.objects.filter(user=user)
             for d in user_devices:
                 DeviceManager.edit_device(d, bypass=request.data["bypass"])
         return self.partial_update(request, *args, **kwargs)
