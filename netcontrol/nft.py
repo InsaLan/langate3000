@@ -115,8 +115,8 @@ class Nft:
         try:
             self._execute_nft_cmd(f"add element insalan netcontrol-mac2mark {{ {mac} : {str(mark)} }}")
             self._execute_nft_cmd(f"add element insalan netcontrol-auth {{ {mac} }}")
-        except NftablesException:
-            self.logger.error(f"Tried to add device {mac} (name: {name}), unexpected nftables error occurred")
+        except NftablesException as ex:
+            self.logger.error(f"Tried to add device {mac} (name: {name}), unexpected nftables error occurred: {ex}")
             raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
         
         self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
@@ -133,8 +133,8 @@ class Nft:
         try:
             self._execute_nft_cmd(f"delete element insalan netcontrol-mac2mark {{ {mac} }}")
             self._execute_nft_cmd(f"delete element insalan netcontrol-auth {{ {mac} }}")
-        except NftablesException:
-            self.logger.error(f"Tried to delete device {mac} which was not previously connected")
+        except NftablesException as ex:
+            self.logger.error(f"Tried to delete device {mac} which was not previously connected: {ex}")
             raise HTTPException(status_code=404, detail="Device was not previously connected")
         
         self.logger.info(f"Device {mac} disconnected")
