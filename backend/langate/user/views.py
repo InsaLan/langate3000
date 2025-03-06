@@ -270,7 +270,7 @@ class UserLogin(APIView):
                         )
                         if request_result.status_code == 404:
                             # If the user is a staff member, he should have his account created
-                            if "user" in request_result.json() and request_result.json()["user"]["is_staff"]:
+                            if "user" in request_result.json() and "is_staff" in request_result.json()["user"] and request_result.json()["user"]["is_staff"]:
                                 user = User.objects.create_user(
                                     username=username,
                                     password=password,
