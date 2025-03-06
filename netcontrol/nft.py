@@ -49,15 +49,15 @@ class Nft:
         
         # Set up table, set and map
         self._execute_nft_cmd("add table ip insalan")
-        self._execute_nft_cmd("add set insalan netcontrol-auth { type ether_addr; }")
-        self._execute_nft_cmd("add map insalan netcontrol-mac2mark { type ether_addr : mark; }")
+        self._execute_nft_cmd("add set insalan netcontrol-auth { type ether_addr; comment \"Lists authenticated MAC addresses.\"; }")
+        self._execute_nft_cmd("add map insalan netcontrol-mac2mark { type ether_addr : mark; comment \"Maps devices to marks.\"; }")
         
         # Marks packets from authenticated users using the map
-        self._execute_nft_cmd("add chain insalan netcontrol-filter { type filter hook prerouting priority 2; }")
+        self._execute_nft_cmd("add chain insalan netcontrol-filter { type filter hook prerouting priority -2; comment \"Forbids outbound packets from unauthenticated devices.\"; }")
         self._execute_nft_cmd("add rule insalan netcontrol-filter ip daddr != 172.16.1.0/24 ether saddr @netcontrol-auth meta mark set ether saddr map @netcontrol-mac2mark")
 
         # Let traffic with "bypass" pass through if no external rules have been added
-        self._execute_nft_cmd("add chain insalan netcontrol-debypass { type filter hook prerouting priority 0; }")
+        self._execute_nft_cmd("add chain insalan netcontrol-debypass { type filter hook prerouting priority 0; comment \"Removes the bypass mark for packets that are not bounds to blacklisted services.\"; }")
         self._execute_nft_cmd("add rule insalan netcontrol-debypass meta mark > 1024 meta mark set meta mark & 0xFFFFFBFF")
         
         # Block external requests to the netcontrol module
@@ -67,11 +67,11 @@ class Nft:
         self._execute_nft_cmd(f"add rule insalan netcontrol-filter ip daddr {{ {docker0_ip},172.16.1.1 }} tcp dport 6784 ip saddr != {{ {','.join(ips)}, {docker_subnet} }} drop")
         
         # Allow traffic to port 80 from unauthenticated devices and redirect it to the network head, to allow access to the langate webpage
-        self._execute_nft_cmd("add chain insalan netcontrol-nat { type nat hook prerouting priority 0; }")
+        self._execute_nft_cmd("add chain insalan netcontrol-nat { type nat hook prerouting priority 0; comment \"Redirects HTTP traffic to the gate for unauthenticated devices.\"; }")
         self._execute_nft_cmd("add rule insalan netcontrol-nat ip daddr != 172.16.1.0/24 ether saddr != @netcontrol-auth tcp dport 80 redirect to :80")
         
         # Block other traffic from users that are not authenticated
-        self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; }")
+        self._execute_nft_cmd("add chain insalan netcontrol-forward { type filter hook forward priority 0; comment \"Blocks access to langate-netcontrol from the outside world.\"; }")
         self._execute_nft_cmd(f"add rule insalan netcontrol-forward ip daddr != {{ 172.16.1.1,{docker_subnet} }} ip saddr {self.variables.ip_range()} ip saddr != {{ 172.16.1.1,{docker_subnet} }} ether saddr != @netcontrol-auth reject")
 
         self.logger.info("Gate nftables set up.")

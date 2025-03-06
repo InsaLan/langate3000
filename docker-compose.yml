@@ -76,7 +76,6 @@ services:
 
   caddy:
     image: caddy
-    restart: unless-stopped
     environment:
       - CADDY_HOST=${WEBSITE_HOST}
       - CADDY_PORT=80
@@ -99,7 +98,6 @@ services:
 
   netcontrol:
     build: ./netcontrol
-    restart: unless-stopped
     environment:
       - MOCK_NETWORK=${MOCK_NETWORK}
       - SNMP_COMMUNITY=${SNMP_COMMUNITY}
