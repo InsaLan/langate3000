@@ -52,14 +52,9 @@ class NetworkConfig(AppConfig):
                 userdevice = UserDevice.objects.filter(mac=dev.mac).first()
                 try:
                     if userdevice is not None:
-                        connect_res = netcontrol.connect_user(userdevice.mac, userdevice.mark, userdevice.bypass, userdevice.user.username)
+                        netcontrol.connect_user(userdevice.mac, userdevice.mark, userdevice.bypass, userdevice.user.username)
                     else:
-                        connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
-                except requests.HTTPError as e:
-                    logger.info(f"[PortalConfig] {e}")
-
-                try:
-                    mark_res = netcontrol.set_mark(dev.mac, dev.mark, dev.bypass)
+                        netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
                 except requests.HTTPError as e:
                     logger.info(f"[PortalConfig] {e}")
 
