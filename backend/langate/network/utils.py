@@ -35,7 +35,7 @@ def get_mark(user=None, excluded_marks=[]):
     # If the user is not None, get the mark from the user's game
     if user:
         if user.tournament:
-            if SETTINGS["games"] and SETTINGS["games"][user.tournament]:
+            if SETTINGS["games"] and user.tournament in SETTINGS["games"] and SETTINGS["games"][user.tournament]:
 
                 existing_marks = [
                   mark
