@@ -47,7 +47,6 @@ class NetworkConfig(AppConfig):
         ):
 
             logger.info(_("[PortalConfig] Adding previously connected devices to netcontrol"))
-
             for dev in Device.objects.all():
                 userdevice = UserDevice.objects.filter(mac=dev.mac).first()
                 try:
@@ -76,12 +75,7 @@ class NetworkConfig(AppConfig):
                                 dev.bypass = bypass
                                 dev.save()
                                 try:
-                                    connect_res = netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
-                                except requests.HTTPError as e:
-                                    logger.info(f"[PortalConfig] {e}")
-
-                                try:
-                                    mark_res = netcontrol.set_mark(dev.mac, mark, dev.bypass)
+                                    netcontrol.connect_user(dev.mac, dev.mark, dev.bypass, dev.name)
                                 except requests.HTTPError as e:
                                     logger.info(f"[PortalConfig] {e}")
                         else:
