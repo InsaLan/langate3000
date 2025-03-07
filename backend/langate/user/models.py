@@ -11,6 +11,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 
 import prometheus_client as prometheus
 
@@ -28,19 +30,22 @@ class UserManager(BaseUserManager):
         """
         check that all required fields are present and create an user
         """
-        if not username:
-            raise ValueError(_("A username is required"))
-        if not password:
-            raise ValueError(_("A password is required"))
-        user = self.model(
-            username=username,
-            date_joined=timezone.make_aware(datetime.now()),
-            **extra_fields
-        )
-        user.set_password(password)
-        user.save()
-        users_counter.inc()
-        return user
+        try:
+          if not username:
+              raise ValueError(_("A username is required"))
+          if not password:
+              raise ValueError(_("A password is required"))
+          user = self.model(
+              username=username,
+              date_joined=timezone.make_aware(datetime.now()),
+              **extra_fields
+          )
+          user.set_password(password)
+          user.save()
+          users_counter.inc()
+          return user
+        except IntegrityError as e:
+          raise ValidationError(_("An error occured while creating the user"))
 
     def create_superuser(self, username, password, **extra_fields):
         """

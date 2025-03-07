@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-03 13:28+0100\n"
+"POT-Creation-Date: 2025-03-07 19:04+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -29,7 +29,7 @@ msgstr "Module réseau"
 msgid "[PortalConfig] Adding previously connected devices to netcontrol"
 msgstr "[PortalConfig] Ajout des appareil connectés précédemment à netcontrol"
 
-#: langate/network/apps.py:66
+#: langate/network/apps.py:60
 #, fuzzy
 #| msgid "[PortalConfig] Add default whitelist devices to the ipset"
 msgid "[PortalConfig] Adding default whitelist devices to netcontrol"
@@ -56,8 +56,8 @@ msgstr "Impossible de déconnecter l'utilisateur⋅rice"
 msgid "An error occurred while creating the device"
 msgstr "Une erreur a eu lieu lors de la création de l'appareil"
 
-#: langate/network/models.py:121 langate/user/views.py:128
-#: langate/user/views.py:372
+#: langate/network/models.py:121 langate/user/views.py:131
+#: langate/user/views.py:387
 msgid "Could not get MAC address"
 msgstr "Impossible de récupérer l'adresse MAC"
 
@@ -75,8 +75,8 @@ msgstr "Impossible de définir la mark"
 msgid "The data provided is invalid"
 msgstr "Les données fournies sont invalides"
 
-#: langate/network/serializers.py:90 langate/user/views.py:625
-#: langate/user/views.py:640
+#: langate/network/serializers.py:90 langate/user/views.py:640
+#: langate/user/views.py:655
 msgid "User not found"
 msgstr "Utilisateur⋅rice introuvable"
 
@@ -160,45 +160,51 @@ msgstr "Gestionnaire d'utilisateur⋅rices"
 msgid "[PortalConfig] Loaded {users_count} users"
 msgstr "[PortalConfig] {users_count} utilisateurs chargés"
 
-#: langate/user/models.py:32 langate/user/serializers.py:39
+#: langate/user/models.py:35 langate/user/serializers.py:39
 msgid "A username is required"
 msgstr "Un nom d'utilisateur⋅rice est requis"
 
-#: langate/user/models.py:34 langate/user/serializers.py:41
+#: langate/user/models.py:37 langate/user/serializers.py:41
 msgid "A password is required"
 msgstr "Un mot de passe est requis"
 
 #: langate/user/models.py:50
+#, fuzzy, python-format
+#| msgid "An error occurred while creating the device"
+msgid "An error occured while creating the user"
+msgstr "Une erreur a eu lieu lors de la création de l'appareil"
+
+#: langate/user/models.py:57
 #, fuzzy
 #| msgid "Superusers must have a password."
 msgid "Superusers must have a password"
 msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe"
 
-#: langate/user/models.py:63
+#: langate/user/models.py:70
 msgid "Player"
 msgstr "Joueur·euse"
 
-#: langate/user/models.py:64
+#: langate/user/models.py:71
 msgid "Manager"
 msgstr "Manager"
 
-#: langate/user/models.py:65
+#: langate/user/models.py:72
 msgid "Guest"
 msgstr "Invité"
 
-#: langate/user/models.py:66
+#: langate/user/models.py:73
 msgid "Staff"
 msgstr "Staff"
 
-#: langate/user/models.py:67
+#: langate/user/models.py:74
 msgid "Admin"
 msgstr "Admin"
 
-#: langate/user/models.py:109
+#: langate/user/models.py:116
 msgid "User"
 msgstr "Utilisateur⋅rice"
 
-#: langate/user/models.py:110
+#: langate/user/models.py:117
 msgid "Users"
 msgstr "Utilisateur⋅rices"
 
@@ -208,8 +214,8 @@ msgstr "Utilisateur⋅rices"
 msgid "User account disabled"
 msgstr "Le compte utilisateur⋅rice est désactivé"
 
-#: langate/user/tests.py:103 langate/user/views.py:235
-#: langate/user/views.py:278 langate/user/views.py:352
+#: langate/user/tests.py:103 langate/user/views.py:238
+#: langate/user/views.py:291 langate/user/views.py:367
 #, fuzzy
 #| msgid "Bad Username or password"
 msgid "Bad username or password"
@@ -231,77 +237,92 @@ msgstr "\"badrole\" n'est pas un choix valide."
 msgid "This field may not be blank."
 msgstr "Ce champ est requis."
 
-#: langate/user/tests.py:542 langate/user/views.py:91
+#: langate/user/tests.py:542 langate/user/views.py:94
 #, fuzzy
 #| msgid "Passwords do not match"
 msgid "Password cannot be changed"
 msgstr "Le mot de passe ne peut pas être changé"
 
-#: langate/user/views.py:47
+#: langate/user/views.py:50
 msgid "CSRF cookie set"
 msgstr "Cookie CSRF défini"
 
-#: langate/user/views.py:198
+#: langate/user/views.py:201
 msgid "Username"
 msgstr "Nom d'utilisateur⋅rice"
 
-#: langate/user/views.py:202
+#: langate/user/views.py:205
 msgid "Password"
 msgstr "Mot de passe"
 
-#: langate/user/views.py:212
+#: langate/user/views.py:215
 msgid "User logged in"
 msgstr "Utilisateur⋅rice connecté⋅e"
 
-#: langate/user/views.py:223 langate/user/views.py:427
-#: langate/user/views.py:550 langate/user/views.py:613
-#: langate/user/views.py:648
+#: langate/user/views.py:226 langate/user/views.py:442
+#: langate/user/views.py:565 langate/user/views.py:628
+#: langate/user/views.py:663
 msgid "Invalid data format"
 msgstr "Format de données invalide"
 
-#: langate/user/views.py:272
+#: langate/user/views.py:285
 msgid "You are not registered to the event, please contact a staff member"
 msgstr "Vous n'êtes pas inscrit⋅e à l'événement, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:287
+#: langate/user/views.py:300
 msgid "Your ticket has not been paid, please contact a staff member"
 msgstr "Votre billet n'a pas été payé, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:325
+#: langate/user/views.py:338
 msgid "Your account seems to be invalid, please contact a staff member"
 msgstr "Votre compte semble invalide, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:332 langate/user/views.py:343
-#: langate/user/views.py:348
+#: langate/user/views.py:344
 msgid "An error occured during the request, please contact a staff member"
 msgstr ""
 "Une erreur est survenue lors de la requête, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:338
+#: langate/user/views.py:350
 msgid "The request timed out, please try again or contact a staff member"
 msgstr "La requête a expiré, veuillez réessayer ou contacter un⋅e staff"
 
-#: langate/user/views.py:502
+#: langate/user/views.py:356
+#, fuzzy
+#| msgid "You are not registered to the event, please contact a staff member"
+msgid ""
+"This account is already registered with a different password. Please contact "
+"a staff member to resolve this issue."
+msgstr ""
+"Ce compte est déjà enregistré avec un mot de passe différent. Veuillez "
+"contacter un⋅e staff pour résoudre ce problème."
+
+#: langate/user/views.py:362
+#, fuzzy
+#| msgid "An error occured during the request, please contact a staff member"
+msgid "An error occurred during the request, please contact a staff member"
+msgstr "Une erreur est survenue lors de la requête, veuillez contacter un⋅e staff"
+
+#: langate/user/views.py:517
 msgid "Filter the users"
 msgstr "Filtrer les utilisateur⋅rices"
 
-#: langate/user/views.py:508
+#: langate/user/views.py:523
 msgid "Order the users"
 msgstr "Ordonner les utilisateur⋅rices"
 
-#: langate/user/views.py:539
+#: langate/user/views.py:554
 #, fuzzy
 #| msgid "Username"
 msgid "User created"
 msgstr "Utilisateur⋅rice créé⋅e"
 
-#: langate/user/views.py:592
+#: langate/user/views.py:607
 #, fuzzy
 #| msgid "Password"
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
-#: langate/user/views.py:602
+#: langate/user/views.py:617
 #, fuzzy
 #| msgid "Password"
 msgid "Password changed"

@@ -347,6 +347,12 @@ class UserLogin(APIView):
                             {"error": [_("The request timed out, please try again or contact a staff member")]},
                             status=status.HTTP_403_FORBIDDEN,
                         )
+                    except ValidationError as e:
+                        logger.exception("An error occurred during the request")
+                        return Response(
+                            {"error": [_("This account is already registered with a different password. Please contact a staff member to resolve this issue.")]},
+                            status=status.HTTP_403_FORBIDDEN,
+                        )
                     except Exception as e:
                         logger.exception("An error occurred during the request")
                         return Response(
