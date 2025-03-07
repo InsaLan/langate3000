@@ -55,7 +55,7 @@ const {
           },
           {
             name: 'Tournoi',
-            key: 'tournaments',
+            key: 'tournament',
             ordering: false,
           },
           {
