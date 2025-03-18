@@ -326,13 +326,6 @@ const openFormModal = async (
   object: { [key: string]: string },
 ) => {
   if (action.modal) {
-    let additional: { [key: string]: string };
-
-    if (action.modal.additionalUrl) {
-      const url = action.modal.additionalUrl.replace(/\$\((\w+)\)/g, (_, key) => object[key as string]);
-      await axios.get(url).then((response) => { additional = response.data as { [key: string]: string }; });
-    }
-
     // if modal.fields is a function, call it with the object
     if (typeof action.modal.fields === 'function') {
       modal.fields = action.modal.fields(object[action.key]);
@@ -341,8 +334,7 @@ const openFormModal = async (
         name: field.name,
         key: field.key,
         value: (() => {
-          if (object[field.key]) return object[field.key];
-          if (additional) return additional[field.key];
+          if (object[field.key] !== undefined) return object[field.key];
           return '';
         })(),
         choices: field.choices,
@@ -380,7 +372,7 @@ const openFormModal = async (
         const data = response.data as { [key: string]: string };
         modal.fields = modal.fields.map((field) => ({
           ...field,
-          value: field.value ?? data[field.key] ?? '',
+          value: data[field.key] ?? field.value ?? '',
         }));
       }).catch((error) => {
         addNotification(`Erreur lors de la récupération des données: ${error}`, 'error');

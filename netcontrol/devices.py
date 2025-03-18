@@ -2,6 +2,7 @@ import logging
 from .variables import Variables
 from .arp import Arp
 from .snmp import Snmp
+from time import sleep
 from fastapi import HTTPException
 
 class Devices:
@@ -119,6 +120,8 @@ class MockedDevices(Devices):
     
     async def get_device_info(self, mac):
         self.logger.info(f"Fetched information for device {mac} (ip: 127.0.0.1)")
+        
+        sleep(0.5)
         
         return {
             "hostname": "computer",
