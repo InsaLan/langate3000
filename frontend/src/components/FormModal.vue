@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DOMPurify from 'dompurify';
 import { ref } from 'vue';
 import { useUserStore } from '@/stores/user.store';
 
@@ -23,6 +24,8 @@ export interface Props {
 const props = defineProps<Props>();
 defineEmits(['update:open']);
 
+const safeBody = DOMPurify.sanitize(props.body ?? '');
+
 const showPassword = ref<{ [key: string]: boolean }>({});
 
 </script>
@@ -34,7 +37,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
     @keydown.escape="$emit('update:open', false)"
   >
     <form
-      class="flex w-full min-w-[20%] max-w-2xl flex-col rounded-lg bg-theme-bg p-4"
+      class="flex min-w-[20%] max-w-2xl flex-col rounded-lg bg-theme-bg p-4"
       @submit.prevent="props.function"
     >
       <div class="mb-4 flex items-center justify-between">
@@ -53,8 +56,9 @@ const showPassword = ref<{ [key: string]: boolean }>({});
         v-if="props.body"
         class="mb-4 text-white"
       >
-        <div class="whitespace-pre-wrap">
-          {{ props.body }}
+        <div>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <p v-html="safeBody"/>
         </div>
       </div>
       <div class="flex flex-col gap-4">
