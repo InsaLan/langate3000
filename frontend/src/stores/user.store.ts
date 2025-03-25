@@ -37,11 +37,11 @@ export const useUserStore = defineStore('user', () => {
     csrf.value = cookie;
   }
 
-  async function login(username: string, password: string): Promise<boolean> {
+  async function login(username: string, password: string, accepted_tou: boolean): Promise<boolean | 'ToU'> {
     await get_csrf();
 
     try {
-      const user_data = await axios.post<User>('/user/login/', { username, password }, {
+      const user_data = await axios.post<User>('/user/login/', { username, password, accepted_tou }, {
         headers: {
           'X-CSRFToken': csrf.value,
           'Content-Type': 'application/json',
@@ -55,6 +55,9 @@ export const useUserStore = defineStore('user', () => {
       await router.push('/');
       return true;
     } catch (err) {
+      if ((err as AxiosError<{ error?: string }>).response?.status === 451) {
+        return 'ToU';
+      }
       addNotification(
         (err as AxiosError<{ error?: string }>).response?.data || 'An error occurred while logging in',
         'error',

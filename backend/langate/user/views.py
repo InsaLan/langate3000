@@ -366,6 +366,15 @@ class UserLogin(APIView):
                     )
             login(request, user)
 
+            if "accepted_tou" in data and data["accepted_tou"]:
+                user.accepted_tou = True
+                user.save()
+            elif not user.accepted_tou:
+                return Response(
+                    {"error": [_("You must accept the Terms of Use to continue")]},
+                    status=status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS,
+                )
+
             user = UserSerializer(user, context={"request": request}).data
 
             # handle user device

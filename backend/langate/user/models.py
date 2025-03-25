@@ -20,7 +20,7 @@ users_counter = prometheus.Counter("langate_users", "Total amount of users regis
 
 class UserManager(BaseUserManager):
     """
-    Managers the User objects (kind of like a serializer but not quite that)
+    Manages the User objects (kind of like a serializer but not quite that)
     """
 
     # pylint: disable=unused-argument
@@ -56,6 +56,7 @@ class UserManager(BaseUserManager):
         user = self.create_user(username, password, **extra_fields)
         user.role = Role.ADMIN
         user.is_active = True
+        user.accepted_tou = True
         user.save()
 
         return user
@@ -104,6 +105,9 @@ class User(AbstractBaseUser):
     
     # Whether the user's devices have bypass on
     bypass = models.BooleanField(default=False)
+    
+    # Whether the user has accepted the terms of use
+    accepted_tou = models.BooleanField(default=False)
     
     USERNAME_FIELD = "username"
     objects = UserManager()

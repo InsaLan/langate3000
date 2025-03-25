@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
+import FormModal from '@/components/FormModal.vue';
 import { useUserStore } from '@/stores/user.store';
 
 const { login } = useUserStore();
@@ -11,7 +12,13 @@ const login_form = reactive({
   password: '',
 });
 
-const login_user = async () => {
+const termsOfUse = `En vous connectant à notre réseau par ce portail, vous acceptez les conditions suivantes :
+- Vous êtes le seul responsable de toutes les connexions effectuées par vos appareils vers l'intérieur et l'extérieur du réseau;
+- Conformément à la réglementation française (article L34-1 du code des postes et des communications électroniques), vos connexions sont enregistrées pendant une période d'un an et pourront être fournies aux autorités si nécessaire. Vous disposez d'un droit d'accès et de rectification sur ces données.`;
+
+const openTermsOfUse = reactive({ value: false });
+
+const login_user = async (acceptTermsOfUse: boolean) => {
   // Change the login button to a loading spinner
   const login_button = document.getElementById('login_button');
   if (login_button) {
@@ -19,7 +26,9 @@ const login_user = async () => {
     login_button.textContent = 'Connexion en cours...';
   }
 
-  await login(login_form.username, login_form.password);
+  if (await login(login_form.username, login_form.password, acceptTermsOfUse) === 'ToU') {
+    openTermsOfUse.value = true;
+  }
 
   // Change the login button back to normal
   if (login_button) {
@@ -79,9 +88,18 @@ const showPassword = ref(false);
           </button>
         </div>
       </div>
-      <button id="login_button" type="submit" class="my-8 rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700" @click.prevent="login_user">
+      <button id="login_button" type="submit" class="my-8 rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700" @click.prevent="login_user(false)">
         Se connecter
       </button>
     </form>
   </div>
+  <FormModal
+    :buttons="'AccepterRefuser'"
+    :open="openTermsOfUse.value"
+    :title="'Conditions d\'utilisation'"
+    :body="termsOfUse"
+    :fields="[]"
+    :function="() => login_user(true)"
+    @update:open="openTermsOfUse.value = $event"
+  />
 </template>
