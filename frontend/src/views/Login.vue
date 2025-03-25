@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import FormModal from '@/components/FormModal.vue';
+import { useNotificationStore } from '@/stores/notification.stores';
 import { useUserStore } from '@/stores/user.store';
+
+const { addNotification } = useNotificationStore();
 
 const { login } = useUserStore();
 
@@ -100,6 +103,11 @@ const showPassword = ref(false);
     :body="termsOfUse"
     :fields="[]"
     :function="() => login_user(true)"
-    @update:open="openTermsOfUse.value = $event"
+    @update:open="(event) => {
+      openTermsOfUse.value = event;
+      if (!event) {
+        addNotification('Vous devez accepter les conditions pour vous connecter', 'error');
+      }
+    }"
   />
 </template>
