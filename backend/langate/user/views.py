@@ -251,6 +251,17 @@ class UserLogin(APIView):
         if serializer.is_valid():
             user = serializer.check_validity(data)
             if user is None:
+                try:
+                    User.objects.get(username=data["username"])
+                    
+                    # If we get here, it means the user exists but the password is wrong: no need to check the website API
+                    return Response(
+                        {"error": [_("Bad username or password")]},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+                except:
+                    pass
+                
                 # No user found locally, we try to login with the insalan website if we are LAN mode.
                 if LAN:
                     username = data["username"]

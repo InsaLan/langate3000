@@ -94,7 +94,7 @@ class UserEndToEndTestCase(TestCase):
         Try to login with invalid requests
         """
 
-        def send_valid_data(data):
+        def send_invalid_data(data):
             request = self.client.post("/user/login/", data, format="json")
 
             self.assertEqual(request.status_code, 403)
@@ -103,7 +103,35 @@ class UserEndToEndTestCase(TestCase):
                 _("Bad username or password"),
             )
 
-        send_valid_data(
+        send_invalid_data(
+            {
+                "username": "newplayer",
+                "password": "1111qwer!",
+            }
+        )
+    
+    def test_login_no_tou(self):
+        """
+        Try to login with an account that has not accepted the terms of use
+        """
+        
+        user = User.objects.create_user(
+            username="newplayer",
+            password="1111qwer!",
+            is_active=True,
+        )
+        user.save()
+        
+        def send_invalid_data(data):
+            request = self.client.post("/user/login/", data, format="json")
+
+            self.assertEqual(request.status_code, 451)
+            self.assertEqual(
+                request.data["error"][0],
+                _("You must accept the Terms of Use to continue"),
+            )
+
+        send_invalid_data(
             {
                 "username": "newplayer",
                 "password": "1111qwer!",
@@ -120,6 +148,7 @@ class UserEndToEndTestCase(TestCase):
             username="newplayer",
             password="1111qwer!",
             is_active=True,
+            accepted_tou=True,
         )
         user.save()
 
@@ -244,7 +273,7 @@ class UserAPITestCase(TestCase):
         self.assertEqual(request.data["results"][0]["devices"], [])
 
         # Verify the number of fields for the user
-        self.assertEqual(len(request.data["results"][0]), 11)
+        self.assertEqual(len(request.data["results"][0]), 12)
 
     def test_get_user_list_not_logged_in(self):
         """
