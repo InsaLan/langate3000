@@ -7,7 +7,8 @@ const { create_temp_password } = useUserStore();
 export interface Props {
   open: boolean;
   title: string;
-  buttons: 'OK' | 'ValiderAnnuler' | 'None';
+  body?: string;
+  buttons: 'OK' | 'ValiderAnnuler' | 'AccepterRefuser' | 'None';
   fields: {
     name: string;
     key: string;
@@ -25,7 +26,6 @@ defineEmits(['update:open']);
 const showPassword = ref<{ [key: string]: boolean }>({});
 
 </script>
-
 <template>
   <div
     v-show="props.open"
@@ -34,7 +34,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
     @keydown.escape="$emit('update:open', false)"
   >
     <form
-      class="flex min-w-[20%] flex-col rounded-lg bg-theme-bg p-4"
+      class="flex w-full min-w-[20%] max-w-2xl flex-col rounded-lg bg-theme-bg p-4"
       @submit.prevent="props.function"
     >
       <div class="mb-4 flex items-center justify-between">
@@ -42,12 +42,20 @@ const showPassword = ref<{ [key: string]: boolean }>({});
           {{ props.title }}
         </h2>
         <button
-          class="float-right text-2xl text-gray-300"
+          class="float-right mx-2 text-2xl text-gray-300"
           type="button"
           @click="$emit('update:open', false)"
         >
           &times;
         </button>
+      </div>
+      <div
+        v-if="props.body"
+        class="mb-4 text-white"
+      >
+        <div class="whitespace-pre-wrap">
+          {{ props.body }}
+        </div>
       </div>
       <div class="flex flex-col gap-4">
         <div
@@ -150,6 +158,24 @@ const showPassword = ref<{ [key: string]: boolean }>({});
           type="submit"
         >
           Valider
+        </button>
+      </div>
+      <div
+        v-if="props.buttons === 'AccepterRefuser'"
+        class="mt-4 flex justify-end"
+      >
+        <button
+          class="mr-2 rounded-md bg-theme-nav px-4 py-2 text-white"
+          type="button"
+          @click="$emit('update:open', false)"
+        >
+          Refuser
+        </button>
+        <button
+          class="rounded-md bg-blue-700 px-4 py-2 text-white"
+          type="submit"
+        >
+          Accepter
         </button>
       </div>
       <div

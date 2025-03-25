@@ -48,6 +48,7 @@ class UserLoginSerializer(serializers.Serializer):
 
     username = serializers.CharField()
     password = serializers.CharField()
+    accepted_tou = serializers.BooleanField(required=False)
 
     class Meta:
         """Meta class, used to set parameters"""
