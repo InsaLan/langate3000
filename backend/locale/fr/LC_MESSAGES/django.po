@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-07 19:04+0100\n"
+"POT-Creation-Date: 2025-03-29 12:14+0100\n"
 "PO-Revision-Date: 2024-05-04 20:25+0200\n"
 "Last-Translator: Insalan <contact@insalan.fr>\n"
 "Language-Team: Insalan <ccontact@insalan.fr>\n"
@@ -57,7 +57,7 @@ msgid "An error occurred while creating the device"
 msgstr "Une erreur a eu lieu lors de la création de l'appareil"
 
 #: langate/network/models.py:121 langate/user/views.py:131
-#: langate/user/views.py:387
+#: langate/user/views.py:404
 msgid "Could not get MAC address"
 msgstr "Impossible de récupérer l'adresse MAC"
 
@@ -75,8 +75,8 @@ msgstr "Impossible de définir la mark"
 msgid "The data provided is invalid"
 msgstr "Les données fournies sont invalides"
 
-#: langate/network/serializers.py:90 langate/user/views.py:640
-#: langate/user/views.py:655
+#: langate/network/serializers.py:90 langate/user/views.py:657
+#: langate/user/views.py:672
 msgid "User not found"
 msgstr "Utilisateur⋅rice introuvable"
 
@@ -168,76 +168,81 @@ msgstr "Un nom d'utilisateur⋅rice est requis"
 msgid "A password is required"
 msgstr "Un mot de passe est requis"
 
-#: langate/user/models.py:50
-#, fuzzy, python-format
+#: langate/user/models.py:48
+#, fuzzy
 #| msgid "An error occurred while creating the device"
 msgid "An error occured while creating the user"
 msgstr "Une erreur a eu lieu lors de la création de l'appareil"
 
-#: langate/user/models.py:57
+#: langate/user/models.py:55
 #, fuzzy
 #| msgid "Superusers must have a password."
 msgid "Superusers must have a password"
 msgstr "Les superutilisateur⋅rices doivent avoir un mot de passe"
 
-#: langate/user/models.py:70
+#: langate/user/models.py:69
 msgid "Player"
 msgstr "Joueur·euse"
 
-#: langate/user/models.py:71
+#: langate/user/models.py:70
 msgid "Manager"
 msgstr "Manager"
 
-#: langate/user/models.py:72
+#: langate/user/models.py:71
 msgid "Guest"
 msgstr "Invité"
 
-#: langate/user/models.py:73
+#: langate/user/models.py:72
 msgid "Staff"
 msgstr "Staff"
 
-#: langate/user/models.py:74
+#: langate/user/models.py:73
 msgid "Admin"
 msgstr "Admin"
 
-#: langate/user/models.py:116
+#: langate/user/models.py:118
 msgid "User"
 msgstr "Utilisateur⋅rice"
 
-#: langate/user/models.py:117
+#: langate/user/models.py:119
 msgid "Users"
 msgstr "Utilisateur⋅rices"
 
-#: langate/user/serializers.py:66
+#: langate/user/serializers.py:67
 #, fuzzy
 #| msgid "User account is disabled"
 msgid "User account disabled"
 msgstr "Le compte utilisateur⋅rice est désactivé"
 
 #: langate/user/tests.py:103 langate/user/views.py:238
-#: langate/user/views.py:291 langate/user/views.py:367
+#: langate/user/views.py:259 langate/user/views.py:299
+#: langate/user/views.py:375
 #, fuzzy
 #| msgid "Bad Username or password"
 msgid "Bad username or password"
 msgstr "Nom d'utilisateur⋅rice ou mot de passe incorrect"
 
-#: langate/user/tests.py:401 langate/user/tests.py:413
+#: langate/user/tests.py:131 langate/user/views.py:385
+msgid "You must accept the Terms of Use to continue"
+msgstr "Vous devez accepter les conditions d'utilisation pour continuer"
+
+#: langate/user/tests.py:430 langate/user/tests.py:442
 #, fuzzy
 #| msgid "A password is required"
 msgid "This field is required."
 msgstr "Ce champ est requis."
 
-#: langate/user/tests.py:447 langate/user/tests.py:532
+#: langate/user/tests.py:476 langate/user/tests.py:561
 #, fuzzy
 #| msgid "\"badrole\" is not a valid choice."
 msgid "\"badrole\" is not a valid choice."
 msgstr "\"badrole\" n'est pas un choix valide."
 
-#: langate/user/tests.py:522
+#: langate/user/tests.py:551
 msgid "This field may not be blank."
 msgstr "Ce champ est requis."
 
-#: langate/user/tests.py:542 langate/user/views.py:94
+#: langate/user/tests.py:571 langate/user/views.py:94
 #, fuzzy
 #| msgid "Passwords do not match"
 msgid "Password cannot be changed"
@@ -259,34 +264,34 @@ msgstr "Mot de passe"
 msgid "User logged in"
 msgstr "Utilisateur⋅rice connecté⋅e"
 
-#: langate/user/views.py:226 langate/user/views.py:442
-#: langate/user/views.py:565 langate/user/views.py:628
-#: langate/user/views.py:663
+#: langate/user/views.py:226 langate/user/views.py:459
+#: langate/user/views.py:582 langate/user/views.py:645
+#: langate/user/views.py:680
 msgid "Invalid data format"
 msgstr "Format de données invalide"
 
-#: langate/user/views.py:285
+#: langate/user/views.py:293
 msgid "You are not registered to the event, please contact a staff member"
 msgstr "Vous n'êtes pas inscrit⋅e à l'événement, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:300
+#: langate/user/views.py:308
 msgid "Your ticket has not been paid, please contact a staff member"
 msgstr "Votre billet n'a pas été payé, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:338
+#: langate/user/views.py:346
 msgid "Your account seems to be invalid, please contact a staff member"
 msgstr "Votre compte semble invalide, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:344
+#: langate/user/views.py:352
 msgid "An error occured during the request, please contact a staff member"
 msgstr ""
 "Une erreur est survenue lors de la requête, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:350
+#: langate/user/views.py:358
 msgid "The request timed out, please try again or contact a staff member"
 msgstr "La requête a expiré, veuillez réessayer ou contacter un⋅e staff"
 
-#: langate/user/views.py:356
+#: langate/user/views.py:364
 #, fuzzy
 #| msgid "You are not registered to the event, please contact a staff member"
 msgid ""
@@ -296,33 +301,33 @@ msgstr ""
 "Ce compte est déjà enregistré avec un mot de passe différent. Veuillez "
 "contacter un⋅e staff pour résoudre ce problème."
 
-#: langate/user/views.py:362
+#: langate/user/views.py:370
 #, fuzzy
 #| msgid "An error occured during the request, please contact a staff member"
 msgid "An error occurred during the request, please contact a staff member"
 msgstr "Une erreur est survenue lors de la requête, veuillez contacter un⋅e staff"
 
-#: langate/user/views.py:517
+#: langate/user/views.py:534
 msgid "Filter the users"
 msgstr "Filtrer les utilisateur⋅rices"
 
-#: langate/user/views.py:523
+#: langate/user/views.py:540
 msgid "Order the users"
 msgstr "Ordonner les utilisateur⋅rices"
 
-#: langate/user/views.py:554
+#: langate/user/views.py:571
 #, fuzzy
 #| msgid "Username"
 msgid "User created"
 msgstr "Utilisateur⋅rice créé⋅e"
 
-#: langate/user/views.py:607
+#: langate/user/views.py:624
 #, fuzzy
 #| msgid "Password"
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
-#: langate/user/views.py:617
+#: langate/user/views.py:634
 #, fuzzy
 #| msgid "Password"
 msgid "Password changed"
