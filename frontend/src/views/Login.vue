@@ -15,12 +15,6 @@ const login_form = reactive({
   password: '',
 });
 
-const termsOfUse = `En vous connectant au réseau de l'InsaLan par ce portail, <strong>vous acceptez les conditions suivantes</strong> :
-<ul style="margin-left: 20px; list-style: disc;">
-  <li style="margin-left: 20px; padding-top: 10px;">Vous êtes le <strong>seul responsable</strong> de toutes les connexions effectuées par vos appareils vers l'intérieur et l'extérieur du réseau;</li>
-  <li style="margin-left: 20px; padding-top: 10px;">Conformément à la réglementation française (article L34-1 du code des postes et des communications électroniques), <strong>vos connexions sont enregistrées</strong> pendant une période d'un an et pourront être fournies aux autorités si nécessaire. Vous disposez d'un droit d'accès et de rectification sur ces données.</li>
-</ul>`;
-
 const openTermsOfUse = reactive({ value: false });
 
 const login_user = async (acceptTermsOfUse: boolean) => {
@@ -102,7 +96,6 @@ const showPassword = ref(false);
     :buttons="'AccepterRefuser'"
     :open="openTermsOfUse.value"
     :title="'Conditions d\'utilisation'"
-    :body="termsOfUse"
     :fields="[]"
     :function="() => login_user(true)"
     @update:open="(event) => {
@@ -111,5 +104,24 @@ const showPassword = ref(false);
         addNotification('Vous devez accepter les conditions pour vous connecter', 'error');
       }
     }"
-  />
+  >
+    <template #body>
+      En vous connectant au réseau de l'InsaLan par ce portail,
+      <strong>vous acceptez les conditions suivantes</strong> :
+      <ul style="margin-left: 20px; list-style: disc;">
+        <li style="margin-left: 20px; padding-top: 10px;">
+          Vous êtes le <strong>seul responsable</strong>
+          de toutes les connexions effectuées par vos appareils
+          vers l'intérieur et l'extérieur du réseau;
+        </li>
+        <li style="margin-left: 20px; padding-top: 10px;">
+          Conformément à la réglementation française
+          (article L34-1 du code des postes et des communications électroniques),
+          <strong>vos connexions sont enregistrées</strong>
+          pendant une période d'un an et pourront être fournies aux autorités si nécessaire.
+          Vous disposez d'un droit d'accès et de rectification sur ces données.
+        </li>
+      </ul>
+    </template>
+  </FormModal>
 </template>
