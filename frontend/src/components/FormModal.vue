@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DOMPurify from 'dompurify';
 import { ref } from 'vue';
 import { useUserStore } from '@/stores/user.store';
 
@@ -23,8 +22,6 @@ export interface Props {
 
 const props = defineProps<Props>();
 defineEmits(['update:open']);
-
-const safeBody = DOMPurify.sanitize(props.body ?? '');
 
 const showPassword = ref<{ [key: string]: boolean }>({});
 
@@ -52,14 +49,8 @@ const showPassword = ref<{ [key: string]: boolean }>({});
           &times;
         </button>
       </div>
-      <div
-        v-if="props.body"
-        class="mb-4 text-white"
-      >
-        <div>
-          <!-- eslint-disable-next-line vue/no-v-html -->
-          <p v-html="safeBody"/>
-        </div>
+      <div v-if="$slots.body" class="mb-4 text-white">
+        <slot name="body"/>
       </div>
       <div class="flex flex-col gap-4">
         <div
