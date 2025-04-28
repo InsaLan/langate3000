@@ -52,7 +52,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
       <div v-if="$slots.body" class="mb-4 text-white">
         <slot name="body"/>
       </div>
-      <div class="flex flex-col gap-4">
+      <div v-if="props.fields.length > 0" class="mb-4 flex flex-col gap-4">
         <div
           v-for="field in props.fields"
           :key="field.key"
@@ -139,7 +139,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
       </div>
       <div
         v-if="props.buttons === 'ValiderAnnuler'"
-        class="mt-4 flex justify-end"
+        class="flex justify-end"
       >
         <button
           class="mr-2 rounded-md bg-theme-nav px-4 py-2 text-white"
@@ -157,7 +157,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
       </div>
       <div
         v-if="props.buttons === 'AccepterRefuser'"
-        class="mt-4 flex justify-end"
+        class="flex justify-end"
       >
         <button
           class="mr-2 rounded-md bg-theme-nav px-4 py-2 text-white"
@@ -175,7 +175,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
       </div>
       <div
         v-else-if="props.buttons === 'OK'"
-        class="mt-4 flex justify-end"
+        class="flex justify-end"
       >
         <button
           class="mr-2 rounded-md bg-blue-700 px-4 py-2 text-white"
