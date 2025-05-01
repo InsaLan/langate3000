@@ -97,8 +97,12 @@ class Nft:
             mac (str): MAC address
             mark (int): mark to set
         """
-        
-        self.delete_user(mac)
+
+        try:
+            self.delete_user(mac)
+        except:
+            self.logger.error(f"Failed to delete the previous mark of the device. Connecting to the new one anyways.")
+
         self.connect_user(mac, mark, bypass, "previously_connected_device")
 
     def connect_user(self, mac: str, mark: int, bypass: bool, name: str) -> None:
@@ -117,8 +121,11 @@ class Nft:
             self._execute_nft_cmd(f"add element insalan netcontrol-mac2mark {{ {mac} : {str(mark)} }}")
             self._execute_nft_cmd(f"add element insalan netcontrol-auth {{ {mac} }}")
         except NftablesException as ex:
-            self.logger.error(f"Tried to add device {mac} (name: {name}), unexpected nftables error occurred: {ex}")
-            raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
+            if "File exists" in str(ex):
+                self.logger.warning(f"Got \"File exists\" when trying to add the device {mac} (name: {name}) to nftables: {ex}")
+            else:
+                self.logger.error(f"Tried to add device {mac} (name: {name}), unexpected nftables error occurred: {ex}")
+                raise HTTPException(status_code=500, detail="Unexpected nftables error occurred")
         
         self.logger.info(f"Device {mac} (name: {name}) connected with mark {mark}")
 
