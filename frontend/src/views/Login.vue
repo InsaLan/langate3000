@@ -110,7 +110,7 @@ const showPassword = ref(false);
       <strong>vous acceptez les conditions suivantes</strong> :
       <ul style="margin-left: 20px; list-style: disc;">
         <li style="margin-left: 20px; padding-top: 10px;">
-          Vous êtes le <strong>seul responsable</strong>
+          Vous êtes <strong>l'unique responsable</strong>
           de toutes les connexions effectuées par vos appareils
           vers l'intérieur et l'extérieur du réseau;
         </li>
