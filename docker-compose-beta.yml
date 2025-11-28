@@ -49,7 +49,7 @@ services:
       PGTZ: Europe/Paris
     volumes:
       - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
-      - ./volumes/beta/postgres/data:/var/lib/postgresql/data
+      - ./volumes/beta/postgres:/var/lib/postgresql
     expose:
       - 5432
     healthcheck:

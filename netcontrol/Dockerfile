@@ -1,14 +1,16 @@
-FROM python:3.12-alpine3.19
+FROM debian:bookworm-slim
 
 WORKDIR /nctl
 
-RUN apk add --no-cache nftables git \
-	&& pip install 'git+https://git.netfilter.org/nftables@v1.1.0#egg=nftables&subdirectory=py' \
-	&& apk del git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		python3-pip \
+		python3-setuptools \
+		nftables \
+		python3-nftables
 
 COPY requirements.txt /nctl/
 
-RUN pip install -r /nctl/requirements.txt
+RUN python3 -m pip install --no-cache-dir --break-system-packages -r /nctl/requirements.txt
 
 COPY . /nctl
 
