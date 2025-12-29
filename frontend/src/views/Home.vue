@@ -71,6 +71,11 @@ const { addNotification } = useNotificationStore();
             key: 'mac',
             ordering: false,
           },
+          {
+            name: 'Connecté',
+            key: 'enabled',
+            ordering: false,
+          }
         ]"
         :pagination="false"
         :search="false"
