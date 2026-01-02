@@ -75,7 +75,7 @@ const { addNotification } = useNotificationStore();
             name: 'Connecté',
             key: 'enabled',
             ordering: false,
-          }
+          },
         ]"
         :pagination="false"
         :search="false"

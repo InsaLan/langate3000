@@ -5,8 +5,10 @@ WORKDIR /app
 
 RUN apk add --no-cache postgresql15-dev gcc musl-dev gettext
 
+COPY requirements-dev.txt /app/
 COPY requirements.txt /app/
 
 RUN pip install -r /app/requirements.txt
+RUN pip install -r /app/requirements-dev.txt
 
 ENTRYPOINT ["./entrypoint-dev.sh"]
