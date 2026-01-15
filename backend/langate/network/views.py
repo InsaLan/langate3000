@@ -222,7 +222,7 @@ class DeviceDetail(generics.RetrieveDestroyAPIView):
         """
         try:
             device = Device.objects.get(pk=pk)
-            DeviceManager.delete_device(device.mac)
+            DeviceManager.disconnect_device(device.mac)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Device.DoesNotExist:
             return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)
@@ -469,7 +469,7 @@ class UserDeviceDetail(APIView):
             if device.user != request.user:
                 return Response({"error": _("You are not allowed to delete this device")}, status=status.HTTP_403_FORBIDDEN)
 
-            DeviceManager.delete_device(device.mac)
+            DeviceManager.disconnect_device(device.mac)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except UserDevice.DoesNotExist:
             return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)

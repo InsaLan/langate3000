@@ -91,7 +91,7 @@ class DeviceManager(models.Manager):
             ) from e
 
     @staticmethod
-    def delete_device(mac):
+    def disconnect_device(mac):
         """
         Delete a device with the given mac address
         """
@@ -149,7 +149,13 @@ class DeviceManager(models.Manager):
               device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, mark=mark, bypass=bypass)
             else:
               if device.user.username != user.username:
+                if device.enabled:
+                  raise ValidationError(
+                    _("Cannot takeover connected device")
+                  )
+                logger.info(f"Device %s was took over from %s to %s.", device.mac, device.user, user)
                 device.user = user
+
               device.enabled = True
             device.save()
             return device
@@ -169,7 +175,7 @@ class DeviceManager(models.Manager):
         """
         Delete a device with the given mac address
         """
-        return DeviceManager.delete_device(Device.mac)
+        return DeviceManager.disconnect_device(Device.mac)
 
     @staticmethod
     def edit_device(device: Device, mac=None, name=None, mark=None, bypass=None):

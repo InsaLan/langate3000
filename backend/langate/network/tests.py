@@ -278,7 +278,7 @@ class TestNetworkAPI(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @patch('langate.settings.netcontrol.disconnect_user', return_value=None)
-    def test_disactivate_device_success(self, mock_disconnect_user):
+    def test_deactivate_device_success(self, mock_disconnect_user):
         """
         Test the deletion of a device
         """
