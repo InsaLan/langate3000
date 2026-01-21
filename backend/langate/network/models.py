@@ -148,12 +148,14 @@ class DeviceManager(models.Manager):
             except UserDevice.DoesNotExist:
               device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, mark=mark, bypass=bypass)
             else:
+              logger.debug(device)
               if device.user.username != user.username:
+                logger.debug(f"Device currently %s", device.enabled)
                 if device.enabled:
                   raise ValidationError(
                     _("Cannot takeover connected device")
                   )
-                logger.info(f"Device %s was took over from %s to %s.", device.mac, device.user, user)
+                logger.info(f"Device with mac %s was took over from %s to %s.", device.mac, device.user, user)
                 device.user = user
 
               device.enabled = True
