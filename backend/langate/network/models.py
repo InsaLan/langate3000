@@ -109,22 +109,22 @@ class DeviceManager(models.Manager):
         return device
 
     @staticmethod
-    def create_user_device(user: User, ip, name=None):
+    def create_user_device(user: User, ip, name=None, mac=None):
         """
         Create a device with the given mac address
         """
         if not name:
             name = generate_dev_name()
 
-        try:
+        if not mac:
+          try:
             mac = netcontrol.get_mac(ip)
-        except requests.HTTPError as e:
+          except requests.HTTPError as e:
             raise ValidationError(
               _("Could not get MAC address")
             ) from e
-
-        # Validate the MAC address
-        validate_mac(mac)
+          # Validate the MAC address
+          validate_mac(mac)
 
         mark = get_mark(user)
         bypass = user.bypass

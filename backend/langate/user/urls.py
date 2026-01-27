@@ -11,4 +11,5 @@ urlpatterns = [
     path("users/", views.UserList.as_view(), name="users"),
     path("users/<int:pk>/", views.UserView.as_view(), name="/"),
     path("change-password/<int:pk>/", views.ChangePassword.as_view(), name="change-password"),
+    path("radius-auth/<str:mac>/", views.RadiusConnect.as_view(), name="radius-auth"),
 ]

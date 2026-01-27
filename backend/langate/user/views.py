@@ -190,7 +190,160 @@ class UserMe(generics.RetrieveAPIView):
 
         return Response(user)
 
-class UserLogin(APIView):
+class BaseUserLogin(APIView):
+    """
+    Base class for user login API endpoint.
+    """
+
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [SessionAuthentication]
+
+    def checkAuth(self, request) -> Int:
+        """
+        Check if the user is allowed to login.
+        return a HTTP response.
+        """
+        data = request.data
+        serializer = UserLoginSerializer(data=data, context={"request": request})
+        if not serializer.is_valid():
+            return Response(
+                {"error": _("Invalid data format")},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            self.user = serializer.check_validity(data)
+        except ValidationError:
+            return Response(
+                {"error": _("Bad username or password")},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        else:
+            if self.user is None:
+                try:
+                    User.objects.get(username=data["username"]) #User exists locally but password is wrong
+                    return Response(
+                        {"error": _("Bad username or password")},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+                except: #User does not exist locally
+                    pass
+                if LAN:
+                    try:
+                        return self.checkWebsite(data["username"], data["password"])
+                    except requests.exceptions.Timeout:
+                        return Response(
+                            {"error": _("The request timed out, please try again or contact a staff member")},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+                    except ValidationError as e:
+                        logger.exception("An error occurred during the request")
+                        return Response(
+                            {"error": _("This account is already registered with a different password. Please contact a staff member to resolve this issue.")},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+                    except Exception as e:
+                        logger.exception("An error occurred during the request")
+                        return Response(
+                            {"error": _("An error occurred during the request, please contact a staff member")},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+                else:
+                    return Response(
+                        {"error": _("Bad username or password")},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+
+    def checkWebsite(self, username : str, password : str) -> Response:
+        """
+        Check if the user is allowed to login through the website API.
+        return a HTTP response.
+        """
+        request_result = requests.post(
+            "https://api.insalan.fr/v1/langate/authenticate/",
+            json={
+                "username": username,
+                "password": password
+            },
+            # Timeout is required when using requests module to avoid blocking the request
+            # This might be not enough in case of website load, should be monitored during the event
+            timeout=4
+        )
+        if request_result.status_code == 404:
+            # If the user is a staff member, he should have his account created
+            if "user" in request_result.json() and "is_staff" in request_result.json()["user"] and request_result.json()["user"]["is_staff"]:
+                self.user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    role=Role.STAFF
+                )
+                return Response(status=status.HTTP_200_OK)
+            # If the user is not registered to the event
+            elif "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
+                return Response(
+                    {"error": _("You are not registered to the event, please contact a staff member")},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            else:
+                # There should not be any other 404 than the user not found
+                return Response(
+                    {"error": _("Bad username or password")},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        elif request_result.status_code == 200:
+            json_result = request_result.json()
+
+            # If the user has not paid his ticket
+            if json_result["err"] == "no_paid_place":
+                return Response(
+                    {"error": _("Your ticket has not been paid, please contact a staff member")},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            else:
+                is_staff = json_result["user"]["is_staff"]
+                tournaments = json_result["tournaments"]
+
+                # If the user is registered to the event, then it's a player
+                if len(tournaments) != 0:
+                    manager = False
+                    short_name = None
+                    team = None
+                    # there should only be one tournament but in case of multiple tournaments
+                    # we take the first one that has been paid
+                    for t in tournaments:
+                        if t["has_paid"]:
+                            short_name = t["shortname"]
+                            manager = True if t["manager"] else manager
+                            team = t["team"]
+                            break
+                    self.user = User.objects.create_user(
+                        username=username,
+                        password=password,
+                        role=Role.MANAGER if manager else Role.PLAYER,
+                        tournament=short_name,
+                        team=team
+                    )
+                # If the user is staff
+                elif is_staff:
+                    self.user = User.objects.create_user(
+                        username=username,
+                        password=password,
+                        role=Role.STAFF
+                    )
+                else:
+                    # We should never reach this point (if the user is not registered to the event and is not staff, he should not be able to login)
+                    return Response(
+                        {"error": _("Your account seems to be invalid, please contact a staff member")},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            return Response(status=status.HTTP_200_OK)
+        else:
+            # Other status code should not be returned
+            return Response(
+                {"error": _("An error occured during the request, please contact a staff member")},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+class UserLogin(BaseUserLogin):
     """
     API endpoint that allows user login.
     """
@@ -252,219 +405,92 @@ class UserLogin(APIView):
         """
         Submit a login form
         """
-        data = request.data
-        serializer = UserLoginSerializer(data=data, context={"request": request})
-        if serializer.is_valid():
-            user = serializer.check_validity(data)
-            if user is None:
-                try:
-                    User.objects.get(username=data["username"])
+        is_authenticated = self.checkAuth(request)
+        if is_authenticated.status != status.HTTP_200_OK:
+          return is_authenticated
+        login(request, self.user)
 
-                    # If we get here, it means the user exists but the password is wrong: no need to check the website API
-                    return Response(
-                        {"error": [_("Bad username or password")]},
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
-                except:
-                    pass
+        if "accepted_tou" in data and data["accepted_tou"]:
+            self.user.accepted_tou = True
+            self.user.save()
+        elif not self.user.accepted_tou:
+            return Response(
+                {"error": [_("You must accept the Terms of Use to continue")]},
+                status=status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS,
+            )
 
-                # No user found locally, we try to login with the insalan website if we are LAN mode.
-                if LAN:
-                    username = data["username"]
-                    password = data["password"]
+        user = UserSerializer(self.user, context={"request": request}).data
 
-                    # Try to login with the insalan website to create account
-                    try:
-                        request_result = requests.post(
-                          "https://api.insalan.fr/v1/langate/authenticate/",
-                          json={
-                              "username": username,
-                              "password": password
-                              },
-                          # Timeout is required when using requests module to avoid blocking the request
-                          # This might be not enough in case of website load, should be monitored during the event
-                          timeout=4
+        # handle user device
+        client_ip = get_original_ip(request)
+        user_devices = UserDevice.objects.filter(user=request.user)
+
+        user["current_ip"] = client_ip
+        user["too_many_devices"] = False
+
+        # If this device is not registered on the network, we register it.
+        if not user_devices.filter(ip=client_ip).exists():
+            try:
+                client_mac = netcontrol.get_mac(client_ip)
+            except requests.HTTPError as e:
+                raise ValidationError(
+                    _("Could not get MAC address")
+                ) from e
+            try:
+                # The following should never raise a MultipleObjectsReturned exception
+                # because it would mean that there are more than one devices
+                # already registered with the same MAC.
+
+                device = UserDevice.objects.get(mac=client_mac)
+                # If the device MAC is already registered on the network but with a different IP,
+                # This could happen if the DHCP has changed the IP of the client.
+
+                # * If the registered device is owned by another user, we delete the old device and we register the new one.
+                if device.user != request.user:
+                    if device.enabled:
+                      return Response(
+                            {"error": [_("This device is already used by another user")]},
+                            status=status.HTTP_403_FORBIDDEN
                         )
-                        if request_result.status_code == 404:
-                            # If the user is a staff member, he should have his account created
-                            if "user" in request_result.json() and "is_staff" in request_result.json()["user"] and request_result.json()["user"]["is_staff"]:
-                                user = User.objects.create_user(
-                                    username=username,
-                                    password=password,
-                                    role=Role.STAFF
-                                )
-                            # If the user is not registered to the event
-                            elif "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
-                                return Response(
-                                    {"error": [_("You are not registered to the event, please contact a staff member")]},
-                                    status=status.HTTP_403_FORBIDDEN,
-                                )
-                            else:
-                                # There should not be any other 404 than the user not found
-                                return Response(
-                                    {"error": [_("Bad username or password")]},
-                                    status=status.HTTP_403_FORBIDDEN,
-                                )
-                        elif request_result.status_code == 200:
-                            json_result = request_result.json()
-
-                            # If the user has not paid his ticket
-                            if json_result["err"] == "no_paid_place":
-                                return Response(
-                                    {"error": [_("Your ticket has not been paid, please contact a staff member")]},
-                                    status=status.HTTP_403_FORBIDDEN,
-                                )
-                            else:
-                                is_staff = json_result["user"]["is_staff"]
-
-                                tournaments = json_result["tournaments"]
-
-                                # If the user is registered to the event, then it's a player
-                                if len(tournaments) != 0:
-                                    manager = False
-                                    short_name = None
-                                    team = None
-                                    # there should only be one tournament but in case of multiple tournaments
-                                    # we take the first one that has been paid
-                                    for t in tournaments:
-                                        if t["has_paid"]:
-                                            short_name = t["shortname"]
-                                            manager = True if t["manager"] else manager
-                                            team = t["team"]
-                                            break
-                                    user = User.objects.create_user(
-                                        username=username,
-                                        password=password,
-                                        role=Role.MANAGER if manager else Role.PLAYER,
-                                        tournament=short_name,
-                                        team=team
-                                    )
-                                # If the user is staff
-                                elif is_staff:
-                                    user = User.objects.create_user(
-                                        username=username,
-                                        password=password,
-                                        role=Role.STAFF
-                                    )
-                                else:
-                                    # We should never reach this point (if the user is not registered to the event and is not staff, he should not be able to login)
-                                    return Response(
-                                        {"error": [_("Your account seems to be invalid, please contact a staff member")]},
-                                        status=status.HTTP_403_FORBIDDEN,
-                                    )
-                        else:
-                            # Other status code should not be returned
-                            return Response(
-                                {"error": [_("An error occured during the request, please contact a staff member")]},
-                                status=status.HTTP_403_FORBIDDEN,
-                            )
-
-                    except requests.exceptions.Timeout:
-                        return Response(
-                            {"error": [_("The request timed out, please try again or contact a staff member")]},
-                            status=status.HTTP_403_FORBIDDEN,
-                        )
-                    except ValidationError as e:
-                        logger.exception("An error occurred during the request")
-                        return Response(
-                            {"error": [_("This account is already registered with a different password. Please contact a staff member to resolve this issue.")]},
-                            status=status.HTTP_403_FORBIDDEN,
-                        )
-                    except Exception as e:
-                        logger.exception("An error occurred during the request")
-                        return Response(
-                            {"error": [_("An error occurred during the request, please contact a staff member")]},
-                            status=status.HTTP_403_FORBIDDEN,
-                        )
-                else:
-                    return Response(
-                        {"error": [_("Bad username or password")]},
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
-            login(request, user)
-
-            if "accepted_tou" in data and data["accepted_tou"]:
-                user.accepted_tou = True
-                user.save()
-            elif not user.accepted_tou:
-                return Response(
-                    {"error": [_("You must accept the Terms of Use to continue")]},
-                    status=status.HTTP_451_UNAVAILABLE_FOR_LEGAL_REASONS,
-                )
-
-            user = UserSerializer(user, context={"request": request}).data
-
-            # handle user device
-            client_ip = get_original_ip(request)
-            user_devices = UserDevice.objects.filter(user=request.user)
-
-            user["current_ip"] = client_ip
-            user["too_many_devices"] = False
-
-            # If this device is not registered on the network, we register it.
-            if not user_devices.filter(ip=client_ip).exists():
-                try:
-                    client_mac = netcontrol.get_mac(client_ip)
-                except requests.HTTPError as e:
-                    raise ValidationError(
-                        _("Could not get MAC address")
-                    ) from e
-                try:
-                    # The following should never raise a MultipleObjectsReturned exception
-                    # because it would mean that there are more than one devices
-                    # already registered with the same MAC.
-
-                    device = UserDevice.objects.get(mac=client_mac)
-                    # If the device MAC is already registered on the network but with a different IP,
-                    # This could happen if the DHCP has changed the IP of the client.
-
-                    # * If the registered device is owned by another user, we delete the old device and we register the new one.
-                    if device.user != request.user:
+                    else:
                         if user_devices.count() >= request.user.max_device_nb:
                             user["too_many_devices"] = True
-
                             user_devices = UserDevice.objects.filter(user=request.user)
-
                             # Add UserDevices that belong to the user
                             user["devices"] = UserDeviceSerializer(
                                 user_devices, many=True
                             ).data
-
                             return Response(user, status=status.HTTP_200_OK)
-                        DeviceManager.delete_user_device(device)
-
-                        DeviceManager.create_user_device(request.user, client_ip)
-                    # * If the registered device is owned by the requesting user, we change the IP of the registered device.
-                    else:
-                        device.ip = client_ip
-                        device.save()
-
-                except UserDevice.DoesNotExist:
-                    # If the device is not registered on the network, we register it.
-                    if user_devices.count() >= request.user.max_device_nb:
-                        user["too_many_devices"] = True
-
-                        user_devices = UserDevice.objects.filter(user=request.user)
-
-                        # Add UserDevices that belong to the user
-                        user["devices"] = UserDeviceSerializer(
-                            user_devices, many=True
-                        ).data
-
-                        return Response(user, status=status.HTTP_200_OK)
+                    DeviceManager.delete_user_device(device)
                     DeviceManager.create_user_device(request.user, client_ip)
+                # * If the registered device is owned by the requesting user, we change the IP of the registered device.
+                else:
+                    device.ip = client_ip
+                    device.save()
 
-            user_devices = UserDevice.objects.filter(user=request.user)
+            except UserDevice.DoesNotExist:
+                # If the device is not registered on the network, we register it.
+                if user_devices.count() >= request.user.max_device_nb:
+                    user["too_many_devices"] = True
 
-            user["devices"] = UserDeviceSerializer(
-                user_devices, many=True
-            ).data
+                    user_devices = UserDevice.objects.filter(user=request.user)
 
-            return Response(status=status.HTTP_200_OK, data=user)
-        return Response(
-            {"error": [_("Invalid data format")]},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+                    # Add UserDevices that belong to the user
+                    user["devices"] = UserDeviceSerializer(
+                        user_devices, many=True
+                    ).data
+
+                    return Response(user, status=status.HTTP_200_OK)
+                DeviceManager.create_user_device(request.user, client_ip)
+
+        user_devices = UserDevice.objects.filter(user=request.user)
+
+        user["devices"] = UserDeviceSerializer(
+            user_devices, many=True
+        ).data
+
+        return Response(status=status.HTTP_200_OK, data=user)
+
 
 
 class UserLogout(APIView):
@@ -686,3 +712,85 @@ class ChangePassword(APIView):
             {"error": [_("Invalid data format")]},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+class RadiusConnect(BaseUserLogin):
+    """
+    API endpoint for radius server to ask for user connection permission.
+    """
+    permissions_classes = [permissions.AllowAny]
+    authentication_classes = [SessionAuthentication]
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "username": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description=_("Username")
+                ),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description=_("Password")
+                ),
+            },
+            responses={
+                200: openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description=_("Access granted")
+                ),
+                400: openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description=_("Invalid data format")
+                ),
+                403: openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description=_("Access denied")
+                ),
+            }
+        )
+    )
+    def post(self, request, mac):
+        """
+        Check if a user is allowed to connect to the network then do whatever is necessary.
+        """
+        is_authenticated = self.checkAuth(request)
+        if is_authenticated.status != status.HTTP_200_OK:
+            return is_authenticated
+        login(request, self.user)
+
+        user_devices = UserDevice.objects.filter(user=request.user)
+
+        if not user_devices.filter(mac=mac).exists():
+            # device is not registered to the user
+            try:
+                device = UserDevice.objects.get(mac=mac)
+                # device is registered to another user, we check if it's enabled
+                if device.user != request.user:
+                    if device.enabled:
+                        return Response(
+                            {"error": [_("This device is already used by another user")]},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+                    else:
+                        if user_devices.count() >= request.user.max_device_nb:
+                            self.user["too_many_devices"] = True
+                            self.user["devices"] = UserDeviceSerializer(
+                                user_devices, many=True
+                            ).data
+                            return Response(self.user, status=status.HTTP_200_OK)
+                        DeviceManager.delete_user_device(device)
+                        DeviceManager.create_user_device(request.user, None, mac=mac)
+                elif not device.enabled:
+                    device.enabled = True
+                    device.save()
+
+            except UserDevice.DoesNotExist:
+                #if the device does not exist, we create it
+                if user_devices.count() >= request.user.max_device_nb:
+                    self.user["too_many_devices"] = True
+                    self.user["devices"] = UserDeviceSerializer(
+                        user_devices, many=True
+                    ).data
+                    return Response(self.user, status=status.HTTP_200_OK)
+                DeviceManager.create_user_device(request.user, None, mac=mac)
+        return Response(status=status.HTTP_200_OK)
