@@ -98,6 +98,8 @@ class UserEndToEndTestCase(TestCase):
             request = self.client.post("/user/login/", data, format="json")
 
             self.assertEqual(request.status_code, 403)
+            import sys
+            print(request.data, file=sys.stderr)
             self.assertEqual(
                 request.data["error"][0],
                 _("Bad username or password"),
@@ -109,19 +111,19 @@ class UserEndToEndTestCase(TestCase):
                 "password": "1111qwer!",
             }
         )
-    
+
     def test_login_no_tou(self):
         """
         Try to login with an account that has not accepted the terms of use
         """
-        
+
         user = User.objects.create_user(
             username="newplayer",
             password="1111qwer!",
             is_active=True,
         )
         user.save()
-        
+
         def send_invalid_data(data):
             request = self.client.post("/user/login/", data, format="json")
 

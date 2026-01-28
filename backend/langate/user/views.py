@@ -198,7 +198,7 @@ class BaseUserLogin(APIView):
     permission_classes = [permissions.AllowAny]
     authentication_classes = [SessionAuthentication]
 
-    def checkAuth(self, request) -> Int:
+    def checkAuth(self, request) -> Response:
         """
         Check if the user is allowed to login.
         return a HTTP response.
@@ -252,6 +252,7 @@ class BaseUserLogin(APIView):
                         {"error": _("Bad username or password")},
                         status=status.HTTP_403_FORBIDDEN
                     )
+            return Response(status=status.HTTP_200_OK)
 
     def checkWebsite(self, username : str, password : str) -> Response:
         """
@@ -291,7 +292,6 @@ class BaseUserLogin(APIView):
                 )
         elif request_result.status_code == 200:
             json_result = request_result.json()
-
             # If the user has not paid his ticket
             if json_result["err"] == "no_paid_place":
                 return Response(
@@ -322,6 +322,7 @@ class BaseUserLogin(APIView):
                         tournament=short_name,
                         team=team
                     )
+                    return Response(status=status.HTTP_200_OK)
                 # If the user is staff
                 elif is_staff:
                     self.user = User.objects.create_user(
@@ -329,6 +330,7 @@ class BaseUserLogin(APIView):
                         password=password,
                         role=Role.STAFF
                     )
+                    return Response(status=status.HTTP_200_OK)
                 else:
                     # We should never reach this point (if the user is not registered to the event and is not staff, he should not be able to login)
                     return Response(
@@ -406,10 +408,11 @@ class UserLogin(BaseUserLogin):
         Submit a login form
         """
         is_authenticated = self.checkAuth(request)
-        if is_authenticated.status != status.HTTP_200_OK:
+        if is_authenticated.status_code != status.HTTP_200_OK:
           return is_authenticated
         login(request, self.user)
 
+        data = request.data
         if "accepted_tou" in data and data["accepted_tou"]:
             self.user.accepted_tou = True
             self.user.save()
@@ -754,7 +757,7 @@ class RadiusConnect(BaseUserLogin):
         Check if a user is allowed to connect to the network then do whatever is necessary.
         """
         is_authenticated = self.checkAuth(request)
-        if is_authenticated.status != status.HTTP_200_OK:
+        if is_authenticated.status_code != status.HTTP_200_OK:
             return is_authenticated
         login(request, self.user)
 
