@@ -98,8 +98,6 @@ class UserEndToEndTestCase(TestCase):
             request = self.client.post("/user/login/", data, format="json")
 
             self.assertEqual(request.status_code, 403)
-            import sys
-            print(request.data, file=sys.stderr)
             self.assertEqual(
                 request.data["error"][0],
                 _("Bad username or password"),

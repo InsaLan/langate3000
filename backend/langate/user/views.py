@@ -207,14 +207,14 @@ class BaseUserLogin(APIView):
         serializer = UserLoginSerializer(data=data, context={"request": request})
         if not serializer.is_valid():
             return Response(
-                {"error": _("Invalid data format")},
+                {"error": [_("Invalid data format")]},
                 status=status.HTTP_400_BAD_REQUEST
             )
         try:
             self.user = serializer.check_validity(data)
         except ValidationError:
             return Response(
-                {"error": _("Bad username or password")},
+                {"error": [_("Bad username or password")]},
                 status=status.HTTP_403_FORBIDDEN
             )
         else:
@@ -222,7 +222,7 @@ class BaseUserLogin(APIView):
                 try:
                     User.objects.get(username=data["username"]) #User exists locally but password is wrong
                     return Response(
-                        {"error": _("Bad username or password")},
+                        {"error": [_("Bad username or password")]},
                         status=status.HTTP_403_FORBIDDEN
                     )
                 except: #User does not exist locally
@@ -232,24 +232,24 @@ class BaseUserLogin(APIView):
                         return self.checkWebsite(data["username"], data["password"])
                     except requests.exceptions.Timeout:
                         return Response(
-                            {"error": _("The request timed out, please try again or contact a staff member")},
+                            {"error": [_("The request timed out, please try again or contact a staff member")]},
                             status=status.HTTP_403_FORBIDDEN
                         )
                     except ValidationError as e:
                         logger.exception("An error occurred during the request")
                         return Response(
-                            {"error": _("This account is already registered with a different password. Please contact a staff member to resolve this issue.")},
+                            {"error": [_("This account is already registered with a different password. Please contact a staff member to resolve this issue.")]},
                             status=status.HTTP_403_FORBIDDEN
                         )
                     except Exception as e:
                         logger.exception("An error occurred during the request")
                         return Response(
-                            {"error": _("An error occurred during the request, please contact a staff member")},
+                            {"error": [_("An error occurred during the request, please contact a staff member")]},
                             status=status.HTTP_403_FORBIDDEN
                         )
                 else:
                     return Response(
-                        {"error": _("Bad username or password")},
+                        {"error": [_("Bad username or password")]},
                         status=status.HTTP_403_FORBIDDEN
                     )
             return Response(status=status.HTTP_200_OK)
@@ -281,13 +281,13 @@ class BaseUserLogin(APIView):
             # If the user is not registered to the event
             elif "err" in request_result.json() and request_result.json()["err"] == "registration_not_found":
                 return Response(
-                    {"error": _("You are not registered to the event, please contact a staff member")},
+                    {"error": [_("You are not registered to the event, please contact a staff member")]},
                     status=status.HTTP_403_FORBIDDEN
                 )
             else:
                 # There should not be any other 404 than the user not found
                 return Response(
-                    {"error": _("Bad username or password")},
+                    {"error": [_("Bad username or password")]},
                     status=status.HTTP_403_FORBIDDEN
                 )
         elif request_result.status_code == 200:
@@ -295,7 +295,7 @@ class BaseUserLogin(APIView):
             # If the user has not paid his ticket
             if json_result["err"] == "no_paid_place":
                 return Response(
-                    {"error": _("Your ticket has not been paid, please contact a staff member")},
+                    {"error": [_("Your ticket has not been paid, please contact a staff member")]},
                     status=status.HTTP_403_FORBIDDEN
                 )
             else:
@@ -334,14 +334,14 @@ class BaseUserLogin(APIView):
                 else:
                     # We should never reach this point (if the user is not registered to the event and is not staff, he should not be able to login)
                     return Response(
-                        {"error": _("Your account seems to be invalid, please contact a staff member")},
+                        {"error": [_("Your account seems to be invalid, please contact a staff member")]},
                         status=status.HTTP_403_FORBIDDEN
                     )
             return Response(status=status.HTTP_200_OK)
         else:
             # Other status code should not be returned
             return Response(
-                {"error": _("An error occured during the request, please contact a staff member")},
+                {"error": [_("An error occured during the request, please contact a staff member")]},
                 status=status.HTTP_403_FORBIDDEN
             )
 
