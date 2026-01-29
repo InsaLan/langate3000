@@ -47,7 +47,7 @@ class UserDevice(Device):
     """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ip = models.GenericIPAddressField(blank=False)
+    ip = models.GenericIPAddressField(blank=True, null=True)
 
 class DeviceManager(models.Manager):
     """
