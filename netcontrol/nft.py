@@ -1,3 +1,4 @@
+import threading
 import nftables
 import json
 import logging
@@ -9,6 +10,9 @@ class Nft:
     """
     Class which interacts with the nftables backend
     """
+
+    _lock = threading.Lock()
+
     def __init__(self, logger: logging.Logger, variables: Variables) -> None:
         self.logger = logger
         self.variables = variables
@@ -33,14 +37,16 @@ class Nft:
         Returns:
             dict: parsed JSON output
         """
-        output: str
-        rc, output, error = self.nft.cmd(cmd)
-        if rc != 0 or (error is not None and error != ""):
-            raise NftablesException(rc, error)
-        if output == "":
-            return {}
-        else:
-            return json.loads(output)["nftables"]
+
+        with Nft._lock:
+            output: str
+            rc, output, error = self.nft.cmd(cmd)
+            if rc != 0 or (error is not None and error != ""):
+                raise NftablesException(rc, error)
+            if output == "":
+                return {}
+            else:
+                return json.loads(output)["nftables"]
 
     def setup_portail(self) -> None:
         """
