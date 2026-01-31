@@ -30,7 +30,7 @@ const { addNotification } = useNotificationStore();
         Bon jeu, {{ user?.username }} !
       </div>
       <div class="text-center">
-        Vous êtes désormais connecté au réseau de l'InsaLan.
+        Vous êtes désormais connecté·e au réseau de l'InsaLan.
       </div>
     </template>
     <template
