@@ -69,7 +69,7 @@ class NetworkConfig(AppConfig):
                             bypass = line[3] if len(line) >= 4 else True
                             dev = Device.objects.filter(mac=mac).first()
                             if dev is None:
-                                dev = DeviceManager.create_device(mac, name, True, False, mark)
+                                dev = DeviceManager.create_device(mac, name, True, True, False, mark)
                             else:
                                 dev.whitelisted = True
                                 dev.bypass = bypass

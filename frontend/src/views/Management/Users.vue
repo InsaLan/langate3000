@@ -43,7 +43,7 @@ const {
             ordering: false,
           },
           {
-            name: 'Nombre d\'appareils connectés',
+            name: 'Nombre d\'appareils',
             key: 'device_nb',
             ordering: true,
             function: (user: unknown) => (user as User).devices.length.toString(),

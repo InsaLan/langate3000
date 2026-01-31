@@ -36,6 +36,7 @@ class Device(models.Model):
       unique=True,
       validators=[validate_mac]
     )
+    enabled = models.BooleanField(default=True)
     whitelisted = models.BooleanField(default=False)
     bypass = models.BooleanField(default=False)
     mark = models.IntegerField(default=SETTINGS["marks"][0]["value"])
@@ -54,7 +55,7 @@ class DeviceManager(models.Manager):
     """
 
     @staticmethod
-    def create_device(mac, name, whitelisted=False, bypass=False, mark=None):
+    def create_device(mac, name, enabled=True, whitelisted=False, bypass=False, mark=None):
         """
         Create a device with the given mac address and name
         """
@@ -62,7 +63,7 @@ class DeviceManager(models.Manager):
             name = generate_dev_name()
         if not mark:
             mark = SETTINGS["marks"][0]["value"]
-        
+
         # Validate the MAC address
         validate_mac(mac)
 
@@ -75,7 +76,7 @@ class DeviceManager(models.Manager):
             ) from e
 
         try:
-            device = Device.objects.create(mac=mac, name=name, whitelisted=whitelisted, bypass=bypass, mark=mark)
+            device = Device.objects.create(mac=mac, name=name, enabled=enabled, whitelisted=whitelisted, bypass=bypass, mark=mark)
             device.save()
             return device
         except Exception as e:
@@ -90,7 +91,7 @@ class DeviceManager(models.Manager):
             ) from e
 
     @staticmethod
-    def delete_device(mac):
+    def disconnect_device(mac):
         """
         Delete a device with the given mac address
         """
@@ -103,7 +104,8 @@ class DeviceManager(models.Manager):
             ) from e
 
         device = Device.objects.get(mac=mac)
-        device.delete()
+        device.enabled = False
+        device.save()
         return device
 
     @staticmethod
@@ -141,7 +143,22 @@ class DeviceManager(models.Manager):
             ) from e
 
         try:
-            device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, mark=mark, bypass=bypass)
+            try:
+              device = UserDevice.objects.get(mac=mac)
+            except UserDevice.DoesNotExist:
+              device = UserDevice.objects.create(mac=mac, name=name, user=user, ip=ip, mark=mark, bypass=bypass)
+            else:
+              logger.debug(device)
+              if device.user.username != user.username:
+                logger.debug(f"Device currently %s", device.enabled)
+                if device.enabled:
+                  raise ValidationError(
+                    _("Cannot takeover connected device")
+                  )
+                logger.info(f"Device with mac %s was took over from %s to %s.", device.mac, device.user, user)
+                device.user = user
+
+              device.enabled = True
             device.save()
             return device
         except Exception as e:
@@ -160,7 +177,7 @@ class DeviceManager(models.Manager):
         """
         Delete a device with the given mac address
         """
-        return DeviceManager.delete_device(Device.mac)
+        return DeviceManager.disconnect_device(Device.mac)
 
     @staticmethod
     def edit_device(device: Device, mac=None, name=None, mark=None, bypass=None):
@@ -190,12 +207,12 @@ class DeviceManager(models.Manager):
                 device.mark = mark
             else:
                 mark = device.mark
-            
+
             if bypass is not None and bypass != device.bypass:
                 device.bypass = bypass
             else:
                 bypass = device.bypass
-            
+
             try:
                 netcontrol.set_mark(device.mac, mark, bypass)
             except requests.HTTPError as e:
@@ -207,11 +224,11 @@ class DeviceManager(models.Manager):
             device.save()
         except Exception as e:
             raise ValidationError(_("The data provided is invalid")) from e
-    
+
     @staticmethod
     def get_device_info(mac):
         """
         Get information about a device
         """
-        
+
         return netcontrol.get_device_info(mac)
