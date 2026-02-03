@@ -154,7 +154,6 @@ class UserMe(generics.RetrieveAPIView):
 
                         return Response(user, status=status.HTTP_200_OK)
                     DeviceManager.delete_user_device(device)
-
                     DeviceManager.create_user_device(request.user, client_ip)
                 # * If the registered device is owned by the requesting user, we change the IP of the registered device.
                 elif device.user != request.user and device.enabled:
@@ -432,7 +431,6 @@ class UserLogin(APIView):
 
                             return Response(user, status=status.HTTP_200_OK)
                         DeviceManager.delete_user_device(device)
-
                         DeviceManager.create_user_device(request.user, client_ip)
                     # * If the registered device is owned by the requesting user, we change the IP of the registered device.
                     else:
@@ -488,9 +486,9 @@ class UserLogout(APIView):
 
         if user_devices.filter(ip=client_ip).exists():
             # When the user decides to disconnect from the portal from a device,
-            # we delete the device from the database.
+            # we deactivate the device from the database.
             device = user_devices.get(ip=client_ip)
-            DeviceManager.delete_user_device(device)
+            DeviceManager.deactivate_user_device(device)
 
         logout(request)
         return Response(status=status.HTTP_200_OK)

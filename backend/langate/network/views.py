@@ -222,7 +222,7 @@ class DeviceDetail(generics.RetrieveDestroyAPIView):
         """
         try:
             device = Device.objects.get(pk=pk)
-            DeviceManager.disconnect_device(device.mac)
+            DeviceManager.delete_device(device.mac)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Device.DoesNotExist:
             return Response({"error": _("Device not found")}, status=status.HTTP_404_NOT_FOUND)

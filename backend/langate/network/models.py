@@ -93,7 +93,7 @@ class DeviceManager(models.Manager):
     @staticmethod
     def disconnect_device(mac):
         """
-        Delete a device with the given mac address
+        Deactivate a device with the given mac address
         """
         try:
             netcontrol.disconnect_user(mac)
@@ -105,6 +105,24 @@ class DeviceManager(models.Manager):
 
         device = Device.objects.get(mac=mac)
         device.enabled = False
+        device.save()
+        return device
+
+    @staticmethod
+    def delete_device(mac):
+        """
+        Delete a device with the given mac address
+        """
+        try:
+            netcontrol.disconnect_user(mac)
+            logger.info("Disconnected device %s from the internet.", mac)
+        except requests.HTTPError as e:
+            raise ValidationError(
+              _("Could not disconnect user")
+            ) from e
+
+        device = Device.objects.get(mac=mac)
+        device.delete()
         device.save()
         return device
 
@@ -177,6 +195,10 @@ class DeviceManager(models.Manager):
         """
         Delete a device with the given mac address
         """
+        return DeviceManager.delete_device(Device.mac)
+
+    @staticmethod
+    def deactivate_user_device(Device):
         return DeviceManager.disconnect_device(Device.mac)
 
     @staticmethod
