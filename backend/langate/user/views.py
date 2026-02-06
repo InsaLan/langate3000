@@ -139,9 +139,8 @@ class UserMe(generics.RetrieveAPIView):
                 # If the device MAC is already registered on the network but with a different IP,
                 # This could happen if the DHCP has changed the IP of the client.
 
-                # * If the registered device is owned by another user, and that the device is currently disconnected,
-                # we delete the old device and we register the new one.
-                if device.user != request.user and not device.enabled:
+                # * If the registered device is owned by another user, we delete the old device and we register the new one.
+                if device.user != request.user:
                     if user_devices.count() >= request.user.max_device_nb:
                         user["too_many_devices"] = True
 
@@ -157,11 +156,6 @@ class UserMe(generics.RetrieveAPIView):
 
                     DeviceManager.create_user_device(request.user, client_ip)
                 # * If the registered device is owned by the requesting user, we change the IP of the registered device.
-                elif device.user != request.user and device.enabled:
-                  return Response(
-                      {"error": [_("This device is already used by another user")]},
-                      status=status.HTTP_403_FORBIDDEN
-                  )
                 else:
                     device.ip = client_ip
                     device.save()
@@ -259,7 +253,7 @@ class UserLogin(APIView):
             if user is None:
                 try:
                     User.objects.get(username=data["username"])
-
+                    
                     # If we get here, it means the user exists but the password is wrong: no need to check the website API
                     return Response(
                         {"error": [_("Bad username or password")]},
@@ -267,7 +261,7 @@ class UserLogin(APIView):
                     )
                 except:
                     pass
-
+                
                 # No user found locally, we try to login with the insalan website if we are LAN mode.
                 if LAN:
                     username = data["username"]

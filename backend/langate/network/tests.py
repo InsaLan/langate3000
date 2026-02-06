@@ -218,7 +218,6 @@ class TestNetworkAPI(TestCase):
           'id': self.user_device.pk,
           'name': 'TestDevice',
           'mac': '00:11:22:33:44:55',
-          'enabled': True,
           'whitelisted': False,
           'mark': 100,
           'bypass': False,
@@ -241,7 +240,6 @@ class TestNetworkAPI(TestCase):
           'id': self.device.pk,
           'name': 'TestDeviceWhitelist',
           'mac': '00:11:22:33:44:56',
-          'enabled': True,
           'whitelisted': True,
           'mark': 100,
           'bypass': True,
@@ -278,7 +276,7 @@ class TestNetworkAPI(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @patch('langate.settings.netcontrol.disconnect_user', return_value=None)
-    def test_deactivate_device_success(self, mock_disconnect_user):
+    def test_delete_device_success(self, mock_disconnect_user):
         """
         Test the deletion of a device
         """
@@ -287,9 +285,8 @@ class TestNetworkAPI(TestCase):
         response = self.client.delete(reverse('device-detail', args=[self.user_device.pk]))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        self.assertFalse(Device.objects.filter(pk=self.user_device.pk)[0].enabled) #pkey is unique so taking the first
-        self.assertFalse(UserDevice.objects.filter(pk=self.user_device.pk)[0].enabled) #element to get a property is
-                                                                                        #is fine
+        self.assertFalse(Device.objects.filter(pk=self.user_device.pk).exists())
+        self.assertFalse(UserDevice.objects.filter(pk=self.user_device.pk).exists())
 
     @patch('langate.settings.netcontrol.disconnect_user', return_value=None)
     def test_delete_device_not_found(self, mock_disconnect_user):
@@ -409,7 +406,6 @@ class TestNetworkAPI(TestCase):
               'id': self.user_device.pk,
               'name': 'TestDevice',
               'mac': '00:11:22:33:44:55',
-              'enabled': True,
               'whitelisted': False,
               'mark': 100,
               'bypass': False,
@@ -420,7 +416,6 @@ class TestNetworkAPI(TestCase):
               'id': self.device.pk,
               'name': 'TestDeviceWhitelist',
               'mac': '00:11:22:33:44:56',
-              'enabled': True,
               'whitelisted': True,
               'mark': 100,
               'bypass': True,
@@ -477,7 +472,6 @@ class TestNetworkAPI(TestCase):
               'id': self.user_device.pk,
               'name': 'TestDevice',
               'mac': '00:11:22:33:44:55',
-              'enabled': True,
               'whitelisted': False,
               'bypass': False,
               'ip': '123.123.123.123',
