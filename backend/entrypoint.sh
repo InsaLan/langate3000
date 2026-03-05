@@ -2,10 +2,10 @@
 
 echo "=== MAKING MIGRATIONS ==="
 python manage.py makemigrations
-echo "=== ALL MIGRATIONS ==="
-python manage.py showmigrations
 echo "=== APPLYING MIGRATIONS ==="
 python manage.py migrate --run-syncdb
+echo "=== ALL MIGRATIONS ==="
+python manage.py showmigrations
 echo "=== DEPLOYING STATIC FILES ==="
 python manage.py collectstatic --noinput
 echo "=== COMPILING TRANSLATIONS ==="
