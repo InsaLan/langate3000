@@ -1,7 +1,11 @@
+<script setup lang="ts">
+const buildYear = BUILD_YEAR;
+</script>
+
 <template>
   <div class="flex flex-col items-center justify-center border-t border-gray-300 bg-theme-nav md:flex-row md:gap-2 md:pb-3">
     <div>
-      © InsaLan, 2025
+      © InsaLan, {{ buildYear }}
     </div>
     <div class="hidden text-gray-400 md:block">
       |
