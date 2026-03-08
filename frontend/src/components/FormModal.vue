@@ -24,7 +24,15 @@ const props = defineProps<Props>();
 defineEmits(['update:open']);
 
 const showPassword = ref<{ [key: string]: boolean }>({});
+const focusedField = ref<string | null>(null);
 
+const unfocus = () => {
+  // Source - https://stackoverflow.com/a/56899483
+  // Posted by Wilco, modified by community. See post 'Timeline' for change history
+  // Retrieved 2026-03-08, License - CC BY-SA 4.0
+
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+};
 </script>
 <template>
   <div
@@ -60,7 +68,7 @@ const showPassword = ref<{ [key: string]: boolean }>({});
         >
           <label :for="field.key" class="text-sm text-gray-300">{{ field.name }}</label>
           <select
-            v-if="field.choices"
+            v-if="field.choices && field.type === 'text'"
             :id="field.key"
             v-model="field.value"
             class="rounded-md border border-black bg-theme-nav p-2 text-white"
@@ -74,6 +82,34 @@ const showPassword = ref<{ [key: string]: boolean }>({});
               {{ choice.value }}
             </option>
           </select>
+          <div v-else-if="field.choices && field.type === 'number'" class="relative inline-block">
+            <input
+              :id="field.key"
+              v-model="field.value"
+              type="number"
+              class="w-full rounded-md border border-black bg-theme-nav p-2 text-white"
+              :required="field.required"
+              :list="`${field.key}-choices`"
+              @focus="focusedField = field.key"
+              @blur="focusedField = null"
+            >
+            <ul
+              v-show="focusedField === field.key"
+              :id="`${field.key}-choices`"
+              class="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border border-black bg-theme-nav shadow-lg"
+              @mousedown.prevent
+            >
+              <li
+                v-for="choice in field.choices"
+                :key="choice.key"
+                class="cursor-pointer px-3 py-2 text-sm text-gray-200 hover:bg-black/30 hover:text-white"
+                @click="field.value = choice.key; unfocus()"
+                @keydown.enter="field.value = choice.key; unfocus()"
+              >
+                {{ choice.value }}
+              </li>
+            </ul>
+          </div>
           <textarea
             v-else-if="field.type === 'textarea'"
             :id="field.key"

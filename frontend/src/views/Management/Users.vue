@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
@@ -11,10 +13,18 @@ const {
   create_user, reset_password, delete_user, edit_user,
 } = useUserStore();
 
+const deviceStore = useDeviceStore();
+
 const {
   change_userdevice_marks,
-} = useDeviceStore();
+  fetch_marks,
+} = deviceStore;
 
+const { marks } = storeToRefs(deviceStore);
+
+onMounted(async () => {
+  await fetch_marks();
+});
 </script>
 
 <template>
@@ -246,6 +256,10 @@ const {
                   name: `Mark de ${device.name} (${device.ip})`,
                   key: device.id,
                   type: 'number',
+                  choices: marks.map((mark) => ({
+                    key: mark.value.toString(),
+                    value: `${mark.value} - ${mark.name}`,
+                  })),
                   value: device.mark,
                   required: true,
                   device,
