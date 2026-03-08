@@ -1,13 +1,22 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
 import { useDeviceStore } from '@/stores/devices.store';
 
-const { deleteDevice, editDevice } = useDeviceStore();
+const deviceStore = useDeviceStore();
+
+const { deleteDevice, editDevice, fetch_marks } = deviceStore;
+
+const { marks } = storeToRefs(deviceStore);
 
 const queryParams = window.location.search;
 
+onMounted(async () => {
+  await fetch_marks();
+});
 </script>
 
 <template>
@@ -97,6 +106,10 @@ const queryParams = window.location.search;
                   name: 'Mark',
                   key: 'mark',
                   type: 'number',
+                  choices: marks.map((mark) => ({
+                    key: mark.value.toString(),
+                    value: `${mark.value} - ${mark.name}`,
+                  })),
                 },
               ],
             },
@@ -167,7 +180,7 @@ const queryParams = window.location.search;
                 },
               ],
             },
-            function: async (device, fields) => { },
+            function: async () => {},
           },
         ]"
       />
