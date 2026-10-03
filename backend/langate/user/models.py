@@ -72,6 +72,17 @@ class Role(models.TextChoices):
     STAFF = "staff", _("Staff")
     ADMIN = "admin", _("Admin")
 
+class Payment(models.TextChoices):
+    """
+    Enum for the payment info
+    """
+
+    GRATUIT = "gratuit", _("Gratuit")
+    CARTE_AMICALISTE = "carte-amicaliste", _("CarteAmicaliste")
+    CARTE_NON_AMICALISTE = "carte-non-amicaliste", _("CarteNonAmicaliste")
+    ESPECES_AMICALISTE = "especes-amicaliste", _("EspecesAmicaliste")
+    ESPECES_NON_AMICALISTE = "especes-non-amicaliste", _("EspecesNonAmicaliste")
+
 class User(AbstractBaseUser):
     """
     A user is simply our own abstraction defined above the standard Django User class.
@@ -87,6 +98,12 @@ class User(AbstractBaseUser):
         max_length=50,
         choices=Role.choices,
         default=Role.PLAYER,
+    )
+    payment = models.CharField(
+        max_length=50,
+        choices=Payment.choices,
+        null=True,
+        default=None,
     )
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(

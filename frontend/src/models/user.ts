@@ -1,4 +1,5 @@
 import type { UserDevice } from './device';
+import type { Payment } from './payment';
 
 export enum UserRole {
   Player = 'player',
@@ -15,6 +16,7 @@ export interface User {
   date_joined: Date;
   is_active: boolean;
   role: UserRole;
+  payment: Payment,
   max_device_nb: number;
   tournament?: string;
   team?: string;

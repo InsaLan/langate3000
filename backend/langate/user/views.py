@@ -506,11 +506,11 @@ class UserList(generics.ListCreateAPIView):
         query = User.objects.all().order_by("-date_joined")
         orders = [
           "id", "-id", "last_login", "-last_login", "username", "-username",
-          "role", "-role", "is_active", "-is_active", "date_joined", "-date_joined",
+          "role", "-role", "payment", "-payment", "is_active", "-is_active", "date_joined", "-date_joined",
           "max_device_nb", "-max_device_nb", "tournament", "-tournament", "team", "-team",
         ]
         filters = [
-          "username", "role", "tournament", "team"
+          "username", "role", "payment", "tournament", "team"
         ]
         # Fuzzy search
         if 'filter' in self.request.query_params:
