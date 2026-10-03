@@ -4,9 +4,9 @@ import { onMounted } from 'vue';
 import ManagementMenu from '@/components/ManagementMenu.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
+import { Payment } from '@/models/payment';
 import type { User } from '@/models/user';
 import { UserRole } from '@/models/user';
-import { Payment } from '@/models/payment';
 import { useDeviceStore } from '@/stores/devices.store';
 import { useUserStore } from '@/stores/user.store';
 
