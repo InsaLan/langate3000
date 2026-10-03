@@ -6,6 +6,7 @@ import PaginatedTable from '@/components/PaginatedTable.vue';
 import type { Device } from '@/models/device';
 import type { User } from '@/models/user';
 import { UserRole } from '@/models/user';
+import { Payment } from '@/models/payment';
 import { useDeviceStore } from '@/stores/devices.store';
 import { useUserStore } from '@/stores/user.store';
 
@@ -120,6 +121,35 @@ onMounted(async () => {
                 value: UserRole.Player,
               },
               {
+                name: 'Paiement',
+                key: 'payment',
+                type: 'text',
+                required: true,
+                choices: [
+                  {
+                    key: Payment.Gratuit,
+                    value: 'Gratuit',
+                  },
+                  {
+                    key: Payment.CarteAmicaliste,
+                    value: 'Carte Amicaliste',
+                  },
+                  {
+                    key: Payment.CarteNonAmicaliste,
+                    value: 'Carte non-Amicaliste',
+                  },
+                  {
+                    key: Payment.EspecesAmicaliste,
+                    value: 'Espèces Amicaliste',
+                  },
+                  {
+                    key: Payment.EspecesNonAmicaliste,
+                    value: 'Espèces non-Amicaliste',
+                  },
+                ],
+                value: Payment.CarteAmicaliste,
+              },
+              {
                 name: 'Mot de passe',
                 key: 'password',
                 type: 'password',
@@ -196,6 +226,33 @@ onMounted(async () => {
                     {
                       key: UserRole.Admin,
                       value: 'Admin',
+                    },
+                  ],
+                },
+                {
+                  name: 'Paiement',
+                  key: 'payment',
+                  type: 'text',
+                  choices: [
+                    {
+                      key: Payment.Gratuit,
+                      value: 'Gratuit',
+                    },
+                    {
+                      key: Payment.CarteAmicaliste,
+                      value: 'Carte Amicaliste',
+                    },
+                    {
+                      key: Payment.CarteNonAmicaliste,
+                      value: 'Carte non-Amicaliste',
+                    },
+                    {
+                      key: Payment.EspecesAmicaliste,
+                      value: 'Espèces Amicaliste',
+                    },
+                    {
+                      key: Payment.EspecesNonAmicaliste,
+                      value: 'Espèces non-Amicaliste',
                     },
                   ],
                 },
